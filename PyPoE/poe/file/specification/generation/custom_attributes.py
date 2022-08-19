@@ -35,9 +35,6 @@ custom_attributes = {
         ),
     },
     'GrantedEffectsPerLevel.dat': {
-        'StatInterpolationTypesKeys': CustomizedField(
-            enum='STAT_INTERPOLATION_TYPES',
-        ),
         'CooldownBypassType': CustomizedField(
             enum='CooldownBypassTypes',
         ),
