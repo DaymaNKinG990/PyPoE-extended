@@ -716,7 +716,8 @@ class MOD_DOMAIN(IntEnumOverride):
     UNVEILED = 28
     ELDRITCH_ALTAR = 29
     SENTINEL = 30
-    UNDEFINED = 31
+    MEMORY = 31
+    UNDEFINED = 32
 
     # legacy names
     MASTER = CRAFTED
@@ -799,6 +800,7 @@ class MOD_GENERATION_TYPE(IntEnumOverride):
     UNKNOWN_27 = 27
     EXARCH_IMPLICIT = 28
     EATER_IMPLICIT = 29
+    ARCHNEMESIS = 30
 
 
 class WORDLISTS(IntEnumOverride):
