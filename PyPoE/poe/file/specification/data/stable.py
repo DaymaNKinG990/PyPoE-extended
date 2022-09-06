@@ -2619,7 +2619,7 @@ specification = Specification({
                 key='ItemVisualIdentity.dat',
             ),
             Field(
-                name='HASH',
+                name='HASH32',
                 type='int',
                 unique=True,
             ),
@@ -2675,8 +2675,9 @@ specification = Specification({
                 type='bool',
             ),
             Field(
-                name='Key2',
+                name='TradeMarketCategory',
                 type='ulong',
+                key='TradeMarketCategory.dat',
             ),
         ),
     ),
@@ -5141,6 +5142,66 @@ specification = Specification({
             Field(
                 name='Unknown4',
                 type='int',
+            ),
+            Field(
+                name='TencentVideo',
+                type='ref|string',
+                file_path=True,
+                file_ext='.bk2',
+            ),
+            Field(
+                name='AttrsAsId',
+                type='ref|string',
+            ),
+            Field(
+                name='LoginScreen',
+                type='ref|string',
+                file_path=True,
+                file_ext='.ao',
+            ),
+            Field(
+                name='PlayerCritter',
+                type='ref|string',
+            ),
+            Field(
+                name='PlayerEffect',
+                type='ref|string',
+            ),
+            Field(
+                name='AfterImage',
+                type='ref|string',
+            ),
+            Field(
+                name='Key5',
+                type='ulong',
+            ),
+            Field(
+                name='Key6',
+                type='ulong',
+            ),
+            Field(
+                name='Key7',
+                type='ulong',
+            ),
+            Field(
+                name='Key8',
+                type='ulong',
+            ),
+            Field(
+                name='Unknown5',
+                type='float',
+            ),
+            Field(
+                name='Unknown6',
+                type='float',
+            ),
+            Field(
+                name='SkillTreeBackground',
+                type='ref|string',
+            ),
+            Field(
+                name='Key9',
+                type='ulong',
             ),
         ),
     ),
@@ -8090,8 +8151,8 @@ specification = Specification({
                 type='bool',
             ),
             Field(
-                name='Key11',
-                type='ulong',
+                name='Keys0',
+                type='ref|list|ulong',
             ),
         ),
     ),
@@ -12582,18 +12643,6 @@ specification = Specification({
                 type='bool',
             ),
             Field(
-                name='Unknown0',
-                type='int',
-            ),
-            Field(
-                name='Unknown1',
-                type='int',
-            ),
-            Field(
-                name='Unknown2',
-                type='int',
-            ),
-            Field(
                 name='InheritsFrom',
                 type='ref|string',
                 file_path=True,
@@ -12626,12 +12675,16 @@ specification = Specification({
                 key='HideoutDoodadCategory.dat',
             ),
             Field(
-                name='Unknown3',
+                name='Unknown0',
                 type='int',
             ),
             Field(
                 name='Flag2',
                 type='bool',
+            ),
+            Field(
+                name='Key1',
+                type='ulong',
             ),
         ),
     ),
@@ -13274,6 +13327,7 @@ specification = Specification({
             Field(
                 name='Id',
                 type='ref|string',
+                unique=True,
             ),
             Field(
                 name='Name',
@@ -17198,6 +17252,7 @@ specification = Specification({
             Field(
                 name='Id',
                 type='ref|string',
+                unique=True,
             ),
         ),
     ),
@@ -19396,6 +19451,10 @@ specification = Specification({
                 name='Unknown3',
                 type='int',
             ),
+            Field(
+                name='Key0',
+                type='ulong',
+            ),
         ),
     ),
     'NPCConversations.dat': File(
@@ -20437,6 +20496,11 @@ specification = Specification({
                 name='Stat3Value',
                 type='int',
             ),
+            Field(
+                name='AchievementItem',
+                type='ulong',
+                key='AchievementItems.dat',
+            ),
         ),
     ),
     'PassiveSkillMasteryGroups.dat': File(
@@ -20474,6 +20538,11 @@ specification = Specification({
                 name='SoundEffect',
                 type='ulong',
                 key='SoundEffects.dat',
+            ),
+            Field(
+                name='MasteryCountStat',
+                type='ulong',
+                key='Stats.dat',
             ),
         ),
     ),
@@ -23554,7 +23623,7 @@ specification = Specification({
             ),
             Field(
                 name='Unknown0',
-                type='int',
+                type='ref|string',
             ),
         ),
     ),
