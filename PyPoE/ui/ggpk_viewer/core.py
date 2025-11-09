@@ -34,8 +34,8 @@ from collections import OrderedDict
 from traceback import format_exc
 
 # Library Imports
-from PySide2.QtCore import *
-from PySide2.QtWidgets import *
+from PySide6.QtCore import *
+from PySide6.QtWidgets import *
 
 # Package Imports
 from PyPoE.poe.constants import VERSION
@@ -299,11 +299,23 @@ class SettingVersion(ComboBoxSetting):
         parent.layout.addWidget(self.combobox, row, 2)
 
     def _get_cast(self, value):
-        return getattr(VERSION, value)
+        # Handle both string names ('STABLE') and integer values (1)
+        if isinstance(value, int):
+            return VERSION(value)
+        elif isinstance(value, str):
+            # Try to get by name first
+            try:
+                return getattr(VERSION, value)
+            except AttributeError:
+                # If that fails, try to convert to int
+                return VERSION(int(value))
+        return VERSION(value)
 
     def _set_cast(self, value):
-        # Change VERSION.STABLE into STABLE
-        return str(value).split('.')[-1]
+        # Save as the name of the enum member
+        if isinstance(value, VERSION):
+            return value.name
+        return str(value)
 
 # =============================================================================
 # Functions

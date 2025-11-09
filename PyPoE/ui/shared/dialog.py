@@ -33,8 +33,8 @@ See PyPoE/LICENSE
 import re
 
 # 3rd Party
-from PySide2.QtCore import *
-from PySide2.QtWidgets import *
+from PySide6.QtCore import *
+from PySide6.QtWidgets import *
 
 # self
 from PyPoE.ui.shared.regex_widgets import RegexFlagsBox
@@ -61,19 +61,19 @@ class RegExSearchDialog(QDialog):
         self.regex_box = RegexFlagsBox(default_flags=re.IGNORECASE)
         self.master_layout.addWidget(self.regex_box)
 
-        self.option_group_box = QGroupBox(self.tr('Search Options', parent=self))
+        self.option_group_box = QGroupBox(self.tr('Search Options'))
         self.master_layout.addWidget(self.option_group_box)
 
         self.option_group_box_layout = QVBoxLayout()
         self.option_group_box.setLayout(self.option_group_box_layout)
 
-        self.option_search_directories = QCheckBox(self.tr('Search directory names', parent=self.option_group_box))
+        self.option_search_directories = QCheckBox(self.tr('Search directory names'))
         self.option_group_box_layout.addWidget(self.option_search_directories)
 
-        self.option_full_path = QCheckBox(self.tr('Show full path', parent=self.option_group_box))
+        self.option_full_path = QCheckBox(self.tr('Show full path'))
         self.option_group_box_layout.addWidget(self.option_full_path)
 
-        self.master_layout.addWidget(QLabel(self.tr('Enter Regular Expression:'), parent=self))
+        self.master_layout.addWidget(QLabel(self.tr('Enter Regular Expression:')))
 
         self.regex_input = QLineEdit()
         self.master_layout.addWidget(self.regex_input)

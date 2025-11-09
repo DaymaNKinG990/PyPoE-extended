@@ -1,0 +1,15 @@
+[project]
+name = "pypoe"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "brotli>=1.2.0",
+    "cffi>=2.0.0",
+    "configobj>=5.0.9",
+    "fnvhash>=0.2.1",
+    "pyopengl>=3.1.10",
+    "pyside6>=6.10.0",
+    "setuptools>=80.9.0",
+]
