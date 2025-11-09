@@ -89,7 +89,7 @@ def load(path=None, version=VERSION.DEFAULT, reload=False, validate=None):
         if version in (VERSION.STABLE, VERSION.BETA, VERSION.ALPHA):
             module = importlib.import_module(
                 'PyPoE.poe.file.specification.data.%s' %
-                str(version).split('.')[1].lower()
+                version.name.lower()
             )
         else:
             raise ValueError(

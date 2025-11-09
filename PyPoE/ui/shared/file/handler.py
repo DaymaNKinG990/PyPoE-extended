@@ -36,10 +36,10 @@ import struct
 from tempfile import TemporaryDirectory
 
 # 3rd Party
-from PySide2.QtCore import *
-from PySide2.QtGui import *
-from PySide2.QtOpenGL import *
-from PySide2.QtWidgets import *
+from PySide6.QtCore import *
+from PySide6.QtGui import *
+from PySide6.QtOpenGLWidgets import *
+from PySide6.QtWidgets import *
 try:
     from OpenGL import GL
 except ImportError:

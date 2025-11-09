@@ -32,7 +32,8 @@ See PyPoE/LICENSE
 # Python
 
 # 3rd Party
-from PySide2.QtWidgets import *
+from PySide6.QtGui import QAction
+from PySide6.QtWidgets import *
 
 # self
 from PyPoE.poe.file import dat
@@ -81,8 +82,14 @@ class CustomOpenAction(GGPKOpenAction):
         self._thread.start()
 
     def _ggpk_sort(self, node, depth, **kwargs):
-        sorter = lambda obj: (isinstance(obj.record, FileRecord), obj.name)
-        node.children = sorted(node.children, key=sorter)
+        sorter = lambda obj: (isinstance(getattr(obj, 'record', None), FileRecord), getattr(obj, 'name', str(obj)))
+        # Check if children is a dict or list and sort accordingly
+        if isinstance(node.children, dict):
+            # Keep as dict after sorting
+            sorted_items = sorted(node.children.items(), key=lambda item: sorter(item[1]))
+            node.children = dict(sorted_items)
+        elif isinstance(node.children, list):
+            node.children = sorted(node.children, key=sorter)
 
     def _update_ggpk_model(self):
         p = self._main_window()

@@ -30,7 +30,7 @@ See PyPoE/LICENSE
 # =============================================================================
 
 # 3rd Party
-from PySide2.QtCore import *
+from PySide6.QtCore import *
 
 # self
 from PyPoE.poe.file.dat import DatFile, DatValue
@@ -178,11 +178,23 @@ class GGPKModel(QAbstractItemModel):
         self.headers = (self.tr('Name'), self.tr('Size'), self.tr('Offset'))
         self._data = data
 
+    def _get_child_at_row(self, node, row):
+        """Get child at specific row, handling both dict and list children."""
+        if isinstance(node.children, dict):
+            return list(node.children.values())[row]
+        return node.children[row]
+
+    def _get_child_index(self, parent, child):
+        """Get index of child in parent, handling both dict and list children."""
+        if isinstance(parent.children, dict):
+            return list(parent.children.values()).index(child)
+        return parent.children.index(child)
+
     def index(self, row, column, parent=QModelIndex()):
         if not parent.isValid():
             return self.createIndex(row, column, self._data)
         node = parent.internalPointer()
-        return self.createIndex(row, column, node.children[row])
+        return self.createIndex(row, column, self._get_child_at_row(node, row))
 
     def parent(self, index):
         if not index.isValid():
@@ -191,7 +203,7 @@ class GGPKModel(QAbstractItemModel):
         if node.parent is None:
             return QModelIndex()
         else:
-            return self.createIndex(node.parent.children.index(node), 0, node.parent)
+            return self.createIndex(self._get_child_index(node.parent, node), 0, node.parent)
 
     def rowCount(self, parent=QModelIndex()):
         if not parent.isValid():
