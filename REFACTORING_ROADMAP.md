@@ -1,8 +1,8 @@
 # 🔄 PyPoE - План рефакторинга и модернизации
 
-> **Версия:** 1.0  
-> **Дата:** 10 ноября 2024  
-> **Статус проекта:** Alpha (1.0.0a0)  
+> **Версия:** 1.0
+> **Дата:** 10 ноября 2024
+> **Статус проекта:** Alpha (1.0.0a0)
 > **Текущее состояние:** Работоспособный, но требует модернизации
 
 ---
@@ -161,7 +161,7 @@ pypoe_exporter --version
 # Если есть тестовые данные:
 pypoe_exporter -t item -f json Data/
 
-# 3. GUI функциональность  
+# 3. GUI функциональность
 # Запустить и проверить основное окно:
 uv run -m PyPoE.ui
 # Manual: Открыть GGPK файл, проверить дерево файлов
@@ -179,8 +179,8 @@ pytest tests/e2e/ -v --headed  # Показать окна
 
 ## 🔷 ФАЗА 1: Фундамент и инфраструктура
 
-**Время:** 1-2 недели  
-**Риск:** Низкий  
+**Время:** 1-2 недели
+**Риск:** Низкий
 **Приоритет:** HIGH
 
 ### ⚠️ TDD Workflow для всех задач Фазы 1:
@@ -427,28 +427,28 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    
+
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
-    
+
     - name: Install uv
       run: pip install uv
-    
+
     - name: Install dependencies
       run: |
         uv pip install -e .[dev]
-    
+
     - name: Run linters
       run: |
         ruff check .
         mypy PyPoE
-    
+
     - name: Run tests
       run: |
         pytest --cov --cov-report=xml
-    
+
     - name: Upload coverage
       uses: codecov/codecov-action@v3
       if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.12'
@@ -485,12 +485,12 @@ def configure_logging(
 ) -> None:
     """
     Configure structured logging for PyPoE.
-    
+
     Args:
         log_level: Logging level (DEBUG, INFO, WARNING, ERROR)
         log_file: Optional file to write logs to
         json_logs: If True, output JSON format (useful for parsing)
-    
+
     Example:
         >>> from PyPoE.shared.logging import configure_logging
         >>> configure_logging(log_level="DEBUG")
@@ -501,12 +501,12 @@ def configure_logging(
         structlog.processors.TimeStamper(fmt="iso"),
         structlog.processors.StackInfoRenderer(),
     ]
-    
+
     if json_logs:
         processors.append(structlog.processors.JSONRenderer())
     else:
         processors.append(structlog.dev.ConsoleRenderer())
-    
+
     structlog.configure(
         processors=processors,
         wrapper_class=structlog.make_filtering_bound_logger(log_level),
@@ -540,8 +540,8 @@ logger.warning("invalid_tag", tag=tag, offset=offset)
 
 ## 🔷 ФАЗА 2: Рефакторинг Core библиотеки
 
-**Время:** 2-3 недели  
-**Риск:** Средний  
+**Время:** 2-3 недели
+**Риск:** Средний
 **Приоритет:** HIGH
 
 ### ⚠️ TDD Workflow для всех задач Фазы 2:
@@ -655,11 +655,11 @@ from PyPoE.poe.file.specification.fields import Specification, File, Field, Virt
 
 class SpecificationRepository(Protocol):
     """Protocol for specification repositories."""
-    
+
     def get_spec(self, version: VERSION) -> Specification:
         """Get specification for given version."""
         ...
-    
+
     def get_file_spec(self, filename: str, version: VERSION) -> File:
         """Get specification for specific file."""
         ...
@@ -667,17 +667,17 @@ class SpecificationRepository(Protocol):
 
 class SQLiteSpecRepository:
     """SQLite-based specification repository."""
-    
+
     def __init__(self, db_path: Path):
         """
         Initialize repository.
-        
+
         Args:
             db_path: Path to SQLite database file
         """
         self.db_path = db_path
         self._conn: sqlite3.Connection | None = None
-    
+
     @property
     def conn(self) -> sqlite3.Connection:
         """Lazy database connection."""
@@ -685,17 +685,17 @@ class SQLiteSpecRepository:
             self._conn = sqlite3.connect(self.db_path)
             self._conn.row_factory = sqlite3.Row
         return self._conn
-    
+
     def get_spec(self, version: VERSION) -> Specification:
         """
         Load complete specification from database.
-        
+
         Args:
             version: Game version (STABLE, BETA, ALPHA)
-            
+
         Returns:
             Complete specification
-            
+
         Example:
             >>> repo = SQLiteSpecRepository(Path("data/specifications/stable.db"))
             >>> spec = repo.get_spec(VERSION.STABLE)
@@ -703,35 +703,35 @@ class SQLiteSpecRepository:
             389
         """
         version_str = version.name.lower()
-        
+
         cursor = self.conn.cursor()
         cursor.execute(
             "SELECT filename FROM files WHERE version = ?",
             (version_str,)
         )
-        
+
         files = {}
         for row in cursor:
             filename = row['filename']
             files[filename] = self.get_file_spec(filename, version)
-        
+
         return Specification(files)
-    
+
     def get_file_spec(self, filename: str, version: VERSION) -> File:
         """
         Load specification for specific .dat file.
-        
+
         Args:
             filename: Name of .dat file (e.g., 'ActiveSkills.dat')
             version: Game version
-            
+
         Returns:
             File specification
         """
         version_str = version.name.lower()
-        
+
         cursor = self.conn.cursor()
-        
+
         # Get file info
         cursor.execute(
             "SELECT id FROM files WHERE filename = ? AND version = ?",
@@ -740,28 +740,28 @@ class SQLiteSpecRepository:
         row = cursor.fetchone()
         if not row:
             raise ValueError(f"File {filename} not found for version {version_str}")
-        
+
         file_id = row['id']
-        
+
         # Get fields
         cursor.execute(
             """
-            SELECT name, type, description, key_type, key_offset, 
+            SELECT name, type, description, key_type, key_offset,
                    display, display_type
-            FROM fields 
+            FROM fields
             WHERE file_id = ?
             ORDER BY field_order
             """,
             (file_id,)
         )
-        
+
         fields = []
         for field_row in cursor:
             field_kwargs = {
                 'name': field_row['name'],
                 'type': field_row['type'],
             }
-            
+
             if field_row['description']:
                 field_kwargs['description'] = field_row['description']
             if field_row['key_type']:
@@ -772,15 +772,15 @@ class SQLiteSpecRepository:
                 field_kwargs['display'] = field_row['display']
             if field_row['display_type']:
                 field_kwargs['display_type'] = field_row['display_type']
-            
+
             fields.append(Field(**field_kwargs))
-        
+
         # Get virtual fields
         cursor.execute(
             "SELECT name, fields, zip FROM virtual_fields WHERE file_id = ?",
             (file_id,)
         )
-        
+
         virtual_fields = []
         for vf_row in cursor:
             virtual_fields.append(VirtualField(
@@ -788,46 +788,46 @@ class SQLiteSpecRepository:
                 fields=json.loads(vf_row['fields']),
                 zip=bool(vf_row['zip'])
             ))
-        
+
         return File(
             fields=tuple(fields),
             virtual_fields=tuple(virtual_fields) if virtual_fields else None
         )
-    
+
     def close(self):
         """Close database connection."""
         if self._conn:
             self._conn.close()
             self._conn = None
-    
+
     def __enter__(self):
         return self
-    
+
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.close()
 
 
 class CachedSpecRepository:
     """Caching wrapper for specification repositories."""
-    
+
     def __init__(self, repository: SpecificationRepository):
         self._repo = repository
         self._cache: dict[VERSION, Specification] = {}
         self._file_cache: dict[tuple[str, VERSION], File] = {}
-    
+
     def get_spec(self, version: VERSION) -> Specification:
         """Get specification with caching."""
         if version not in self._cache:
             self._cache[version] = self._repo.get_spec(version)
         return self._cache[version]
-    
+
     def get_file_spec(self, filename: str, version: VERSION) -> File:
         """Get file specification with caching."""
         key = (filename, version)
         if key not in self._file_cache:
             self._file_cache[key] = self._repo.get_file_spec(filename, version)
         return self._file_cache[key]
-    
+
     def clear_cache(self):
         """Clear all caches."""
         self._cache.clear()
@@ -848,20 +848,20 @@ from PyPoE.poe.file.specification import load
 def migrate_version(version: VERSION, output_db: Path):
     """Migrate one version to database."""
     print(f"Migrating {version.name}...")
-    
+
     # Load old specification
     spec = load(version=version)
-    
+
     # Create database
     conn = sqlite3.connect(output_db)
-    
+
     # Load schema
     schema_path = Path(__file__).parent.parent / "data" / "specifications" / "schema.sql"
     with open(schema_path) as f:
         conn.executescript(f.read())
-    
+
     version_str = version.name.lower()
-    
+
     # Insert files and fields
     for filename, file_spec in spec.items():
         cursor = conn.cursor()
@@ -870,13 +870,13 @@ def migrate_version(version: VERSION, output_db: Path):
             (filename, version_str)
         )
         file_id = cursor.lastrowid
-        
+
         # Insert fields
         for order, field in enumerate(file_spec.fields):
             cursor.execute(
                 """
-                INSERT INTO fields 
-                (file_id, name, type, description, key_type, key_offset, 
+                INSERT INTO fields
+                (file_id, name, type, description, key_type, key_offset,
                  display, display_type, field_order)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
@@ -892,7 +892,7 @@ def migrate_version(version: VERSION, output_db: Path):
                     order
                 )
             )
-        
+
         # Insert virtual fields
         if hasattr(file_spec, 'virtual_fields') and file_spec.virtual_fields:
             for vf in file_spec.virtual_fields:
@@ -908,9 +908,9 @@ def migrate_version(version: VERSION, output_db: Path):
                         vf.zip
                     )
                 )
-        
+
         conn.commit()
-    
+
     conn.close()
     print(f"✅ {version.name} migrated to {output_db}")
 
@@ -918,11 +918,11 @@ def main():
     """Main migration script."""
     output_dir = Path("data/specifications")
     output_dir.mkdir(parents=True, exist_ok=True)
-    
+
     migrate_version(VERSION.STABLE, output_dir / "stable.db")
     migrate_version(VERSION.BETA, output_dir / "beta.db")
     migrate_version(VERSION.ALPHA, output_dir / "alpha.db")
-    
+
     print("\n✅ All specifications migrated successfully!")
     print(f"📁 Location: {output_dir.absolute()}")
 
@@ -949,10 +949,10 @@ logger = get_logger(__name__)
 class DatFile:
     """
     DAT file parser with dependency injection.
-    
+
     Args:
         spec_provider: Specification provider (REQUIRED)
-        
+
     Example:
         >>> from PyPoE.poe.file.factory import FileParserFactory
         >>> factory = FileParserFactory.default()
@@ -960,52 +960,52 @@ class DatFile:
         >>> with open("ActiveSkills.dat", "rb") as f:
         ...     dat.read(f, "ActiveSkills.dat", VERSION.STABLE)
     """
-    
+
     def __init__(self, spec_provider: SpecificationProvider):
         """
         Initialize DAT parser.
-        
+
         Args:
             spec_provider: Required specification provider
-        
+
         Raises:
             TypeError: If spec_provider is None
         """
         if spec_provider is None:
             raise TypeError("spec_provider is required (no default)")
-        
+
         self._spec_provider = spec_provider
         self._rows: list[dict] = []
         self._filename: str | None = None
         logger.debug("dat_parser_initialized")
-    
+
     def read(
-        self, 
-        buffer: BinaryIO, 
-        filename: str, 
+        self,
+        buffer: BinaryIO,
+        filename: str,
         version: VERSION = VERSION.STABLE
     ) -> None:
         """
         Read and parse DAT file.
-        
+
         Args:
             buffer: Binary file buffer
             filename: Name of .dat file
             version: Game version
-        
+
         Raises:
             ValueError: If specification not found
         """
         logger.info("reading_dat_file", filename=filename, version=version.name)
         self._filename = filename
-        
+
         # Get specification from provider
         file_spec = self._spec_provider.get_file_spec(filename, version)
-        
+
         # Parse file
         self._parse(buffer, file_spec)
         logger.info("dat_file_parsed", filename=filename, rows=len(self._rows))
-    
+
     def _parse(self, buffer: BinaryIO, spec) -> None:
         """Parse DAT file using specification."""
         # ... existing parsing logic (unchanged) ...
@@ -1081,10 +1081,10 @@ def test_dat_file_accepts_spec_provider(spec_repository):
 def test_dat_file_uses_injected_provider(spec_repository, sample_dat):
     """DatFile should use injected provider for specifications."""
     dat = DatFile(spec_provider=spec_repository)
-    
+
     with open(sample_dat, 'rb') as f:
         dat.read(f, "ActiveSkills.dat", VERSION.STABLE)
-    
+
     # Verify provider was called
     assert len(dat) > 0
 
@@ -1102,18 +1102,18 @@ class SpecificationProvider(Protocol):
 
 class DatFile:
     """DAT file parser with dependency injection."""
-    
+
     def __init__(self, spec_provider: SpecificationProvider):
         if spec_provider is None:
             raise TypeError("spec_provider is required")
         self._spec_provider = spec_provider
         self._rows = []
-    
+
     def read(self, buffer: BinaryIO, filename: str, version: VERSION) -> None:
         """Read DAT file using injected specification provider."""
         file_spec = self._spec_provider.get_file_spec(filename, version)
         self._parse(buffer, file_spec)
-    
+
     def _parse(self, buffer: BinaryIO, spec) -> None:
         """Parse logic (unchanged from original)."""
         # ... existing parsing logic ...
@@ -1144,39 +1144,39 @@ from PyPoE.poe.file.specification.repository import (
 class FileParserFactory:
     """
     Factory for creating file parsers with proper dependencies.
-    
+
     Example:
         >>> factory = FileParserFactory.default()
         >>> dat_parser = factory.create_dat_parser()
         >>> ggpk_parser = factory.create_ggpk_parser()
     """
-    
+
     def __init__(self, spec_repository: SQLiteSpecRepository):
         self._spec_repo = CachedSpecRepository(spec_repository)
-    
+
     @classmethod
     def default(cls, version: VERSION = VERSION.STABLE) -> 'FileParserFactory':
         """Create factory with default configuration."""
         db_name = f"{version.name.lower()}.db"
         db_path = Path(__file__).parent.parent.parent / "data" / "specifications" / db_name
-        
+
         if not db_path.exists():
             raise FileNotFoundError(
                 f"Specification database not found: {db_path}\n"
                 "Run: python scripts/migrate_specs_to_db.py"
             )
-        
+
         repo = SQLiteSpecRepository(db_path)
         return cls(repo)
-    
+
     def create_dat_parser(self) -> DatFile:
         """Create DAT file parser."""
         return DatFile(spec_provider=self._spec_repo)
-    
+
     def create_ggpk_parser(self) -> GGPKFile:
         """Create GGPK file parser."""
         return GGPKFile()
-    
+
     # Добавить другие парсеры по мере необходимости
 ```
 
@@ -1212,10 +1212,10 @@ dat = DatFile(spec_provider=repo)
 def main():
     """CLI entry point with DI."""
     from PyPoE.poe.file.factory import FileParserFactory
-    
+
     # Создать factory один раз
     factory = FileParserFactory.default()
-    
+
     # Передать в экспортеры
     exporter = WikiExporter(parser_factory=factory)
     exporter.run()
@@ -1225,16 +1225,16 @@ def main():
 def main():
     """GUI entry point with DI."""
     from PyPoE.poe.file.factory import FileParserFactory
-    
+
     app = QApplication(sys.argv)
-    
+
     # Создать factory
     factory = FileParserFactory.default()
-    
+
     # Передать в UI
     window = GGPKViewerWindow(parser_factory=factory)
     window.show()
-    
+
     sys.exit(app.exec())
 ```
 
@@ -1267,13 +1267,13 @@ from PyPoE.poe.file.specification.repository import SpecificationProvider
 class DatValue:
     """
     Value from DAT file.
-    
+
     Attributes:
         value: The actual value
         is_pointer: Whether value is a pointer to data section
         is_list: Whether value is a list
     """
-    
+
     def __init__(
         self,
         value: Any,
@@ -1284,17 +1284,17 @@ class DatValue:
         self.value = value
         self.is_pointer = is_pointer
         self.is_list = is_list
-    
+
     def get_value(self, *, dereference: bool = True) -> Any:
         """
         Get the actual value, optionally dereferencing pointers.
-        
+
         Args:
             dereference: If True, follow pointers to get actual data
-            
+
         Returns:
             The value
-            
+
         Example:
             >>> val = DatValue(42)
             >>> val.get_value()
@@ -1308,10 +1308,10 @@ class DatValue:
 class DatFile(AbstractFileReadOnly):
     """
     Parser for Path of Exile .dat files.
-    
+
     Args:
         spec_provider: Provider for file specifications
-        
+
     Example:
         >>> from PyPoE.poe.file.factory import FileParserFactory
         >>> factory = FileParserFactory.default()
@@ -1321,13 +1321,13 @@ class DatFile(AbstractFileReadOnly):
         >>> len(dat)  # Number of rows
         423
     """
-    
+
     def __init__(self, spec_provider: SpecificationProvider) -> None:
         super().__init__()
         self._spec_provider = spec_provider
         self._rows: List[Dict[str, DatValue]] = []
         self._filename: Optional[str] = None
-    
+
     def read(
         self,
         buffer: BinaryIO,
@@ -1336,12 +1336,12 @@ class DatFile(AbstractFileReadOnly):
     ) -> None:
         """
         Read and parse DAT file.
-        
+
         Args:
             buffer: Binary file buffer
             filename: Name of the .dat file (e.g., "ActiveSkills.dat")
             version: Game version to use for specification
-            
+
         Raises:
             ValueError: If file specification not found
             ParserError: If file is malformed
@@ -1349,20 +1349,20 @@ class DatFile(AbstractFileReadOnly):
         self._filename = filename
         file_spec = self._spec_provider.get_file_spec(filename, version)
         self._parse(buffer, file_spec)
-    
+
     def _parse(self, buffer: BinaryIO, spec: File) -> None:
         """Internal parsing logic."""
         # ... implementation ...
         pass
-    
+
     def __len__(self) -> int:
         """Return number of rows."""
         return len(self._rows)
-    
+
     def __getitem__(self, index: int) -> Dict[str, DatValue]:
         """Get row by index."""
         return self._rows[index]
-    
+
     def __iter__(self):
         """Iterate over rows."""
         return iter(self._rows)
@@ -1379,8 +1379,8 @@ mypy PyPoE/poe/file/dat.py
 
 ## 🔷 ФАЗА 3: Разделение больших файлов
 
-**Время:** 1-2 недели  
-**Риск:** Низкий  
+**Время:** 1-2 недели
+**Риск:** Низкий
 **Приоритет:** MEDIUM
 
 ### Задача 3.1: Разбить item.py (3178 строк)
@@ -1416,10 +1416,10 @@ def test_skill_gem_export_format():
     """Test that skill gem export produces valid wiki format."""
     # Arrange
     gem_data = {...}  # Sample gem data
-    
+
     # Act
     result = _skill_gem(gem_data)
-    
+
     # Assert
     assert "{{Skill gem" in result
     assert "level_requirement" in result
@@ -1456,21 +1456,21 @@ from typing import Dict, Any
 
 class BaseItemParser(ABC):
     """Base class for all item exporters."""
-    
+
     def __init__(self, config: Dict[str, Any]):
         self.config = config
         self.logger = get_logger(self.__class__.__name__)
-    
+
     @abstractmethod
     def can_handle(self, item_data: Dict[str, Any]) -> bool:
         """Check if this exporter can handle given item."""
         ...
-    
+
     @abstractmethod
     def export(self, item_data: Dict[str, Any]) -> str:
         """Export item to wiki format."""
         ...
-    
+
     def _format_stats(self, stats: List) -> str:
         """Common stat formatting logic."""
         # Общая логика
@@ -1483,43 +1483,43 @@ from .base import BaseItemParser
 class SkillGemExporter(BaseItemParser):
     """
     Exporter for skill gems.
-    
+
     Handles active skill gems, support gems, and vaal gems.
     """
-    
+
     def can_handle(self, item_data: Dict[str, Any]) -> bool:
         """Check if item is a skill gem."""
         return item_data.get('class') == 'Skill Gem'
-    
+
     def export(self, item_data: Dict[str, Any]) -> str:
         """
         Export skill gem to wiki format.
-        
+
         Old function: _skill_gem() - 178 lines
         Now: Structured class with helper methods
         """
         self.logger.info("exporting_skill_gem", name=item_data['name'])
-        
+
         # Разбить большую функцию на маленькие методы
         stats = self._get_gem_stats(item_data)
         levels = self._get_gem_levels(item_data)
         quality = self._get_quality_bonuses(item_data)
-        
+
         return self._render_template(stats, levels, quality)
-    
+
     def _get_gem_stats(self, data: Dict) -> Dict:
         """Extract gem stats."""
         # Логика из оригинальной функции
         pass
-    
+
     def _get_gem_levels(self, data: Dict) -> List[Dict]:
         """Get level progression."""
         pass
-    
+
     def _get_quality_bonuses(self, data: Dict) -> Dict:
         """Get quality bonuses."""
         pass
-    
+
     def _render_template(self, stats, levels, quality) -> str:
         """Render wiki template."""
         pass
@@ -1559,8 +1559,8 @@ PyPoE/cli/exporter/wiki/parsers/core/
 
 ## 🔷 ФАЗА 4: Улучшение UI
 
-**Время:** 1 неделя  
-**Риск:** Низкий  
+**Время:** 1 неделя
+**Риск:** Низкий
 **Приоритет:** MEDIUM
 
 ### Задача 4.1: Применить MVC архитектуру
@@ -1626,48 +1626,48 @@ from ..models.ggpk_model import GGPKNode
 class GGPKViewModel(QObject):
     """
     ViewModel для GGPK Viewer.
-    
+
     Отвечает за бизнес-логику, не знает о Qt виджетах.
-    
+
     Signals:
         ggpk_loaded: Emitted when GGPK file is loaded
         node_selected: Emitted when node is selected
         error_occurred: Emitted when error occurs
     """
-    
+
     ggpk_loaded = Signal(GGPKNode)
     node_selected = Signal(GGPKNode)
     error_occurred = Signal(str)
-    
+
     def __init__(self):
         super().__init__()
         self._ggpk: Optional[GGPKFile] = None
         self._root_node: Optional[GGPKNode] = None
         self._current_node: Optional[GGPKNode] = None
-    
+
     def load_ggpk(self, file_path: Path) -> None:
         """
         Load GGPK file.
-        
+
         Args:
             file_path: Path to Content.ggpk
         """
         try:
             self._ggpk = GGPKFile()
             self._ggpk.read(file_path.open('rb'))
-            
+
             # Convert to model
             self._root_node = self._convert_to_model(self._ggpk.directory)
-            
+
             self.ggpk_loaded.emit(self._root_node)
         except Exception as e:
             self.error_occurred.emit(f"Failed to load GGPK: {e}")
-    
+
     def select_node(self, node: GGPKNode) -> None:
         """Select a node in the tree."""
         self._current_node = node
         self.node_selected.emit(node)
-    
+
     def extract_node(self, node: GGPKNode, output_path: Path) -> None:
         """Extract node to filesystem."""
         try:
@@ -1675,7 +1675,7 @@ class GGPKViewModel(QObject):
             pass
         except Exception as e:
             self.error_occurred.emit(f"Extraction failed: {e}")
-    
+
     def _convert_to_model(self, ggpk_node) -> GGPKNode:
         """Convert GGPK internal node to model."""
         # Конвертация
@@ -1693,50 +1693,50 @@ from .file_viewer import FileViewer
 class GGPKViewerWindow(QMainWindow):
     """
     Main window for GGPK Viewer.
-    
+
     Только UI, вся логика в ViewModel.
     """
-    
+
     def __init__(self, viewmodel: GGPKViewModel):
         super().__init__()
         self.vm = viewmodel
         self._setup_ui()
         self._connect_signals()
-    
+
     def _setup_ui(self) -> None:
         """Setup user interface."""
         self.setWindowTitle("GGPK Viewer")
-        
+
         # Главный splitter
         splitter = QSplitter(Qt.Vertical)
-        
+
         # Tree view
         self.tree = GGPKTreeView()
         splitter.addWidget(self.tree)
-        
+
         # File viewer
         self.file_viewer = FileViewer()
         splitter.addWidget(self.file_viewer)
-        
+
         self.setCentralWidget(splitter)
-    
+
     def _connect_signals(self) -> None:
         """Connect ViewModel signals to UI updates."""
         self.vm.ggpk_loaded.connect(self._on_ggpk_loaded)
         self.vm.node_selected.connect(self._on_node_selected)
         self.vm.error_occurred.connect(self._on_error)
-        
+
         self.tree.node_clicked.connect(self.vm.select_node)
-    
+
     def _on_ggpk_loaded(self, root_node):
         """Handle GGPK loaded."""
         self.tree.set_root(root_node)
         self.statusBar().showMessage("GGPK loaded successfully")
-    
+
     def _on_node_selected(self, node):
         """Handle node selection."""
         self.file_viewer.show_file(node)
-    
+
     def _on_error(self, message: str):
         """Handle errors."""
         self.statusBar().showMessage(f"Error: {message}")
@@ -1762,12 +1762,12 @@ from PySide6.QtCore import QObject, Signal, QRunnable, QThreadPool
 
 class LoadGGPKTask(QRunnable):
     """Background task for loading GGPK."""
-    
+
     def __init__(self, file_path: Path, callback):
         super().__init__()
         self.file_path = file_path
         self.callback = callback
-    
+
     def run(self):
         """Run in background thread."""
         try:
@@ -1780,26 +1780,26 @@ class LoadGGPKTask(QRunnable):
 
 class GGPKViewModel(QObject):
     """ViewModel with async support."""
-    
+
     loading_started = Signal()
     loading_progress = Signal(int)  # 0-100
     loading_finished = Signal()
-    
+
     def __init__(self):
         super().__init__()
         self._thread_pool = QThreadPool.globalInstance()
-    
+
     def load_ggpk_async(self, file_path: Path) -> None:
         """Load GGPK file asynchronously."""
         self.loading_started.emit()
-        
+
         task = LoadGGPKTask(file_path, self._on_load_complete)
         self._thread_pool.start(task)
-    
+
     def _on_load_complete(self, ggpk, error):
         """Handle load completion."""
         self.loading_finished.emit()
-        
+
         if error:
             self.error_occurred.emit(str(error))
         else:
@@ -1810,22 +1810,22 @@ class GGPKViewModel(QObject):
 class GGPKViewerWindow(QMainWindow):
     def _setup_ui(self):
         # ... existing code ...
-        
+
         self.progress_bar = QProgressBar()
         self.progress_bar.setVisible(False)
         self.statusBar().addPermanentWidget(self.progress_bar)
-    
+
     def _connect_signals(self):
         super()._connect_signals()
-        
+
         self.vm.loading_started.connect(self._show_progress)
         self.vm.loading_progress.connect(self.progress_bar.setValue)
         self.vm.loading_finished.connect(self._hide_progress)
-    
+
     def _show_progress(self):
         self.progress_bar.setVisible(True)
         self.progress_bar.setRange(0, 0)  # Indeterminate
-    
+
     def _hide_progress(self):
         self.progress_bar.setVisible(False)
 ```
@@ -1834,8 +1834,8 @@ class GGPKViewerWindow(QMainWindow):
 
 ## 🔷 ФАЗА 5: Тестирование и документация
 
-**Время:** Ongoing  
-**Риск:** Низкий  
+**Время:** Ongoing
+**Риск:** Низкий
 **Приоритет:** HIGH
 
 ### Задача 5.1: Улучшить тестовое покрытие
@@ -1879,17 +1879,17 @@ def sample_dat_file():
 def test_dat_file_reading(spec_repository, sample_dat_file):
     """Test basic DAT file reading."""
     dat = DatFile(spec_provider=spec_repository)
-    
+
     with open(sample_dat_file, 'rb') as f:
         dat.read(f, "Sample.dat", VERSION.STABLE)
-    
+
     assert len(dat) > 0
     assert dat[0] is not None
 
 def test_dat_file_invalid_format(spec_repository):
     """Test error handling for invalid files."""
     dat = DatFile(spec_provider=spec_repository)
-    
+
     with pytest.raises(ParserError):
         dat.read(BytesIO(b"invalid data"), "Test.dat", VERSION.STABLE)
 
@@ -1911,15 +1911,15 @@ def test_full_parsing_pipeline():
     # 1. Load GGPK
     ggpk = GGPKFile()
     ggpk.read("Content.ggpk")
-    
+
     # 2. Extract DAT file
     dat_data = ggpk.extract("Data/ActiveSkills.dat")
-    
+
     # 3. Parse DAT
     factory = FileParserFactory.default()
     dat = factory.create_dat_parser()
     dat.read(BytesIO(dat_data), "ActiveSkills.dat")
-    
+
     # 4. Verify data
     assert len(dat) > 0
     # Check known values...
@@ -1937,11 +1937,11 @@ def test_ggpk_viewer_open_file(qtbot):
     vm = GGPKViewModel()
     window = GGPKViewerWindow(vm)
     qtbot.addWidget(window)
-    
+
     # Trigger file open
     with qtbot.waitSignal(vm.ggpk_loaded, timeout=10000):
         vm.load_ggpk(Path("test_content.ggpk"))
-    
+
     # Verify UI updated
     assert window.tree.model().rowCount() > 0
 ```
@@ -1965,19 +1965,19 @@ def parse_dat_file(
 ) -> DatFile:
     """
     Parse a Path of Exile .dat file.
-    
+
     Args:
         file_path: Path to the .dat file
         version: Game version for specification lookup
         validate: If True, validate data against specification
-        
+
     Returns:
         Parsed DatFile object containing all rows
-        
+
     Raises:
         FileNotFoundError: If file doesn't exist
         ParserError: If file is malformed or validation fails
-        
+
     Example:
         >>> from PyPoE.poe.file import parse_dat_file
         >>> from PyPoE.poe.constants import VERSION
@@ -1989,7 +1989,7 @@ def parse_dat_file(
         423
         >>> dat[0]['Id']
         'Metadata/Items/Gems/SkillGemArcticArmour'
-        
+
     Note:
         Large files may take significant time to parse.
         Consider using async version for UI applications.
@@ -2236,7 +2236,7 @@ uv run -m PyPoE.ui
 # Задача 2.2: Dependency Injection
 1. Написать tests/unit/poe/file/test_dat_dependency_injection.py
 2. pytest tests/unit/poe/file/test_dat_dependency_injection.py  # FAIL
-3. Реализовать DatFile(spec_provider=...) 
+3. Реализовать DatFile(spec_provider=...)
 4. Создать FileParserFactory
 5. Обновить CLI: pypoe_exporter использует factory
 6. Обновить GUI: PyPoE.ui использует factory
@@ -2271,19 +2271,19 @@ uv run -m PyPoE.ui
   - [ ] ✅ pytest tests/ - PASS
   - [ ] ✅ CLI работает
   - [ ] ✅ GUI работает
-  
+
 - [ ] 1.2 Настроить линтеры
   - [ ] .pre-commit-config.yaml
   - [ ] ruff check . - 0 ошибок
   - [ ] ✅ pytest tests/ - PASS
   - [ ] ✅ CLI работает
   - [ ] ✅ GUI работает
-  
+
 - [ ] 1.3 Настроить CI/CD
   - [ ] .github/workflows/tests.yml
   - [ ] GitHub Actions проходит
   - [ ] ✅ pytest tests/ - PASS
-  
+
 - [ ] 1.4 Добавить логирование
   - [ ] PyPoE/shared/logging.py
   - [ ] Заменить print() в 50%+ файлов
@@ -2301,7 +2301,7 @@ uv run -m PyPoE.ui
   - [ ] ✅ CLI работает
   - [ ] ✅ GUI работает
   - [ ] Удалить старые .py specs
-  
+
 - [ ] 2.2 Dependency Injection
   - [ ] RED: Написать tests/test_dat_dependency_injection.py
   - [ ] GREEN: DatFile(spec_provider=...)
@@ -2312,7 +2312,7 @@ uv run -m PyPoE.ui
   - [ ] ✅ pytest tests/ - PASS
   - [ ] ✅ pypoe_exporter --help - работает
   - [ ] ✅ uv run -m PyPoE.ui - работает
-  
+
 - [ ] 2.3 Type Hints
   - [ ] Добавить аннотации в DatFile
   - [ ] Добавить аннотации в GGPKFile
@@ -2325,12 +2325,12 @@ uv run -m PyPoE.ui
   - [ ] REFACTOR: Создать item/__init__.py, base.py, skill_gem.py...
   - [ ] ✅ pytest tests/ - PASS (поведение не изменилось)
   - [ ] ✅ pypoe_exporter - работает
-  
+
 - [ ] 3.2 Разбить translations.py
   - [ ] RED: Написать тесты
   - [ ] REFACTOR: Разбить на модули
   - [ ] ✅ pytest tests/ - PASS
-  
+
 - [ ] 3.3 Разбить parser.py
   - [ ] RED: Написать тесты
   - [ ] REFACTOR: Разбить на модули
@@ -2343,7 +2343,7 @@ uv run -m PyPoE.ui
   - [ ] REFACTOR: Разделить UI и логику
   - [ ] ✅ pytest tests/ - PASS
   - [ ] ✅ uv run -m PyPoE.ui - работает
-  
+
 - [ ] 4.2 Async операции
   - [ ] RED: Тесты для async загрузки
   - [ ] GREEN: QThreadPool для GGPK loading
@@ -2354,11 +2354,11 @@ uv run -m PyPoE.ui
 - [ ] 5.1 Unit тесты (>80% coverage)
   - [ ] tests/unit/poe/file/
   - [ ] pytest --cov - >80%
-  
+
 - [ ] 5.2 Integration тесты
   - [ ] tests/integration/
   - [ ] Полный pipeline: GGPK → DAT → Wiki
-  
+
 - [ ] 5.3 Документация
   - [ ] Docstrings для всех public API
   - [ ] docs/tutorials/
@@ -2460,6 +2460,5 @@ git add . && git commit -m "Fix: ..."
 
 ---
 
-**Последнее обновление:** 10 ноября 2024  
+**Последнее обновление:** 10 ноября 2024
 **Версия документа:** 2.0 (TDD edition)
-
