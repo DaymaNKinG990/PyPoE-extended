@@ -1,15 +1,148 @@
+[build-system]
+requires = ["hatchling>=1.18"]
+build-backend = "hatchling.build"
+
 [project]
 name = "pypoe"
-version = "0.1.0"
-description = "Add your description here"
+version = "1.0.0a0"
+description = "Python Tools for Path of Exile"
 readme = "README.md"
-requires-python = ">=3.13"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+authors = [
+    {name = "[#OMEGA] - K2", email = "omegak2@gmx.de"},
+]
+keywords = ["path of exile", "poe", "game data", "parser"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: End Users/Desktop",
+    "Topic :: Games/Entertainment",
+    "Topic :: Software Development :: Libraries",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3 :: Only",
+]
+
 dependencies = [
-    "brotli>=1.2.0",
-    "cffi>=2.0.0",
     "configobj>=5.0.9",
+    "brotli>=1.1.0",
     "fnvhash>=0.2.1",
-    "pyopengl>=3.1.10",
-    "pyside6>=6.10.0",
-    "setuptools>=80.9.0",
+    "cffi>=1.16.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.0",
+    "pytest-cov>=4.1.0",
+    "mypy>=1.7.0",
+    "ruff>=0.1.9",
+    "sphinx>=7.2.0",
+]
+cli = [
+    "colorama>=0.4.6",
+    "graphviz>=0.20.1",
+    "tqdm>=4.66.0",
+    "mwclient>=0.10.1",
+    "mwparserfromhell>=0.6.4",
+    "rapidfuzz>=3.5.0",
+]
+ui = [
+    "pyside6>=6.6.0",
+]
+ui-extra = [
+    "pyopengl>=3.1.7",
+]
+full = [
+    "pytest>=7.4.0",
+    "pytest-cov>=4.1.0",
+    "mypy>=1.7.0",
+    "ruff>=0.1.9",
+    "sphinx>=7.2.0",
+    "colorama>=0.4.6",
+    "graphviz>=0.20.1",
+    "tqdm>=4.66.0",
+    "mwclient>=0.10.1",
+    "mwparserfromhell>=0.6.4",
+    "rapidfuzz>=3.5.0",
+    "pyside6>=6.6.0",
+    "pyopengl>=3.1.7",
+]
+
+[project.scripts]
+pypoe_exporter = "PyPoE.cli.exporter.core:main"
+pypoe_ui = "PyPoE.ui:main"
+
+[project.urls]
+Homepage = "https://github.com/DaymaNKinG990/PyPoE-extended"
+Documentation = "http://omegak2.net/poe/PyPoE/"
+Repository = "https://github.com/DaymaNKinG990/PyPoE-extended.git"
+Issues = "https://github.com/DaymaNKinG990/PyPoE-extended/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["PyPoE"]
+
+[tool.hatch.build.targets.wheel.shared-data]
+"PyPoE/_data" = "share/pypoe/_data"
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "N",   # pep8-naming
+    "UP",  # pyupgrade
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "SIM", # flake8-simplify
+]
+ignore = [
+    "E501",  # line too long (handled by formatter)
+]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]  # Allow unused imports in __init__
+"tests/**/*.py" = ["S101"]  # Allow assert in tests
+
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false  # Включим позже поэтапно
+check_untyped_defs = true
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-ra -q --strict-markers"
+
+[tool.coverage.run]
+source = ["PyPoE"]
+omit = [
+    "*/tests/*",
+    "*/test_*.py",
+    "*/__pycache__/*",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
 ]
