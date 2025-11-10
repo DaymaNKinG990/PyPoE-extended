@@ -38,7 +38,7 @@ class StructuredFormatter(logging.Formatter):
         base_msg = super().format(record)
 
         # Add structured data if present
-        if hasattr(record, 'structured_data') and record.structured_data:
+        if hasattr(record, "structured_data") and record.structured_data:
             data_parts = [f"{k}={v}" for k, v in record.structured_data.items()]
             structured = " ".join(data_parts)
             return f"{base_msg} | {structured}"
@@ -106,9 +106,7 @@ def get_logger(name: str) -> logging.LoggerAdapter:
     class StructuredLoggerAdapter(logging.LoggerAdapter):
         """Logger adapter that adds structured data to log records."""
 
-        def process(
-            self, msg: str, kwargs: dict[str, Any]
-        ) -> tuple[str, dict[str, Any]]:
+        def process(self, msg: str, kwargs: dict[str, Any]) -> tuple[str, dict[str, Any]]:
             """Process log call to extract structured data.
 
             Args:
@@ -119,13 +117,13 @@ def get_logger(name: str) -> logging.LoggerAdapter:
                 Tuple of (message, modified kwargs)
             """
             # Extract structured data from kwargs
-            extra = kwargs.get('extra', {})
+            extra = kwargs.get("extra", {})
             structured_data = {}
 
             # Move non-logging kwargs to structured_data
             keys_to_remove = []
             for key, value in kwargs.items():
-                if key not in ['exc_info', 'stack_info', 'stacklevel', 'extra']:
+                if key not in ["exc_info", "stack_info", "stacklevel", "extra"]:
                     structured_data[key] = value
                     keys_to_remove.append(key)
 
@@ -135,8 +133,8 @@ def get_logger(name: str) -> logging.LoggerAdapter:
 
             # Add structured data to extra
             if structured_data:
-                extra['structured_data'] = structured_data
-                kwargs['extra'] = extra
+                extra["structured_data"] = structured_data
+                kwargs["extra"] = extra
 
             return msg, kwargs
 
@@ -157,4 +155,3 @@ def ensure_initialized() -> None:
 
 # Auto-initialize on import
 ensure_initialized()
-

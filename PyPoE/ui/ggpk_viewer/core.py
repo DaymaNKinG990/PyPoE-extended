@@ -39,7 +39,8 @@ from PySide6.QtWidgets import *
 
 # Package Imports
 from PyPoE.poe.constants import VERSION
-from PyPoE.poe.file import ggpk, dat
+from PyPoE.poe.file import ggpk
+from PyPoE.poe.file.factory import FileParserFactory
 from PyPoE.ui.shared import SharedMainWindow
 from PyPoE.ui.shared.settings import SettingFrame, BoolSetting, ComboBoxSetting
 from PyPoE.ui.shared.file.manager import FileDataManager
@@ -61,7 +62,10 @@ class GGPKViewerMainWindow(SharedMainWindow):
         )
 
         self.s_general = GeneralSettingsFrame(parent=self)
-        dat.set_default_spec(version=self.s_general.version)
+        
+        # Initialize specification factory with dependency injection
+        self._factory = FileParserFactory.default(version=self.s_general.version)
+        self._specification = self._factory.get_specification()
 
         # Misc Variables set in other places
         self._last_node = None

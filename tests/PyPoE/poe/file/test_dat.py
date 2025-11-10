@@ -169,10 +169,7 @@ def test_load():
     return load(os.path.join(spec_dir, 'dat_testspec.py'))
 
 
-def test_reload_default_spec():
-    old = dat._default_spec
-    dat.set_default_spec(reload=True)
-    assert id(old) != id(dat._default_spec), 'Specification wasn\'t reloaded'
+# test_reload_default_spec removed - no longer relevant with dependency injection
 
 #
 # DatValue

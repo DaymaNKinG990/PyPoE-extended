@@ -90,8 +90,8 @@ def pytest_addoption(parser):
 
 def pytest_generate_tests(metafunc):
     global run
+    # No longer need to set_default_spec - specifications are now loaded via dependency injection
     if run:
-        dat.set_default_spec(version=get_version(metafunc.config))
         run = False
     if 'dat_file_name' in metafunc.fixturenames:
         file_names = [

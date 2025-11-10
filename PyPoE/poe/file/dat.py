@@ -29,8 +29,8 @@ The data is a continuous amount of binary data; reading values form there is
 generally done by pointers (int) or list pointers (size, int) from the
 table-data.
 
-A list of default specification is included with PyPoE; to set the correct
-version :func:`set_default_spec` may be used.
+Specifications are now stored in SQLite databases and loaded via dependency injection.
+Use FileParserFactory from PyPoE.poe.file.factory to get specifications.
 
 Agreement
 ===============================================================================
@@ -53,8 +53,6 @@ Public API
 .. autoclass:: DatFile
 
 .. autoclass:: RelationalReader
-
-.. autofunction:: set_default_spec
 
 Internal API
 -------------------------------------------------------------------------------
@@ -92,12 +90,9 @@ from PyPoE.poe.file.specification.errors import SpecificationError, \
 # Globals
 # =============================================================================
 
-_default_spec = None
-
 __all__ = [
     'DAT_FILE_MAGIC_NUMBER',
     'DatFile', 'RelationalReader',
-    'set_default_spec',
 ]
 
 DAT_FILE_MAGIC_NUMBER = b'\xBB\xbb\xBB\xbb\xBB\xbb\xBB\xbb'
@@ -556,13 +551,11 @@ class DatReader(ReprMixin):
 
         # Process specification
         if specification is None:
-            if _file_name in _default_spec:
-                specification = _default_spec[_file_name]
-            else:
-                raise SpecificationError(
-                    SpecificationError.ERRORS.RUNTIME_MISSING_SPECIFICATION,
-                    'No specification for "%s"' % file_name
-                )
+            raise SpecificationError(
+                SpecificationError.ERRORS.RUNTIME_MISSING_SPECIFICATION,
+                'No specification provided. Use FileParserFactory.default().get_specification() '
+                'or load specification manually.'
+            )
         else:
             specification = specification[_file_name]
         self.specification = specification
@@ -1145,26 +1138,11 @@ class RelationalReader(AbstractFileCache):
 # Functions
 # =============================================================================
 
-
-def set_default_spec(version=constants.VERSION.DEFAULT, reload=False):
-    """
-    Sets the default specification to use for the dat reader.
-
-    See :py:mod:`PyPoE.poe.file.specification.__init__` for more info
-
-    Parameters
-    ----------
-    version : constants.VERSION
-        Version of the game to load the default specification for.
-    reload : bool
-        Whether to reload the version.
-    """
-    global _default_spec
-    _default_spec = load(version=version, reload=reload)
-
-# =============================================================================
-# Init
-# =============================================================================
-
-
-set_default_spec()
+# Note: set_default_spec() has been removed in favor of dependency injection.
+# Use FileParserFactory from PyPoE.poe.file.factory instead:
+#
+#   from PyPoE.poe.file.factory import FileParserFactory
+#   factory = FileParserFactory.default()
+#   specification = factory.get_specification()
+#
+# Then pass specification to DatReader constructor.

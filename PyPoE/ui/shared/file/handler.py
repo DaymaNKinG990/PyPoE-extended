@@ -322,9 +322,12 @@ class DatDataHandler(FileDataHandler):
         self.x64 = x64
 
     def get_widget(self, file_data, file_name='', parent=None, *args, **kwargs):
+        # Get specification from parent window (dependency injection)
+        specification = getattr(parent, '_specification', None)
+        
         dat_file = DatFile(file_name)
         # We want dat values here
-        dat_file.read(file_data, use_dat_value=True, x64=self.x64)
+        dat_file.read(file_data, use_dat_value=True, x64=self.x64, specification=specification)
 
         frame = DatFrame(dat_file=dat_file, parent=parent)
 

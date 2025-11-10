@@ -65,7 +65,8 @@ from PyPoE.cli.exporter import config
 from PyPoE.cli.exporter.util import get_content_path, fix_path
 from PyPoE.poe.constants import MOD_DOMAIN, WORDLISTS, MOD_STATS_RANGE
 from PyPoE.poe.text import parse_description_tags
-from PyPoE.poe.file.dat import RelationalReader, set_default_spec
+from PyPoE.poe.file.dat import RelationalReader
+from PyPoE.poe.file.factory import FileParserFactory
 from PyPoE.poe.file.translations import (
     TranslationFileCache,
     MissingIdentifierWarning,
@@ -1451,8 +1452,10 @@ class BaseParser:
 
     def __init__(self, base_path, parsed_args):
         self.parsed_args = parsed_args
-        # Make sure to load the appropriate version of the specification
-        set_default_spec(version=config.get_option('version'))
+        
+        # Load specifications using dependency injection
+        factory = FileParserFactory.default(version=config.get_option('version'))
+        specification = factory.get_specification()
 
         self.base_path = base_path
         self.file_system = FileSystem(root_path=get_content_path())
@@ -1460,6 +1463,7 @@ class BaseParser:
         opt = {
             'use_dat_value': False,
             'auto_build_index': True,
+            'specification': specification,
         }
 
         # Load rr and translations which will be undoubtedly be needed for

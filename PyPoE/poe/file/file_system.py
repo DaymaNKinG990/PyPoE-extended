@@ -120,8 +120,8 @@ class FileSystem:
         self.root_path: str = root_path
         self.ggpk: Union[GGPKFile, None] = None
 
-        ggpk_path = os.path.join(root_path, 'content.ggpk')
-        if os.path.exists(os.path.join(root_path, 'content.ggpk')):
+        ggpk_path = os.path.join(root_path, 'Content.ggpk')
+        if os.path.exists(os.path.join(root_path, 'Content.ggpk')):
             self.ggpk = GGPKFile()
             self.ggpk.read(ggpk_path)
             self.ggpk.directory_build()
