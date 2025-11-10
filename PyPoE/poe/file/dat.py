@@ -73,6 +73,7 @@ from enum import IntEnum
 from io import BytesIO
 from collections import OrderedDict, defaultdict
 from collections.abc import Iterable
+from typing import Any, Optional, Union, List, Dict, Tuple, BinaryIO
 
 # 3rd-party
 
@@ -85,6 +86,7 @@ from PyPoE.poe.file.shared.cache import AbstractFileCache
 from PyPoE.poe.file.specification import load
 from PyPoE.poe.file.specification.errors import SpecificationError, \
     SpecificationWarning
+from PyPoE.poe.file.specification.fields import Specification
 
 # =============================================================================
 # Globals
@@ -143,15 +145,21 @@ class DatValue:
         'child',
     ]
 
-    def __init__(self, value=None, offset=None, size=None, parent=None,
-                 specification=None):
-        self.value = value
-        self.size = size
-        self.offset = offset
-        self.parent = parent
-        self.specification = specification
-        self.children = None
-        self.child = None
+    def __init__(
+        self, 
+        value: Any = None, 
+        offset: Optional[int] = None, 
+        size: Optional[int] = None, 
+        parent: Optional['DatReader'] = None,
+        specification: Any = None
+    ) -> None:
+        self.value: Any = value
+        self.size: Optional[int] = size
+        self.offset: Optional[int] = offset
+        self.parent: Optional['DatReader'] = parent
+        self.specification: Any = specification
+        self.children: Optional[List['DatValue']] = None
+        self.child: Optional['DatValue'] = None
 
     def __repr__(self):
         # TODO: iterative vs recursive?
@@ -505,8 +513,15 @@ class DatReader(ReprMixin):
         POINTER = 4
         POINTER_SELF = 5
 
-    def __init__(self, file_name, *args, use_dat_value=True, specification=None,
-                 auto_build_index=False, x64=False):
+    def __init__(
+        self, 
+        file_name: str, 
+        *args: Any,
+        use_dat_value: bool = True, 
+        specification: Optional[Specification] = None,
+        auto_build_index: bool = False, 
+        x64: bool = False
+    ) -> None:
         """
         Parameters
         ----------
@@ -527,19 +542,19 @@ class DatReader(ReprMixin):
         errors.SpecificationError
             if the dat file is not in the specification
         """
-        self.auto_build_index = auto_build_index
-        self.x64 = x64
-        self.index = {}
-        self.data_parsed = []
-        self.data_offset = 0
-        self.file_length = 0
-        self._file_raw = b''
-        self.table_data = []
+        self.auto_build_index: bool = auto_build_index
+        self.x64: bool = x64
+        self.index: Dict[str, Dict[Any, DatRecord]] = {}
+        self.data_parsed: List[int] = []
+        self.data_offset: int = 0
+        self.file_length: int = 0
+        self._file_raw: bytes = b''
+        self.table_data: List[DatRecord] = []
 
-        self.table_length = 0
-        self.table_record_length = 0
-        self.table_rows = 0
-        self.file_name = file_name
+        self.table_length: int = 0
+        self.table_record_length: int = 0
+        self.table_rows: int = 0
+        self.file_name: str = file_name
 
         # Fix for the look up
         if x64:
@@ -921,20 +936,20 @@ class DatFile(AbstractFileReadOnly):
         reference to the DatReader instance once :meth:`read` has been called
     """
 
-    def __init__(self, file_name):
+    def __init__(self, file_name: str) -> None:
         """
         Parameters
         ----------
         file_name : str
             Name of the .dat file
         """
-        self._file_name = file_name
-        self.reader = None
+        self._file_name: str = file_name
+        self.reader: Optional[DatReader] = None
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return 'DatFile<%s>(file_name="%s")' % (hex(id(self)), self._file_name)
 
-    def _read(self, buffer, *args, **kwargs):
+    def _read(self, buffer: BinaryIO, *args: Any, **kwargs: Any) -> DatReader:
         self.reader = DatReader(self._file_name, **kwargs)
         self.reader.read(buffer.read())
 
@@ -974,13 +989,18 @@ class RelationalReader(AbstractFileCache):
     language : str
         language subdirectory in data directory
     """)
-    def __init__(self, raise_error_on_missing_relation=False,
-                 language=None, *args, **kwargs):
-        self.raise_error_on_missing_relation = raise_error_on_missing_relation
+    def __init__(
+        self, 
+        raise_error_on_missing_relation: bool = False,
+        language: Optional[str] = None, 
+        *args: Any, 
+        **kwargs: Any
+    ) -> None:
+        self.raise_error_on_missing_relation: bool = raise_error_on_missing_relation
         if language == 'English' or language is None:
-            self._language = ''
+            self._language: str = ''
         else:
-            self._language = language + '/'
+            self._language: str = language + '/'
         super().__init__(*args, **kwargs)
 
     def __getitem__(self, item):

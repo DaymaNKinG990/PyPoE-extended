@@ -75,6 +75,7 @@ Miscellaneous
 import io
 import os
 import struct
+from typing import Optional, List, Dict, Union, BinaryIO, Any
 
 from PyPoE.poe.file.shared import (
     FILE_SYSTEM_TYPES,
@@ -517,10 +518,10 @@ class GGPKFile(AbstractFileReadOnly, metaclass=InheritedDocStringsMeta):
 
     EXTENSION = ".ggpk"
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         AbstractFileReadOnly.__init__(self, *args, **kwargs)
-        self.directory: DirectoryNode | None = None
-        self.records: dict[int, BaseRecord] = {}
+        self.directory: Optional[DirectoryNode] = None
+        self.records: Dict[int, BaseRecord] = {}
 
     def __getitem__(self, item: str) -> DirectoryNode:
         """
@@ -569,7 +570,12 @@ class GGPKFile(AbstractFileReadOnly, metaclass=InheritedDocStringsMeta):
     # Private
     #
 
-    def _read_record(self, records, ggpkfile, offset: int):
+    def _read_record(
+        self, 
+        records: Dict[int, BaseRecord], 
+        ggpkfile: BinaryIO, 
+        offset: int
+    ) -> None:
         length = struct.unpack("<i", ggpkfile.read(4))[0]
         tag = ggpkfile.read(4)
 
@@ -579,6 +585,7 @@ class GGPKFile(AbstractFileReadOnly, metaclass=InheritedDocStringsMeta):
 
         record = recordcls(self, length, offset)"""
 
+        record: BaseRecord
         if tag == b"FILE":
             record = FileRecord(self, length, offset)
         elif tag == b"FREE":
