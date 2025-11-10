@@ -84,8 +84,11 @@ from typing import Union, Dict
 from PyPoE.shared import InheritedDocStringsMeta
 from PyPoE.shared.decorators import doc
 from PyPoE.shared.mixins import ReprMixin
+from PyPoE.shared.logging import get_logger
 from PyPoE.poe.file.shared import AbstractFileReadOnly, \
     AbstractFileSystemNode, FILE_SYSTEM_TYPES, ParserError
+
+logger = get_logger(__name__)
 
 # =============================================================================
 # Globals
@@ -755,7 +758,7 @@ class GGPKFile(AbstractFileReadOnly, metaclass=InheritedDocStringsMeta):
                     offset=offset,
                 )
             except InvalidTagException as e:
-                warnings.warn('Invalid tag %s - seeking next valid tag' % e.args)
+                logger.warning("invalid_tag_seeking_next", tag=str(e.args), offset=offset)
                 buffer.seek(offset)
 
                 not_found = True
