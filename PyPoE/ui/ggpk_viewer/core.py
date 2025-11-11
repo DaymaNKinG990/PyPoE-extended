@@ -40,13 +40,13 @@ from PySide6.QtWidgets import *
 # Package Imports
 from PyPoE.poe.constants import VERSION
 from PyPoE.poe.file import ggpk
-from PyPoE.poe.file.factory import FileParserFactory
 from PyPoE.ui.shared import SharedMainWindow
 from PyPoE.ui.shared.settings import SettingFrame, BoolSetting, ComboBoxSetting
 from PyPoE.ui.shared.file.manager import FileDataManager
 from PyPoE.ui.shared.file.model import GGPKModel
 from PyPoE.ui.ggpk_viewer.toolbar import *
 from PyPoE.ui.ggpk_viewer.menu import *
+from PyPoE.ui.ggpk_viewer.viewmodel import GGPKViewModel
 
 # =============================================================================
 # Classes
@@ -63,12 +63,16 @@ class GGPKViewerMainWindow(SharedMainWindow):
 
         self.s_general = GeneralSettingsFrame(parent=self)
         
-        # Initialize specification factory with dependency injection
-        self._factory = FileParserFactory.default(version=self.s_general.version)
-        self._specification = self._factory.get_specification()
-
-        # Misc Variables set in other places
-        self._last_node = None
+        # MVVM: Initialize ViewModel for business logic separation
+        self.viewmodel = GGPKViewModel(version=self.s_general.version, parent=self)
+        
+        # Connect ViewModel signals to View slots
+        self.viewmodel.ggpk_loaded.connect(self._on_ggpk_loaded)
+        self.viewmodel.ggpk_load_failed.connect(self._on_ggpk_load_failed)
+        self.viewmodel.node_selected.connect(self._on_node_selected)
+        
+        # Keep specification reference for FileDataManager (backward compatibility)
+        self._specification = self.viewmodel.get_specification()
 
         self._file_data_manager = FileDataManager(self)
 
@@ -239,6 +243,34 @@ class GGPKViewerMainWindow(SharedMainWindow):
         self.file_view = qwidget
 
         # Actually is a file record
+
+    # =========================================================================
+    # MVVM: ViewModel signal slots
+    # =========================================================================
+
+    def _on_ggpk_loaded(self):
+        """Handle successful GGPK loading."""
+        self._write_log(self.tr('GGPK file loaded successfully'))
+        # Update model with new GGPK
+        model = self.ggpk_view.model()
+        if isinstance(model, GGPKModel):
+            model.set_ggpk(self.viewmodel.ggpk_file)
+
+    def _on_ggpk_load_failed(self, error_message: str):
+        """Handle GGPK loading failure."""
+        self._write_log(error_message, msg=Msg.error)
+        QMessageBox.warning(
+            self,
+            self.tr('Error'),
+            error_message
+        )
+
+    def _on_node_selected(self, node):
+        """Handle node selection from ViewModel."""
+        # Update info bar
+        info = self.viewmodel.get_node_info(node)
+        self.file_infobar_name_hash.setText(info.get('name_hash', ''))
+        self.file_infobar_file_hash.setText(info.get('hash', ''))
 
 
 class GeneralSettingsFrame(SettingFrame):

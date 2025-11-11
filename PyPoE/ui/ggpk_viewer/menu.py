@@ -37,7 +37,6 @@ from PySide6.QtWidgets import *
 
 # self
 from PyPoE.poe.file.ggpk import FileRecord
-from PyPoE.poe.file.factory import FileParserFactory
 from PyPoE.ui.shared.file.ggpk import GGPKOpenAction
 from PyPoE.ui.shared.file.model import GGPKModel
 
@@ -161,7 +160,8 @@ class MiscMenu(QMenu):
         v = p.s_general.version
 
         p._write_log(self.tr('Reloading default specification... (%s)' % v))
-        # Reload factory and specification
-        p._factory = FileParserFactory.default(version=v)
-        p._specification = p._factory.get_specification()
+        # MVVM: Use ViewModel to reload specification
+        p.viewmodel.reload_specification(v)
+        # Update reference for backward compatibility
+        p._specification = p.viewmodel.get_specification()
         p._write_log('Done.')
