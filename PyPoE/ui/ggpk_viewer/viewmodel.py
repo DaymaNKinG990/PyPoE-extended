@@ -89,6 +89,9 @@ class GGPKViewModel(QObject):
         Args:
             version: Game version for specifications
             parent: Parent QObject
+
+        Note:
+            For dependency injection, use `with_factory()` class method instead.
         """
         super().__init__(parent)
 
@@ -104,6 +107,46 @@ class GGPKViewModel(QObject):
         self.specification: Specification = self.factory.get_specification()
 
         logger.info("ggpk_viewmodel_initialized", version=version.name)
+
+    @classmethod
+    def with_factory(
+        cls, factory: FileParserFactory, parent: QObject | None = None
+    ) -> "GGPKViewModel":
+        """
+        Create ViewModel with injected factory (DI pattern).
+
+        This is the preferred method when using dependency injection.
+
+        Args:
+            factory: FileParserFactory instance (injected)
+            parent: Parent QObject
+
+        Returns:
+            GGPKViewModel instance
+
+        Example:
+            >>> from PyPoE.shared.di import get_container
+            >>> from PyPoE.poe.file.factory import FileParserFactory
+            >>>
+            >>> container = get_container()
+            >>> factory = container.resolve(FileParserFactory)
+            >>> vm = GGPKViewModel.with_factory(factory, parent=None)
+        """
+        # Create instance without calling __init__
+        instance = cls.__new__(cls)
+        QObject.__init__(instance, parent)
+
+        # Initialize state
+        instance.ggpk_file = None
+        instance.current_node = None
+        instance.thread_pool = QThreadPool.globalInstance()
+
+        # Use injected factory
+        instance.factory = factory
+        instance.specification = factory.get_specification()
+
+        logger.info("ggpk_viewmodel_initialized_with_di")
+        return instance
 
     def load_ggpk_file(self, file_path: Path, async_mode: bool = True) -> None:
         """
