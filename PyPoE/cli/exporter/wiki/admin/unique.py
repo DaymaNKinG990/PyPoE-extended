@@ -39,12 +39,13 @@ Documentation
 import copy
 import traceback
 from collections import defaultdict
+from typing import Any
 
 import time
 import random
 
 # 3rd-party
-import mwclient
+import mwclient  # type: ignore[import-untyped]
 import mwparserfromhell
 from rapidfuzz import fuzz
 
@@ -160,7 +161,7 @@ class UniqueCopy(BaseParser):
             if row['WordlistsKey'] == WORDLISTS.UNIQUE_ITEM:
                 self.words.append(row)
 
-        self.cache = defaultdict(BaseItemCacheInstance)
+        self.cache: defaultdict[str, BaseItemCacheInstance] = defaultdict(BaseItemCacheInstance)
         for row in self.rr_english['BaseItemTypes.dat']:
             self.cache[row['ItemClassesKey']['Id']].append(row)
             self.cache[row['ItemClassesKey']['Id']].index['Name'][row['Name']].append(row)
@@ -290,9 +291,9 @@ class UniqueCopy(BaseParser):
                 pname = mwparam.name.strip()
                 if pname.startswith('upgraded_from') and \
                         pname != 'upgraded_from_disabled':
-                    mwtemplate.remove(mwparam.name)
+                    mwtemplate.remove(mwparam.name)  # type: ignore[arg-type]
                 elif pname in ('class'):
-                    mwtemplate.remove(mwparam.name)
+                    mwtemplate.remove(mwparam.name)  # type: ignore[arg-type]
 
         if mwtemplate.has('drop_text') and not parsed_args.ignore_drop_text:
             console('Drop text might need a translation. Current text:\n\n%s' % mwtemplate.get('drop_text').value.strip())
@@ -322,7 +323,7 @@ class UniqueCopy(BaseParser):
 
 
 class BaseItemCacheInstance(list):
-    index = {'Name': defaultdict(list)}
+    index: dict[str, defaultdict[Any, list[Any]]] = {'Name': defaultdict(list)}  # type: ignore[assignment]
 
 # =============================================================================
 # Functions

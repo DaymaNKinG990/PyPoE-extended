@@ -61,13 +61,13 @@ __all__ = []
 
 
 class WikiCondition(parser.WikiCondition):
-    COPY_KEYS = (
+    COPY_KEYS = (  # type: ignore[assignment]
         'main_page',
         'release_version',
         'screenshot_ext',
     )
 
-    NAME = 'Area'
+    NAME = 'Area'  # type: ignore[assignment]
     ADD_INCLUDE = False
     INDENT = 33
 
@@ -410,21 +410,21 @@ class AreaParser(parser.BaseParser):
             for row_key, copy_data in self._COPY_KEYS.items():
                 value = area[row_key]
 
-                condition = copy_data.get('condition')
+                condition = copy_data.get('condition')  # type: ignore[attr-defined]
                 if condition is not None and not condition(area):
                     continue
 
                 # Skip default values to reduce size of template
-                if value == copy_data.get('default'):
+                if value == copy_data.get('default'):  # type: ignore[attr-defined]
                     continue
                 '''default = copy_data.get('default')
                 if default is not None and value == default:
                         continue'''
 
-                fmt = copy_data.get('format')
+                fmt = copy_data.get('format')  # type: ignore[attr-defined]
                 if fmt:
                     value = fmt(value)
-                data[copy_data['template']] = value
+                data[copy_data['template']] = value  # type: ignore[index]
 
             for i, (tag, value) in enumerate(zip(area['SpawnWeight_TagsKeys'],
                                                  area['SpawnWeight_Values']),
