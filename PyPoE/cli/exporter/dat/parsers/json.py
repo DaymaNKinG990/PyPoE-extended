@@ -138,7 +138,7 @@ class JSONExportHandler(DatExportHandler):
                         ],
                     }
 
-                    virtual_header = (
+                    virtual_header = (  # type: ignore[assignment]
                         {row['name']: row for row in virtual_header}
                     )
                 else:

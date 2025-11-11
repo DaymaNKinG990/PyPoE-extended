@@ -147,7 +147,7 @@ class IDLFile(AbstractFile, TypedList, metaclass=TypedContainerMeta):
     However, added items may only be a :class:`IDLRecord`
     """
 
-    ACCEPTED_TYPES = IDLRecord
+    ACCEPTED_TYPES = IDLRecord  # type: ignore[assignment]
 
     EXTENSION = '.idl'
 

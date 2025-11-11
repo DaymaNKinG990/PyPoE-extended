@@ -48,7 +48,7 @@ import os
 from enum import IntEnum
 
 # 3rd Party
-from validate import ValidateError, is_boolean
+from validate import ValidateError, is_boolean  # type: ignore[import-untyped]
 
 # =============================================================================
 # Globals
