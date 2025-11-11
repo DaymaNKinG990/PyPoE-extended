@@ -541,6 +541,9 @@ class Index(Bundle):
         super()._read(buffer)
         self.decompress()
         raw = self.data
+        # After decompress(), data is bytes not dict
+        if not isinstance(raw, bytes):
+            raise TypeError("Expected bytes after decompression")
 
         bundle_count = struct.unpack_from('<I', raw)[0]
         offset = 4
@@ -570,9 +573,13 @@ class Index(Bundle):
         directory_bundle.read(raw[offset:])
         directory_bundle.decompress()
 
+        dir_data = directory_bundle.data
+        if not isinstance(dir_data, bytes):
+            raise TypeError("Expected bytes after decompression")
+        
         for directory_record in self.directories.values():
             directory_record._paths = self._make_paths(
-                directory_bundle.data[
+                dir_data[
                     directory_record.offset:
                     directory_record.offset + directory_record.size
                 ]
@@ -590,7 +597,7 @@ class Index(Bundle):
         -------
         A list of unpacked paths
         """
-        temp = []
+        temp: list[bytes] = []
         paths = []
         base = False
         offset = 0
