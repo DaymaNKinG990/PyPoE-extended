@@ -109,7 +109,7 @@ class ItemConflictResolver:
                 qid = qid.replace(ver[0], "")
 
             try:
-                return base_item_type["Name"] + " ({})".format(
+                return str(base_item_type["Name"])  # type: ignore[no-any-return] + " ({})".format(
                     self.rr["Quest.dat"].index["Id"][qid]["Name"]
                 )
             except KeyError:
@@ -119,7 +119,7 @@ class ItemConflictResolver:
             # Descent skill books
             match = re.match(r"SkillBooks/Descent2_(?P<id>[0-9]+)", qid)
             if match:
-                return base_item_type["Name"] + " ({} {})".format(
+                return str(base_item_type["Name"])  # type: ignore[no-any-return] + " ({} {})".format(
                     self.lang_map[self.language]["descent"],
                     match.group("id"),
                 )
@@ -127,7 +127,7 @@ class ItemConflictResolver:
                 # Bandit respec
                 match = re.match(r"SkillBooks/BanditRespec(?P<id>.+)", qid)
                 if match:
-                    return base_item_type["Name"] + " ({})".format(match.group("id"))
+                    return str(base_item_type["Name"]) + " ({})".format(match.group("id"))  # type: ignore[no-any-return]
                 else:
                     match = re.match(
                         r"Metadata/Items/QuestItems/Act7/Firefly(?P<id>[0-9]+)$",
@@ -172,7 +172,7 @@ class ItemConflictResolver:
             if base_item_type["Id"].endswith("Test"):
                 return None
 
-            return base_item_type["Name"]
+            return str(base_item_type["Name"])  # type: ignore[no-any-return]
 
         return None
 
