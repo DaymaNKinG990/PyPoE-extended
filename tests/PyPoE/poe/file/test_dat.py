@@ -363,7 +363,7 @@ class TestDatValue:
         [dv_list, dv_list_reversed],
         [dv_list, [8]],
     ]
-    for item in zip(types, [True, True, False, True, False, False]):
+    for item in zip(types, [True, True, False, True, False, False], strict=True):
         item = list(item)
         for vars in basic_tests:
             cmp_tests.append(item + vars)
