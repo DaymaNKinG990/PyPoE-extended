@@ -51,7 +51,7 @@ from PySide6.QtWidgets import (
 
 # Package Imports
 from PyPoE.poe.constants import VERSION
-from PyPoE.poe.file import ggpk
+from PyPoE.poe.file.ggpk.records import DirectoryRecord
 from PyPoE.ui.ggpk_viewer.menu import FileMenu, MiscMenu, ViewMenu
 from PyPoE.ui.ggpk_viewer.toolbar import ContextToolbar
 from PyPoE.ui.ggpk_viewer.viewmodel import GGPKViewModel
@@ -200,7 +200,7 @@ class GGPKViewerMainWindow(SharedMainWindow):
         self.file_infobar_file_hash.setText(hex(node.record.hash)[2:].upper())
         self.file_infobar_name_hash.setText(str(node.hash))
 
-        if isinstance(node.record, ggpk.DirectoryRecord):
+        if isinstance(node.record, DirectoryRecord):
             self.file_textbox.setText(self.tr("No file selected."))
             self.file_textbox.setVisible(True)
             if hasattr(self, "file_view"):

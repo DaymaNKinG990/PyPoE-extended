@@ -36,8 +36,8 @@ from PySide6.QtCore import QObject, QThreadPool, Signal
 
 # Package
 from PyPoE.poe.constants import VERSION
-from PyPoE.poe.file import ggpk
 from PyPoE.poe.file.factory import FileParserFactory
+from PyPoE.poe.file.ggpk import GGPKFile
 from PyPoE.poe.file.specification.fields import Specification
 from PyPoE.shared.logging import get_logger
 
@@ -96,7 +96,7 @@ class GGPKViewModel(QObject):
         super().__init__(parent)
 
         # State
-        self.ggpk_file: ggpk.GGPKFile | None = None
+        self.ggpk_file: GGPKFile | None = None
         self.current_node: Any | None = None
 
         # Thread pool for async operations
@@ -185,7 +185,7 @@ class GGPKViewModel(QObject):
                 logger.info("loading_ggpk_file_sync", path=str(file_path))
                 self.ggpk_loading_started.emit(str(file_path))
 
-                self.ggpk_file = ggpk.GGPKFile()
+                self.ggpk_file = GGPKFile()
                 self.ggpk_file.read(file_path)
                 self.ggpk_loading_progress.emit(70, "Building directory...")
                 self.ggpk_file.directory_build()
@@ -200,7 +200,7 @@ class GGPKViewModel(QObject):
                 self.ggpk_load_failed.emit(error_msg)
                 self.ggpk_file = None
 
-    def _on_ggpk_loaded(self, ggpk_file: ggpk.GGPKFile) -> None:
+    def _on_ggpk_loaded(self, ggpk_file: GGPKFile) -> None:
         """Handle successful GGPK loading from worker."""
         self.ggpk_file = ggpk_file
         logger.info("ggpk_file_loaded_async")

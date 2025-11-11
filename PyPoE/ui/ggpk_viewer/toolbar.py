@@ -38,7 +38,7 @@ from PySide6.QtGui import QAction
 from PySide6.QtWidgets import QApplication, QFileDialog, QToolBar
 
 # self
-from PyPoE.poe.file import ggpk
+from PyPoE.poe.file.ggpk.records import DirectoryRecord, FileRecord
 from PyPoE.ui.shared.dialog import RegExSearchDialog
 
 # =============================================================================
@@ -116,7 +116,11 @@ class ContextToolbar(QToolBar):
             return
 
         try:
-            data = ggpk.extract_dds(data, path_or_file_system=node.record._container)
+            # Extract DDS using FileSystem method
+            if node.record._container:
+                from PyPoE.poe.file.file_system import FileSystem
+                fs = FileSystem()
+                data = fs.extract_dds(data)
         except FileNotFoundError as e:
             self.parent()._write_log(f"Broken symbolic link.\n{e}")
 
@@ -138,13 +142,13 @@ class ContextToolbar(QToolBar):
 
         # TODO Fix double writing
         if self.parent().s_general.uncompress_dds:
-            if isinstance(node.record, ggpk.DirectoryRecord):
+            if isinstance(node.record, DirectoryRecord):
                 p._write_log(self.tr("Uncompressing DDS Files..."))
                 for root, _dirs, files in os.walk(os.path.join(target_dir, node.name)):
                     for file_name in files:
                         if file_name.endswith(".dds"):
                             self._toolbar_extract_dds(os.path.join(root, file_name), node)
-            elif isinstance(node.record, ggpk.FileRecord) and node.name.endswith(".dds"):
+            elif isinstance(node.record, FileRecord) and node.name.endswith(".dds"):
                 p._write_log(self.tr("Uncompressing DDS File..."))
                 self._toolbar_extract_dds(os.path.join(target_dir, node.name), node)
 
@@ -155,7 +159,7 @@ class ContextToolbar(QToolBar):
         if node is None:
             return
 
-        if not isinstance(node.record, ggpk.DirectoryRecord):
+        if not isinstance(node.record, DirectoryRecord):
             return
 
         ok = self.regex_search.exec_()
@@ -196,7 +200,7 @@ class ContextToolbar(QToolBar):
         :param DirectoryNode node:
         :return:
         """
-        if isinstance(node.record, ggpk.DirectoryRecord):
+        if isinstance(node.record, DirectoryRecord):
             self.action_search.setEnabled(True)
         else:
             self.action_search.setEnabled(False)

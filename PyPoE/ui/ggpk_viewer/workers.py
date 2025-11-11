@@ -35,7 +35,7 @@ from typing import Any
 from PySide6.QtCore import QObject, QRunnable, Signal, Slot
 
 # Package
-from PyPoE.poe.file import ggpk
+from PyPoE.poe.file.ggpk import GGPKFile
 from PyPoE.shared.logging import get_logger
 
 # =============================================================================
@@ -103,7 +103,7 @@ class GGPKLoadWorker(QRunnable):
 
             # Phase 1: Read GGPK records (70%)
             self.signals.loading_progress.emit(10, "Reading GGPK records...")
-            ggpk_file = ggpk.GGPKFile()
+            ggpk_file = GGPKFile()
 
             # Hook progress updates if needed
             ggpk_file.read(self.file_path)

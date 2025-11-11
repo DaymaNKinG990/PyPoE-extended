@@ -46,7 +46,7 @@ import pytest
 
 # self
 from PyPoE.poe import patchserver
-from PyPoE.poe.file import ggpk
+from PyPoE.poe.file.ggpk import DirectoryNode, FileRecord
 
 # =============================================================================
 # Setup
@@ -147,7 +147,7 @@ class TestPatch:
 class TestPatchFileList:
     @pytest.mark.dependency()
     def test_init(self, patch_file_list):
-        assert isinstance(patch_file_list.directory, ggpk.DirectoryNode)
+        assert isinstance(patch_file_list.directory, DirectoryNode)
         assert len(patch_file_list.directory.children) > 1
 
     @pytest.mark.dependency(name="test_updatelist", depends="TestPatchFileList::test_init")
@@ -165,7 +165,7 @@ class TestPatchFileList:
                 patch_file_list.update_filelist([node_path])
             return
         # test update_filelist will not query a file
-        if isinstance(node.record, ggpk.FileRecord):
+        if isinstance(node.record, FileRecord):
             with pytest.raises(ValueError):
                 patch_file_list.update_filelist([node_path])
         else:
@@ -189,7 +189,7 @@ class TestPatchFileList:
 def test_node_check_hash(temp, patch_file_list, recurse, node_path):
     node = patch_file_list.directory[node_path]
     node_hashes = patchserver.node_check_hash(node, str(temp), recurse=recurse)
-    if isinstance(node, ggpk.FileRecord) and os.path.exists(
+    if isinstance(node, FileRecord) and os.path.exists(
         os.path.join(str(temp), node.record.name)
     ):
         assert node_hashes[-1][2] is True
@@ -239,7 +239,7 @@ def test_node_outdated_files(temp, patch_file_list, recurse, node_path):
     # if recursing, walk through sub directories to find files
     max_depth = -1 if recurse else 1
     for walk_node, _depth in node.gen_walk(max_depth=max_depth):
-        if isinstance(walk_node.record, ggpk.FileRecord):
+        if isinstance(walk_node.record, FileRecord):
             files_in_node.append(walk_node)
 
     # if the previously downloaded test file is one of the files in the
@@ -259,7 +259,7 @@ def test_node_update_files(patch_file_list, temp, recurse, node_path):
     node = patch_file_list.directory[node_path]
     max_depth = -1 if recurse else 1
     for walk_node, _depth in node.gen_walk(max_depth=max_depth):
-        if isinstance(walk_node.record, ggpk.FileRecord):
+        if isinstance(walk_node.record, FileRecord):
             assert os.path.exists(os.path.join(str(temp), node.get_path()))
 
     files_needed = patchserver.node_outdated_files(
