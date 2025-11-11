@@ -83,9 +83,10 @@ class CustomOpenAction(GGPKOpenAction):
     def _ggpk_sort(self, node, depth, **kwargs):
         def sorter(obj):
             return (
-                    isinstance(getattr(obj, "record", None), FileRecord),
-                    getattr(obj, "name", str(obj)),
-                )
+                isinstance(getattr(obj, "record", None), FileRecord),
+                getattr(obj, "name", str(obj)),
+            )
+
         # Check if children is a dict or list and sort accordingly
         if isinstance(node.children, dict):
             # Keep as dict after sorting

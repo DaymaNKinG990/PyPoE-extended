@@ -28,7 +28,6 @@ See PyPoE/LICENSE
 # Imports
 # =============================================================================
 
-
 from PyPoE.poe.file.translations.constants import CUSTOM_TRANSLATION_FILE
 from PyPoE.poe.file.translations.file import TranslationFile
 from PyPoE.poe.file.translations.models import TQReminderString

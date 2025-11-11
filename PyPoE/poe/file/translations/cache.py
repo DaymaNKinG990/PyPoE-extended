@@ -27,7 +27,6 @@ See PyPoE/LICENSE
 # Imports
 # =============================================================================
 
-
 from PyPoE.poe.constants import MOD_GENERATION_TYPE
 from PyPoE.poe.file.shared.cache import AbstractFileCache
 from PyPoE.poe.file.translations.constants import (  # type: ignore[attr-defined]

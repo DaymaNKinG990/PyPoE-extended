@@ -74,9 +74,11 @@ def _make_inter_wiki_re():
                     r"(?![^\[]*\]\])"
                     r"(?: |^)"
                     r"(?P<text>{})"
-                    r"(?= |$)".format("|".join(
-                        [f"({item[0]})" for item in _inter_wiki_mapping[id : id + _MAX_RE]]
-                    )),
+                    r"(?= |$)".format(
+                        "|".join(
+                            [f"({item[0]})" for item in _inter_wiki_mapping[id : id + _MAX_RE]]
+                        )
+                    ),
                     re.UNICODE | re.IGNORECASE,
                 )
             )
@@ -308,7 +310,7 @@ def parse_and_handle_description_tags(rr, text):
     """
     return (
         parse_description_tags(text)
-        .handle_tags(TagHandler(rr).tag_handlers)
+        .handle_tags(TagHandler(rr).tag_handlers)  # type: ignore[arg-type]
         .replace("\n", "<br>")
         .replace("\r", "")
-    )  # type: ignore[arg-type]
+    )

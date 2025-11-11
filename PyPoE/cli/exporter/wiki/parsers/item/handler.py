@@ -55,7 +55,7 @@ class ItemsHandler(ExporterHandler):
         # Generic base item export
         #
         item_parser = core_sub.add_parser("item", help="Regular item export")
-        item_parser.set_defaults(func=lambda args: parser.print_help())  # type: ignore[attr-defined]
+        item_parser.set_defaults(func=lambda args: item_parser.print_help())
         sub = item_parser.add_subparsers()
 
         self.add_default_subparser_filters(sub, cls=ItemsParser, type="item")

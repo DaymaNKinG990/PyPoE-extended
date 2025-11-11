@@ -217,9 +217,7 @@ class ConfigHelper(ConfigObj):
         try:
             value = self.option[key]
         except KeyError:
-            console(
-                f'Config variable "{key}" is not configured. Consider running:', msg=Msg.error
-            )
+            console(f'Config variable "{key}" is not configured. Consider running:', msg=Msg.error)
             console(f'config set "{key}" "<value>"', msg=Msg.error)
             console("Exiting...", msg=Msg.error)
             sys.exit(-1)

@@ -118,7 +118,9 @@ class IntEnumValidator:
         try:
             return self._enum(value)
         except ValueError as e:
-            raise ValidateError(f"{self._enum.__name__} The value is not accepted by the enum.") from e
+            raise ValidateError(
+                f"{self._enum.__name__} The value is not accepted by the enum."
+            ) from e
 
     def __call__(self, value):
         """

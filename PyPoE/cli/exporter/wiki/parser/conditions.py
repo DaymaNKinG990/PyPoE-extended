@@ -27,7 +27,6 @@ See PyPoE/LICENSE
 # Imports
 # =============================================================================
 
-
 import contextlib
 
 from PyPoE.cli.exporter.wiki.parser.utils import find_template, format_result_rows

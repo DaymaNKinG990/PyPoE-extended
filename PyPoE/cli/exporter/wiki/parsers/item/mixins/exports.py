@@ -74,7 +74,8 @@ class ExportsMixin:
         for atlas_node in self.rr["AtlasNode.dat"]:
             if not atlas_node["ItemVisualIdentityKey"]["DDSFile"]:
                 warnings.warn(
-                    f"Missing 2d art inventory icon at index {atlas_node.index}", stacklevel=2,
+                    f"Missing 2d art inventory icon at index {atlas_node.index}",
+                    stacklevel=2,
                 )
                 continue
 
@@ -93,7 +94,9 @@ class ExportsMixin:
                 for name, color in self._MAP_COLORS.items():
                     # -tint
                     os.system(
-                        '''magick convert "{}" -fill rgb({}) -tint 100 "{}"'''.format(ico, color, ico.replace(".png", f" {name}.png"))
+                        '''magick convert "{}" -fill rgb({}) -tint 100 "{}"'''.format(
+                            ico, color, ico.replace(".png", f" {name}.png")
+                        )
                     )
 
         return r
@@ -263,7 +266,10 @@ class ExportsMixin:
             if parsed_args.store_images:
                 if atlas_node is None or not atlas_node["ItemVisualIdentityKey"]["DDSFile"]:
                     warnings.warn(
-                        'Missing 2d art inventory icon for item "{}"'.format(base_item_type["Name"]), stacklevel=2
+                        'Missing 2d art inventory icon for item "{}"'.format(
+                            base_item_type["Name"]
+                        ),
+                        stacklevel=2,
                     )
                     continue
 

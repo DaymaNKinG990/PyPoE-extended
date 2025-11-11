@@ -330,14 +330,18 @@ class IDTFile(AbstractFile):
 
             if len(coordinates) != int(tex_match.group("count")):
                 raise ParserError(
-                    "Amount of found coordinates ({}) does not match the amount of specified coordinates ({})".format(len(coordinates), tex_match.group("count"))
+                    "Amount of found coordinates ({}) does not match the amount of specified coordinates ({})".format(
+                        len(coordinates), tex_match.group("count")
+                    )
                 )
 
             textures.append(TextureRecord(tex_match.group("name"), coordinates))
 
         if len(textures) != int(match.group("texture_count")):
             raise ParserError(
-                "Amount of found textures ({}) does not match the amount of specified textures ({})".format(len(textures), match.group("texture_count"))
+                "Amount of found textures ({}) does not match the amount of specified textures ({})".format(
+                    len(textures), match.group("texture_count")
+                )
             )
 
         self._records = textures

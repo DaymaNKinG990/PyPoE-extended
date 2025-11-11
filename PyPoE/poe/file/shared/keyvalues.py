@@ -344,7 +344,8 @@ class AbstractKeyValueFile(AbstractFile, defaultdict):
                     warnings.warn(
                         f'Parent file name "{self._parent_file.name}" doesn\'t match extended file '
                         f'name "{extend}"',  # type: ignore[attr-defined]
-                        ParserWarning, stacklevel=2,
+                        ParserWarning,
+                        stacklevel=2,
                     )
             elif self._parent_file_system:
                 obj = self.__class__(parent_or_file_system=self._parent_file_system)

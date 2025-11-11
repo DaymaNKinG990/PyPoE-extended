@@ -115,9 +115,7 @@ class WikiHandler:
                     time.sleep(30)
                     fail += 1
                 else:
-                    console(
-                        f"HTTPError occurred. Retrying - total attempts: {fail}", msg=Msg.error
-                    )
+                    console(f"HTTPError occurred. Retrying - total attempts: {fail}", msg=Msg.error)
                     fail += 1
 
     def handle_page(self, *a, row):
@@ -127,7 +125,11 @@ class WikiHandler:
             ]
         else:
             pages = row["wiki_page"]
-        console('Scanning for wiki page candidates "{}"'.format(", ".join([p["page"] for p in pages])))  # type: ignore[misc]
+        console(
+            'Scanning for wiki page candidates "{}"'.format(
+                ", ".join([p["page"] for p in pages if p["page"]])  # type: ignore[misc]
+            )
+        )
         page_found = False
         new = False
         for pdata in pages:
@@ -137,8 +139,9 @@ class WikiHandler:
                 success = True
                 if condition is None:
                     console(
-                        'No conditions given - page content on "{}" will be '
-                        "overriden".format(pdata["page"]),
+                        'No conditions given - page content on "{}" will be overriden'.format(
+                            pdata["page"]
+                        ),
                         msg=Msg.warning,
                     )
                     success = True
@@ -157,7 +160,9 @@ class WikiHandler:
                     break
                 else:
                     console(
-                        'One or more conditions failed on page "{}". Skipping.'.format(pdata["page"]),
+                        'One or more conditions failed on page "{}". Skipping.'.format(
+                            pdata["page"]
+                        ),
                         msg=Msg.warning,
                     )
             elif self.cmdargs.only_existing:
@@ -190,11 +195,15 @@ class WikiHandler:
             else:
                 response = page.save(
                     text=text,
-                    summary="PyPoE/ExporterBot/{}: {}".format(__version__, self.cmdargs.wiki_message or row["wiki_message"]),
+                    summary="PyPoE/ExporterBot/{}: {}".format(
+                        __version__, self.cmdargs.wiki_message or row["wiki_message"]
+                    ),
                 )
                 if response["result"] == "Success":
                     console(
-                        "Page was edited successfully (time: {})".format(response.get("newtimestamp"))
+                        "Page was edited successfully (time: {})".format(
+                            response.get("newtimestamp")
+                        )
                     )
                 else:
                     # TODO: what happens if it fails?

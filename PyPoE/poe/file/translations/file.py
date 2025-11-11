@@ -261,8 +261,11 @@ class TranslationFile(AbstractFileReadOnly):
                             else:
                                 TranslationRange(None, None, parent=ts, negated=negated)
                                 warnings.warn(
-                                    'Malformed quantifier string "{}" near index {} (parent {}). Assuming # instead.'.format(matchstr, ts_match.start("minmax"), translation.ids),
-                                    TranslationWarning, stacklevel=2,
+                                    'Malformed quantifier string "{}" near index {} (parent {}). Assuming # instead.'.format(
+                                        matchstr, ts_match.start("minmax"), translation.ids
+                                    ),
+                                    TranslationWarning,
+                                    stacklevel=2,
                                 )
 
                         ts._set_string(ts_match.group("description"))
@@ -289,7 +292,8 @@ class TranslationFile(AbstractFileReadOnly):
                     warnings.warn(
                         "Translation file includes other file, but no base_dir "
                         "or parent specified. Skipping.",
-                        TranslationWarning, stacklevel=2,
+                        TranslationWarning,
+                        stacklevel=2,
                     )
             elif match.group("header"):
                 pass
@@ -329,7 +333,9 @@ class TranslationFile(AbstractFileReadOnly):
                 translation.diff(other)
                 print('')"""
 
-                warnings.warn(f'Duplicate id "{translation_id}"', DuplicateIdentifierWarning, stacklevel=2)
+                warnings.warn(
+                    f'Duplicate id "{translation_id}"', DuplicateIdentifierWarning, stacklevel=2
+                )
                 self.translations_hash[translation_id].append(translation)
         else:
             self.translations_hash[translation_id] = [
@@ -480,7 +486,8 @@ class TranslationFile(AbstractFileReadOnly):
         if partial:
             warnings.warn(
                 "Partial tag match for {}".format(", ".join([str(p) for p in partial])),
-                TranslationWarning, stacklevel=2,
+                TranslationWarning,
+                stacklevel=2,
             )
 
         trans_lines = []

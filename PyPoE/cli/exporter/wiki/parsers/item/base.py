@@ -57,7 +57,9 @@ def _type_factory(data_file, data_mapping, row_index=True, function=None, fail_c
                 base_item_type.rowid if row_index else base_item_type["Id"]
             ]
         except KeyError:
-            warnings.warn('Missing {} info for "{}"'.format(data_file, base_item_type["Name"]), stacklevel=2)
+            warnings.warn(
+                'Missing {} info for "{}"'.format(data_file, base_item_type["Name"]), stacklevel=2
+            )
             return fail_condition
 
         _apply_column_map(infobox, data_mapping, data)

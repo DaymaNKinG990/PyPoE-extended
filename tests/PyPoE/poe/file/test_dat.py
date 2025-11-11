@@ -370,7 +370,9 @@ class TestDatValue:
 
     @pytest.mark.parametrize("cmp_type,result,a,b", cmp_tests)
     def test_cmp(self, cmp_type, result, a, b):
-        assert getattr(a, cmp_type)(b) == result, f"{cmp_type} for {a} and {b} should return {result}"
+        assert getattr(a, cmp_type)(b) == result, (
+            f"{cmp_type} for {a} and {b} should return {result}"
+        )
 
 
 #

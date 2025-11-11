@@ -218,9 +218,7 @@ class GGPKViewerMainWindow(SharedMainWindow):
         try:
             qwidget = obj.get_widget(node.record.extract(), file_name=node.record.name, parent=self)
         except Exception as e:
-            msg = self.tr(
-                f"{e.__class__.__name__} occurred when trying to open {node.record.name}"
-            )
+            msg = self.tr(f"{e.__class__.__name__} occurred when trying to open {node.record.name}")
             fullmsg = msg + ": \n\n" + format_exc()
 
             self.file_textbox.setText(fullmsg)

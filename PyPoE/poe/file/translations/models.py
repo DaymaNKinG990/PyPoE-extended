@@ -669,7 +669,14 @@ class TranslationString(TranslationReprMixin):
                 r = self.range[i]
                 warn = True
                 if r.negated:
-                    if r.min == r.max and r.max is not None or r.min is not None and r.max is not None or r.min is None and r.max is not None:
+                    if (
+                        r.min == r.max
+                        and r.max is not None
+                        or r.min is not None
+                        and r.max is not None
+                        or r.min is None
+                        and r.max is not None
+                    ):
                         val = r.max + 1
                     elif r.min is not None and r.min is None:
                         val = r.min - 1
@@ -679,7 +686,12 @@ class TranslationString(TranslationReprMixin):
                     if r.min == r.max and r.max is not None:
                         val = r.min  # type: ignore[assignment]
                         warn = False
-                    elif r.min is not None and r.max is not None or r.min is None and r.max is not None:
+                    elif (
+                        r.min is not None
+                        and r.max is not None
+                        or r.min is None
+                        and r.max is not None
+                    ):
                         val = r.max
                     elif r.min is not None and r.min is None:
                         val = r.min
@@ -690,7 +702,8 @@ class TranslationString(TranslationReprMixin):
                     warnings.warn(
                         f'Can not safely find a value at index "{i}", using '
                         f'range value "{val}" instead',
-                        TranslationWarning, stacklevel=2,
+                        TranslationWarning,
+                        stacklevel=2,
                     )
 
                 values[i] = val  # type: ignore[call-overload]
@@ -915,7 +928,8 @@ class TranslationQuantifierHandler(TranslationReprMixin):
                     except ValueError as e:
                         warnings.warn(
                             f'Broken quantifier "{string}" - Error: {e.args[0]}',
-                            TranslationWarning, stacklevel=2,
+                            TranslationWarning,
+                            stacklevel=2,
                         )
                 elif handler.type == TranslationQuantifier.QuantifierTypes.STRING:
                     self.string_handlers[handler.id] = args

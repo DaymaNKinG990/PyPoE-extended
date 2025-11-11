@@ -235,15 +235,17 @@ class UtilsMixin:
                 name = resolver(self, infobox, base_item_type, rr, language)
                 if name is None:
                     console(
-                        'Unresolved ambiguous item "{}" with name "{}". '
-                        "Skipping".format(m_id, infobox["name"]),
+                        'Unresolved ambiguous item "{}" with name "{}". Skipping'.format(
+                            m_id, infobox["name"]
+                        ),
                         msg=Msg.error,
                     )
                     return
             else:
                 console(
-                    'Unresolved ambiguous item "{}" with name "{}". '
-                    "Skipping".format(m_id, infobox["name"]),
+                    'Unresolved ambiguous item "{}" with name "{}". Skipping'.format(
+                        m_id, infobox["name"]
+                    ),
                     msg=Msg.error,
                 )
                 console(
@@ -349,7 +351,10 @@ class UtilsMixin:
             if parsed_args.store_images:
                 if not base_item_type["ItemVisualIdentityKey"]["DDSFile"]:
                     warnings.warn(
-                        'Missing 2d art inventory icon for item "{}"'.format(base_item_type["Name"]), stacklevel=2
+                        'Missing 2d art inventory icon for item "{}"'.format(
+                            base_item_type["Name"]
+                        ),
+                        stacklevel=2,
                     )
                     continue
 

@@ -45,7 +45,7 @@ def sample_parser(**kwargs):
     if kwargs["parameter"]:
         return f'<{kwargs["id"]} attr="{kwargs["parameter"]}">{kwargs["hstr"]}</{kwargs["id"]}>'
     else:
-        return f'<{kwargs["id"]}>{kwargs["hstr"]}</{kwargs["id"]}>'
+        return f"<{kwargs['id']}>{kwargs['hstr']}</{kwargs['id']}>"
 
 
 # =============================================================================

@@ -279,10 +279,9 @@ class IncursionRoomParser(parser.BaseParser):
                     idl_sources.add(src)
 
                 os.system(
-                    'magick "{src}" -crop {w}x{h}+{x}+{y} '
-                    '"{dst} incursion room icon.png"'.format(
+                    'magick "{src}" -crop {w}x{h}+{x}+{y} "{dst} incursion room icon.png"'.format(
                         src=src,
-                        dst=os.path.join(self._img_path, data["icon"]),
+                        dst=os.path.join(self._img_path, data["icon"]),  # type: ignore[arg-type]
                         h=idl_record.h,
                         w=idl_record.w,
                         x=idl_record.x1,
@@ -300,7 +299,9 @@ class IncursionRoomParser(parser.BaseParser):
                     },
                     {
                         "page": data["name"]
-                        + " ({})".format(self._incursion_room_page_name[config.get_option("language")]),
+                        + " ({})".format(
+                            self._incursion_room_page_name[config.get_option("language")]
+                        ),
                         "condition": cond,
                     },
                 ],

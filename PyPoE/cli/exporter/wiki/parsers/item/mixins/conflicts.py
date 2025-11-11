@@ -43,7 +43,9 @@ class ConflictsMixin:
                 qid = qid.replace(ver[0], "")
 
             try:
-                return base_item_type["Name"] + " ({})".format(rr["Quest.dat"].index["Id"][qid]["Name"])
+                return base_item_type["Name"] + " ({})".format(
+                    rr["Quest.dat"].index["Id"][qid]["Name"]
+                )
             except KeyError:
                 console(f"Quest {qid} not found", msg=Msg.error)
         else:

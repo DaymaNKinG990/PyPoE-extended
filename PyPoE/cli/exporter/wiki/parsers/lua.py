@@ -661,7 +661,9 @@ class BlightParser(GenericLuaParser):
             {
                 "key": "icon",
                 "value": lambda v: (
-                    "File:{} tower icon.png".format(v.replace("Art/2DArt/UIImages/InGame/Blight/Tower Icons/Icon", ""))
+                    "File:{} tower icon.png".format(
+                        v.replace("Art/2DArt/UIImages/InGame/Blight/Tower Icons/Icon", "")
+                    )
                     if v.startswith("Art/2DArt/UIImages/InGame/Blight/Tower Icons")
                     else None
                 ),

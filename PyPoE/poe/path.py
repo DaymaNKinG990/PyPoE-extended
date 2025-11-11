@@ -181,9 +181,7 @@ class PoEPath:
                 paths.append(basepath, VERSION.ALL, DISTRIBUTOR.STEAM)
 
         if self.distributor & DISTRIBUTOR.GARENA and self.version & VERSION.STABLE:
-            basepath = self._get_winreg_path(
-                r"SOFTWARE\Wow6432Node\Garena\PoE", "Path", user=False
-            )
+            basepath = self._get_winreg_path(r"SOFTWARE\Wow6432Node\Garena\PoE", "Path", user=False)
             paths.append(basepath, VERSION.STABLE, DISTRIBUTOR.GARENA)
 
         return paths

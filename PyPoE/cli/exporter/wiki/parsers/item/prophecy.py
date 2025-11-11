@@ -160,7 +160,9 @@ class ProphecyParser(parser.BaseParser):
         final = []
         for prophecy in prophecies:
             if not prophecy["IsEnabled"] and not parsed_args.allow_disabled:
-                console('Prophecy "{}" is disabled - skipping.'.format(prophecy["Name"]), msg=Msg.error)
+                console(
+                    'Prophecy "{}" is disabled - skipping.'.format(prophecy["Name"]), msg=Msg.error
+                )
                 continue
 
             final.append(prophecy)
@@ -190,8 +192,9 @@ class ProphecyParser(parser.BaseParser):
                 extra = self._conflict_resolver_prophecy_map[self.lang].get(prophecy["Id"])
                 if extra is None:
                     console(
-                        'Unresolved ambiguous item name "{}" / id "{}". '
-                        "Skipping".format(prophecy["Name"], prophecy["Id"]),
+                        'Unresolved ambiguous item name "{}" / id "{}". Skipping'.format(
+                            prophecy["Name"], prophecy["Id"]
+                        ),
                         msg=Msg.error,
                     )
                     continue

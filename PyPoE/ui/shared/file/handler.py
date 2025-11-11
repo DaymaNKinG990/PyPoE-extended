@@ -351,6 +351,7 @@ class DDSDataHandler(FileDataHandler):
 
     class DDSError(Exception):
         """Error raised when processing DDS files."""
+
         pass
 
     @staticmethod

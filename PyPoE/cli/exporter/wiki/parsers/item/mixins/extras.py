@@ -82,9 +82,7 @@ class ExtrasMixin:
         # Essence description
         #
         def get_str(k):
-            return self.rr["ClientStrings.dat"].index["Id"][f"EssenceCategory{k}"][
-                    "Text"
-                ]
+            return self.rr["ClientStrings.dat"].index["Id"][f"EssenceCategory{k}"]["Text"]
 
         essence_categories = OrderedDict(
             (

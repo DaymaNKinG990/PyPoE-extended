@@ -66,8 +66,9 @@ class SkillsMixin:
 
         if not exp_level:
             console(
-                'No experience progression found for "{}" - assuming max '
-                "level 1".format(base_item_type["Name"]),
+                'No experience progression found for "{}" - assuming max level 1'.format(
+                    base_item_type["Name"]
+                ),
                 msg=Msg.error,
             )
             exp_total = [0]

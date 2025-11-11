@@ -290,7 +290,8 @@ class BaseParser:
         if custom_result.missing_ids:  # type: ignore[union-attr]
             warnings.warn(
                 f"Missing translation for ids {custom_result.missing_ids} and values {custom_result.missing_values}",  # type: ignore[union-attr]
-                MissingIdentifierWarning, stacklevel=2,
+                MissingIdentifierWarning,
+                stacklevel=2,
             )
 
         for line in custom_result.lines:  # type: ignore[union-attr]

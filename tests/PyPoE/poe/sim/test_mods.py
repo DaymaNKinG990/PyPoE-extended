@@ -177,18 +177,24 @@ class TestGetSpawnWeight:
     )
 
     def test_basic(self):
-        assert mods.get_spawn_weight(
-            self.data,
-            [
-                "default",
-            ],
-        ) == 1000
-        assert mods.get_spawn_weight(
-            self.data,
-            [
-                "a",
-            ],
-        ) == 1
+        assert (
+            mods.get_spawn_weight(
+                self.data,
+                [
+                    "default",
+                ],
+            )
+            == 1000
+        )
+        assert (
+            mods.get_spawn_weight(
+                self.data,
+                [
+                    "a",
+                ],
+            )
+            == 1
+        )
 
     def test_order(self):
         assert mods.get_spawn_weight(self.data, ["a", "default"]) == 1
@@ -236,11 +242,14 @@ class TestGenerateSpawnableModList:
     ]
 
     def test_domain_and_generation_type(self):
-        assert mods.generate_spawnable_mod_list(
-            self.mod_list,
-            domain=MOD_DOMAIN.AREA,
-            generation_type=MOD_GENERATION_TYPE.PREFIX,
-        ) == [], "Got a list for something should not match anything"
+        assert (
+            mods.generate_spawnable_mod_list(
+                self.mod_list,
+                domain=MOD_DOMAIN.AREA,
+                generation_type=MOD_GENERATION_TYPE.PREFIX,
+            )
+            == []
+        ), "Got a list for something should not match anything"
         assert self.mod_list[1] == mods.generate_spawnable_mod_list(
             self.mod_list,
             domain=MOD_DOMAIN.ITEM,
@@ -256,9 +265,12 @@ class TestGenerateSpawnableModList:
         ), "Should have found only one match"
 
     def test_tags(self):
-        assert mods.generate_spawnable_mod_list(
-            self.mod_list,
-            domain=MOD_DOMAIN.AREA,
-            generation_type=MOD_GENERATION_TYPE.PREFIX,
-            tags=["different"],
-        ) == [], "Should have found only one match"
+        assert (
+            mods.generate_spawnable_mod_list(
+                self.mod_list,
+                domain=MOD_DOMAIN.AREA,
+                generation_type=MOD_GENERATION_TYPE.PREFIX,
+                tags=["different"],
+            )
+            == []
+        ), "Should have found only one match"

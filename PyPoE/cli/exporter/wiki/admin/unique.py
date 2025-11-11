@@ -252,9 +252,9 @@ class UniqueCopy(BaseParser):
             ]["Text"]
 
         if ftext:
-            mwtemplate.get("flavour_text").value = " {}\n".format(ftext.replace("\r", "").replace(
-                "\n", "<br>"
-            ))
+            mwtemplate.get("flavour_text").value = " {}\n".format(
+                ftext.replace("\r", "").replace("\n", "<br>")
+            )
 
         # Need this for multiple things
         name = mwtemplate.get("name").value.strip()
@@ -297,12 +297,18 @@ class UniqueCopy(BaseParser):
             # Need to copy the list or it won't be deleted properly as it deletes from itself during iteration
             for mwparam in list(mwtemplate.params):
                 pname = mwparam.name.strip()
-                if pname.startswith("upgraded_from") and pname != "upgraded_from_disabled" or pname in ("class"):
+                if (
+                    pname.startswith("upgraded_from")
+                    and pname != "upgraded_from_disabled"
+                    or pname in ("class")
+                ):
                     mwtemplate.remove(mwparam.name)  # type: ignore[arg-type]
 
         if mwtemplate.has("drop_text") and not parsed_args.ignore_drop_text:
             console(
-                "Drop text might need a translation. Current text:\n\n{}".format(mwtemplate.get("drop_text").value.strip())
+                "Drop text might need a translation. Current text:\n\n{}".format(
+                    mwtemplate.get("drop_text").value.strip()
+                )
             )
             text = input("\nNew text (leave empty to copy old):\n")
             if text:

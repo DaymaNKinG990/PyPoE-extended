@@ -850,9 +850,7 @@ class DatReader(ReprMixin):
         self.data_offset = self._file_raw.find(DAT_FILE_MAGIC_NUMBER)
 
         if self.data_offset == -1:
-            raise ValueError(
-                f'Did not find data magic number in "{self.file_name}"'
-            )
+            raise ValueError(f'Did not find data magic number in "{self.file_name}"')
 
         self.table_rows = struct.unpack("<I", self._file_raw[0:4])[0]
         self.table_length = self.data_offset - self._table_offset

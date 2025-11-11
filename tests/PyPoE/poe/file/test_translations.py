@@ -104,9 +104,7 @@ def ts(dbase):
 
 def get_test(size, unid, nresults, values):
     tags = [f"tag_size{size}_uq{unid}_no{i}" for i in range(1, size + 1)]
-    results = [
-        f"tag_size{size}_uq{unid}_v{i}:{' %s' * size}" for i in range(1, nresults + 1)
-    ]
+    results = [f"tag_size{size}_uq{unid}_v{i}:{' %s' * size}" for i in range(1, nresults + 1)]
 
     for i, v in enumerate(results):
         results[i] = v % values[i]

@@ -28,7 +28,6 @@ See PyPoE/LICENSE
 # Imports
 # =============================================================================
 
-
 from PyPoE.poe.file.translations.models import (
     Translation,
     TranslationReprMixin,
