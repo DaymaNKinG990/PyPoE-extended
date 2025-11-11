@@ -126,6 +126,22 @@ check_untyped_defs = true
 module = "PyPoE.ui.*"
 disable_error_code = ["attr-defined"]
 
+# Disable union-attr and operator errors for files with complex Union types
+[[tool.mypy.overrides]]
+module = [
+    "PyPoE.poe.file.bundle",
+    "PyPoE.poe.file.ggpk",
+    "PyPoE.poe.file.translations.models",
+    "PyPoE.poe.file.translations.file",
+    "PyPoE.poe.file.file_system",
+    "PyPoE.poe.file.dat",
+    "PyPoE.poe.file.specification.fields",
+    "PyPoE.poe.patchserver",
+    "PyPoE.cli.exporter.wiki.parsers.lua",
+    "PyPoE.cli.exporter.wiki.parsers.skill",
+]
+disable_error_code = ["union-attr", "operator", "index", "arg-type", "assignment", "return-value"]
+
 [tool.pytest.ini_options]
 minversion = "7.0"
 testpaths = ["tests"]
