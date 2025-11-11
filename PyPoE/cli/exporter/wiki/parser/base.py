@@ -36,12 +36,15 @@ from PyPoE.cli.exporter import config
 from PyPoE.cli.exporter.util import fix_path, get_content_path
 from PyPoE.cli.exporter.wiki.parser.utils import make_inter_wiki_links
 from PyPoE.poe.constants import MOD_DOMAIN, MOD_STATS_RANGE
+from PyPoE.shared.di import DIContainer
 from PyPoE.poe.file.dat import RelationalReader
 from PyPoE.poe.file.factory import FileParserFactory
 from PyPoE.poe.file.file_system import FileSystem
 from PyPoE.poe.file.ot import OTFileCache
+from PyPoE.poe.file.specification.fields import Specification
 from PyPoE.poe.file.translations import (
     MissingIdentifierWarning,
+    TranslationFile,
     TranslationFileCache,
     get_custom_translation_file,
     install_data_dependant_quantifiers,
@@ -87,44 +90,171 @@ class BaseParser:
     _files: list[str] = []
     _translations: list[str] = []
 
-    def __init__(self, base_path, parsed_args):
+    def __init__(
+        self,
+        base_path: str,
+        parsed_args: Any,
+        *,
+        # Dependency injection parameters (optional)
+        file_system: FileSystem | None = None,
+        specification: Specification | None = None,
+        relational_reader: RelationalReader | None = None,
+        translation_cache: TranslationFileCache | None = None,
+        ot_cache: OTFileCache | None = None,
+        custom_translation: TranslationFile | None = None,
+        language: str | None = None,
+    ):
+        """
+        Initialize BaseParser.
+
+        Args:
+            base_path: Base path for output files
+            parsed_args: Parsed command-line arguments
+            file_system: FileSystem instance (optional, created if None)
+            specification: Specification instance (optional, loaded if None)
+            relational_reader: RelationalReader instance (optional, created if None)
+            translation_cache: TranslationFileCache instance (optional, created if None)
+            ot_cache: OTFileCache instance (optional, created if None)
+            custom_translation: Custom TranslationFile (optional, loaded if None)
+            language: Language code (optional, from config if None)
+
+        Note:
+            All dependency injection parameters are optional for backward compatibility.
+            If not provided, dependencies are created as before.
+        """
         self.parsed_args = parsed_args
-
-        # Load specifications using dependency injection
-        factory = FileParserFactory.default(version=config.get_option("version"))
-        specification = factory.get_specification()
-
         self.base_path = base_path
-        self.file_system = FileSystem(root_path=get_content_path())
 
-        opt = {
-            "use_dat_value": False,
-            "auto_build_index": True,
-            "specification": specification,
-        }
+        # Dependency injection: use provided or create defaults
+        self.lang = language if language is not None else config.get_option("language")
 
-        # Load rr and translations which will be undoubtedly be needed for
-        # parsing
-        self.rr = RelationalReader(
-            path_or_file_system=self.file_system,
-            files=self._files,
-            read_options=opt,
-            raise_error_on_missing_relation=False,
-            language=config.get_option("language"),
-        )
-        install_data_dependant_quantifiers(self.rr)
-        self.tc = TranslationFileCache(path_or_file_system=self.file_system, **self._TC_KWARGS)
-        for file_name in self._translations:
-            self.tc[file_name]
+        # FileSystem
+        if file_system is not None:
+            self.file_system = file_system
+        else:
+            self.file_system = FileSystem(root_path=get_content_path())
 
-        self.ot = OTFileCache(
-            path_or_file_system=self.file_system,
-        )
+        # Specification
+        if specification is not None:
+            spec = specification
+        else:
+            factory = FileParserFactory.default(version=config.get_option("version"))
+            spec = factory.get_specification()
 
-        self.custom = get_custom_translation_file()
+        # RelationalReader
+        if relational_reader is not None:
+            self.rr = relational_reader
+        else:
+            opt = {
+                "use_dat_value": False,
+                "auto_build_index": True,
+                "specification": spec,
+            }
+            self.rr = RelationalReader(
+                path_or_file_system=self.file_system,
+                files=self._files,
+                read_options=opt,
+                raise_error_on_missing_relation=False,
+                language=self.lang,
+            )
+            install_data_dependant_quantifiers(self.rr)
+
+        # TranslationFileCache
+        if translation_cache is not None:
+            self.tc = translation_cache
+        else:
+            self.tc = TranslationFileCache(path_or_file_system=self.file_system, **self._TC_KWARGS)
+            for file_name in self._translations:
+                self.tc[file_name]
+
+        # OTFileCache
+        if ot_cache is not None:
+            self.ot = ot_cache
+        else:
+            self.ot = OTFileCache(path_or_file_system=self.file_system)
+
+        # Custom translation file
+        if custom_translation is not None:
+            self.custom = custom_translation
+        else:
+            self.custom = get_custom_translation_file()
 
         self._img_path = None
-        self.lang = config.get_option("language")
+
+    @classmethod
+    def with_factory(
+        cls,
+        base_path: str,
+        parsed_args: Any,
+        container: DIContainer,
+        *,
+        language: str | None = None,
+    ) -> "BaseParser":
+        """
+        Create BaseParser instance using dependency injection container.
+
+        Args:
+            base_path: Base path for output files
+            parsed_args: Parsed command-line arguments
+            container: DI container with registered dependencies
+            language: Language code (optional, from config if None)
+
+        Returns:
+            BaseParser instance with injected dependencies
+
+        Example:
+            >>> from PyPoE.shared.di import DIContainer
+            >>> from PyPoE.poe.providers import register_core_providers
+            >>>
+            >>> container = DIContainer()
+            >>> register_core_providers(container)
+            >>> parser = BaseParser.with_factory(
+            ...     base_path="output",
+            ...     parsed_args=args,
+            ...     container=container,
+            ... )
+        """
+        from PyPoE.poe.file.dat import RelationalReader
+        from PyPoE.poe.file.file_system import FileSystem
+        from PyPoE.poe.file.ot import OTFileCache
+        from PyPoE.poe.file.specification.fields import Specification
+        from PyPoE.poe.file.translations import TranslationFile, TranslationFileCache
+
+        # Resolve dependencies from container (if registered)
+        file_system = container.resolve(FileSystem) if container.is_registered(FileSystem) else None
+        specification = (
+            container.resolve(Specification) if container.is_registered(Specification) else None
+        )
+        relational_reader = (
+            container.resolve(RelationalReader)
+            if container.is_registered(RelationalReader)
+            else None
+        )
+        translation_cache = (
+            container.resolve(TranslationFileCache)
+            if container.is_registered(TranslationFileCache)
+            else None
+        )
+        ot_cache = (
+            container.resolve(OTFileCache) if container.is_registered(OTFileCache) else None
+        )
+        custom_translation = (
+            container.resolve(TranslationFile)
+            if container.is_registered(TranslationFile)
+            else None
+        )
+
+        return cls(
+            base_path=base_path,
+            parsed_args=parsed_args,
+            file_system=file_system,
+            specification=specification,
+            relational_reader=relational_reader,
+            translation_cache=translation_cache,
+            ot_cache=ot_cache,
+            custom_translation=custom_translation,
+            language=language,
+        )
 
     def _column_index_filter(self, dat_file_name, column_id, arg_list, error_msg=_MISSING_MSG):
         self.rr[dat_file_name].build_index(column_id)
