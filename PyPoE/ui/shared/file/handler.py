@@ -66,7 +66,7 @@ from PySide6.QtWidgets import (
     QTextEdit,
 )
 try:
-    from OpenGL import GL  # type: ignore[import-not-found]
+    from OpenGL import GL  # type: ignore[import-untyped]
 except ImportError:
     GL = None
 
