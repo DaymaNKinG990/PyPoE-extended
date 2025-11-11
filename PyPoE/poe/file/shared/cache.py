@@ -77,11 +77,11 @@ class AbstractFileCache(ReprMixin):
     FILE_TYPE = None
 
     def __init__(self,
-                 path_or_file_system: Union[str, FileSystem] = None,
-                 files: List[str] = None,
+                 path_or_file_system: Union[str, FileSystem, None] = None,
+                 files: List[str] | None = None,
                  files_shortcut: bool = True,
-                 instance_options: Dict[str, Any] = None,
-                 read_options: Dict[str, Any] = None):
+                 instance_options: Dict[str, Any] | None = None,
+                 read_options: Dict[str, Any] | None = None):
         """
         Parameters
         ----------
@@ -107,10 +107,11 @@ class AbstractFileCache(ReprMixin):
             not parsed
         """
 
+        self.file_system: FileSystem
         if isinstance(path_or_file_system, FileSystem):
-            self.file_system: FileSystem = path_or_file_system
+            self.file_system = path_or_file_system
         else:
-            self.file_system: FileSystem = FileSystem(root_path=path_or_file_system)
+            self.file_system = FileSystem(root_path=path_or_file_system)  # type: ignore[arg-type]
 
         self.instance_options: Dict[str, Any] = {} if \
             instance_options is None else instance_options
@@ -212,11 +213,11 @@ class AbstractFileCache(ReprMixin):
 
             File instance
         """
-        f = self.FILE_TYPE(
-            **self._get_file_instance_args(file_name=file_name, *args, **kwargs)
+        f = self.FILE_TYPE(  # type: ignore[misc]
+            **self._get_file_instance_args(file_name=file_name, *args, **kwargs)  # type: ignore[misc]
         )
-        f.read(**self._get_read_args(file_name=file_name, *args, **kwargs))
-        return f
+        f.read(**self._get_read_args(file_name=file_name, *args, **kwargs))  # type: ignore[misc]
+        return f  # type: ignore[no-any-return]
 
     def get_file(self,
                  file_name: str,
@@ -245,4 +246,4 @@ class AbstractFileCache(ReprMixin):
         else:
             f = self.files[file_name]
 
-        return f
+        return f  # type: ignore[no-any-return]

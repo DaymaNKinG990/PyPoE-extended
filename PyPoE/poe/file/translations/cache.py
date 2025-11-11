@@ -38,7 +38,7 @@ from PyPoE.poe.file.translations.models import (
     TranslationQuantifierHandler,
     TQReminderString,
 )
-from PyPoE.poe.file.translations.constants import (
+from PyPoE.poe.file.translations.constants import (  # type: ignore[attr-defined]
     _custom_translation_file,
     CUSTOM_TRANSLATION_FILE,
 )
@@ -68,7 +68,7 @@ class TranslationFileCache(AbstractFileCache):
     file multiple times, as such there is a fairly significant performance
     improvement over using single files.
     """
-    FILE_TYPE = TranslationFile
+    FILE_TYPE = TranslationFile  # type: ignore[assignment]
 
     @doc(prepend=AbstractFileCache.__init__)
     def __init__(self,
@@ -161,9 +161,9 @@ class TranslationFileCache(AbstractFileCache):
 
             self.files[file_name] = tf
 
-            return tf
+            return tf  # type: ignore[no-any-return]
 
-        return self.files[file_name]
+        return self.files[file_name]  # type: ignore[return-value, no-any-return]
 
 
 # =============================================================================
@@ -220,7 +220,7 @@ def get_custom_translation_file() -> TranslationFile:
     global _custom_translation_file
     if _custom_translation_file is None:
         set_custom_translation_file()
-    return _custom_translation_file
+    return _custom_translation_file  # type: ignore[no-any-return]
 
 
 def set_custom_translation_file(file: Union[str, None] = None):
@@ -238,9 +238,9 @@ def set_custom_translation_file(file: Union[str, None] = None):
         file_path=file or CUSTOM_TRANSLATION_FILE
     )
 
-custom_translation_file = property(
-    fget=get_custom_translation_file,
-    fset=set_custom_translation_file,
+custom_translation_file = property(  # type: ignore[arg-type]
+    fget=get_custom_translation_file,  # type: ignore[arg-type]
+    fset=set_custom_translation_file,  # type: ignore[arg-type]
 )
 
 
@@ -291,7 +291,7 @@ def install_data_dependant_quantifiers(relational_reader):
     )
 
 
-    def _get_reverse_lookup_from_reader(relational_reader, key):
+    def _get_reverse_lookup_from_reader(relational_reader, key):  # type: ignore[no-redef]
         def _get_from_value(value):
             for row in relational_reader:
                 if row[key] == value:
