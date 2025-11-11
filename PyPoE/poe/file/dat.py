@@ -166,7 +166,7 @@ class DatValue:
         if self.is_pointer:
             return repr(self.child)
         elif self.is_list:
-            return repr([repr(dv) for dv in self.children])
+            return repr([repr(dv) for dv in self.children])  # type: ignore[union-attr]
         else:
             return 'DatValue(' + repr(self.value) +')'
 
@@ -229,7 +229,7 @@ class DatValue:
             else:
                 size = 0
         elif self.is_pointer:
-            size = self.child.size
+            size = self.child.size  # type: ignore[union-attr]
         else:
             raise TypeError('Only supported on DatValue instances with data (lists, pointers)')
         return size
@@ -361,9 +361,9 @@ class DatValue:
             the dereferenced value
         """
         if self.is_pointer:
-            return self.child.get_value()
+            return self.child.get_value()  # type: ignore[union-attr]
         elif self.is_list:
-            return [dv.get_value() for dv in self.children]
+            return [dv.get_value() for dv in self.children]  # type: ignore[union-attr]
         else:
             return self.value
 
@@ -421,7 +421,7 @@ class DatRecord(list):
                 values.append(value)
         return values'''
 
-    def __hash__(self):
+    def __hash__(self):  # type: ignore[override]
         return hash((self.parent.file_name, self.rowid))
 
     def iter(self):
@@ -580,8 +580,8 @@ class DatReader(ReprMixin):
         self.cast_size = 0
         self.cast_spec = []
         self.cast_row = []
-        for i, key in enumerate(specification.columns_data):
-            k = specification.fields[key]
+        for i, key in enumerate(specification.columns_data):  # type: ignore[union-attr]
+            k = specification.fields[key]  # type: ignore[union-attr]
             self.table_columns[key] = {'index': i, 'section': k}
             casts = []
             remainder = k.type
@@ -593,7 +593,7 @@ class DatReader(ReprMixin):
             self.cast_spec.append((k, casts))
             self.cast_row.append(casts[0][2])
 
-        self.cast_row = '<' + ''.join(self.cast_row)
+        self.cast_row = '<' + ''.join(self.cast_row)  # type: ignore[assignment]
 
         for var in ('columns', 'columns_all', 'columns_zip', 'columns_data',
                     'columns_unique'):
@@ -630,7 +630,7 @@ class DatReader(ReprMixin):
         """
         columns = set()
         if column is None:
-            for column in self.columns_unique:
+            for column in self.columns_unique:  # type: ignore[attr-defined]
                 columns.add(column)
         elif isinstance(column, str):
             columns.add(column)
@@ -642,15 +642,15 @@ class DatReader(ReprMixin):
         columns_1toN = set()
         columns_NtoN = set()
         for column in columns:
-            if column in self.columns_unique:
+            if column in self.columns_unique:  # type: ignore[attr-defined]
                 self.index[column] = {}
                 columns_1to1.add(column)
-            elif self.specification.fields[column].type.startswith('ref|list'):
+            elif self.specification.fields[column].type.startswith('ref|list'):  # type: ignore[union-attr]
                 columns_NtoN.add(column)
-                self.index[column] = defaultdict(list)
+                self.index[column] = defaultdict(list)  # type: ignore[arg-type]
             else:
                 columns_1toN.add(column)
-                self.index[column] = defaultdict(list)
+                self.index[column] = defaultdict(list)  # type: ignore[arg-type]
 
         # Second loop
         for row in self:
@@ -744,7 +744,7 @@ class DatReader(ReprMixin):
             if self.use_dat_value:
                 value = DatValue(string, offset, offset_new-offset+4, parent, specification)
             else:
-                value = string
+                value = string  # type: ignore[assignment]
 
         elif casts[0][0] in (self.CastTypes.POINTER_LIST, self.CastTypes.POINTER):
             data = data if data else struct.unpack('<' + casts[0][2], self._file_raw[offset:offset+casts[0][1]])
@@ -760,15 +760,15 @@ class DatReader(ReprMixin):
                         '''if offset < self._data_offset_current:
                             print(self._data_offset_current, offset)
                             raise SpecificationError("Overlapping offset for cast %s:%s" % (parent.is_list, casts[0]))'''
-                        value.children.append(self._cast_from_spec(specification, casts[1:], value, data_offset+i*casts[1:][0][1]))
+                        value.children.append(self._cast_from_spec(specification, casts[1:], value, data_offset+i*casts[1:][0][1]))  # type: ignore[arg-type]
                 elif casts[0][0] == self.CastTypes.POINTER:
                     value.child = self._cast_from_spec(specification, casts[1:], value, data_offset)
-                self.data_parsed.append(value)
+                self.data_parsed.append(value)  # type: ignore[arg-type]
             else:
                 if casts[0][0] == self.CastTypes.POINTER_LIST:
-                    value = []
+                    value = []  # type: ignore[assignment]
                     for i in range(0, data[0]):
-                        value.append(self._cast_from_spec(specification, casts[1:], value, data_offset+i*casts[1:][0][1]))
+                        value.append(self._cast_from_spec(specification, casts[1:], value, data_offset+i*casts[1:][0][1]))  # type: ignore[attr-defined]
                 elif casts[0][0] == self.CastTypes.POINTER:
                     value = self._cast_from_spec(specification, casts[1:], None, data_offset)
         # TODO:
@@ -789,7 +789,7 @@ class DatReader(ReprMixin):
 
         # Unpacking the entire row in one go will help breaking down the
         # function calls significantly
-        row_unpacked = struct.unpack(self.cast_row, data_raw)
+        row_unpacked = struct.unpack(self.cast_row, data_raw)  # type: ignore[arg-type]
         i = 0
         for spec, casts in self.cast_spec:
             if casts[0][0] == 3:
@@ -979,7 +979,7 @@ class DatFile(AbstractFileReadOnly):
     specific value.
 """)
 class RelationalReader(AbstractFileCache):
-    FILE_TYPE = DatFile
+    FILE_TYPE = DatFile  # type: ignore[assignment]
 
     @doc(doc=AbstractFileCache.__init__, append="""
     Parameters
@@ -1000,7 +1000,7 @@ class RelationalReader(AbstractFileCache):
         if language == 'English' or language is None:
             self._language: str = ''
         else:
-            self._language: str = language + '/'
+            self._language = language + '/'
         super().__init__(*args, **kwargs)
 
     def __getitem__(self, item):
