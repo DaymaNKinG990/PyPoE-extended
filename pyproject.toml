@@ -121,6 +121,11 @@ warn_unused_configs = true
 disallow_untyped_defs = false  # Включим позже поэтапно
 check_untyped_defs = true
 
+# Disable specific error codes for UI modules (PySide6 stub issues)
+[[tool.mypy.overrides]]
+module = "PyPoE.ui.*"
+disable_error_code = ["attr-defined"]
+
 [tool.pytest.ini_options]
 minversion = "7.0"
 testpaths = ["tests"]
