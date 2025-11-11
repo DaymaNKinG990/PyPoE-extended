@@ -9,6 +9,7 @@ Class attributes are defined in the main ItemsParser class.
 # Imports
 # =============================================================================
 
+import re
 
 # =============================================================================
 # Classes
@@ -16,8 +17,6 @@ Class attributes are defined in the main ItemsParser class.
 
 
 class TypesMixin:
-    """Mixin providing types methods for ItemsParser."""
-
     """Mixin providing types methods for ItemsParser."""
 
     def _type_level(self, infobox, base_item_type):

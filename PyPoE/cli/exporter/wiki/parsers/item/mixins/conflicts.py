@@ -9,6 +9,9 @@ Class attributes are defined in the main ItemsParser class.
 # Imports
 # =============================================================================
 
+import re
+
+from PyPoE.cli.core import console, Msg
 
 # =============================================================================
 # Classes
@@ -16,8 +19,6 @@ Class attributes are defined in the main ItemsParser class.
 
 
 class ConflictsMixin:
-    """Mixin providing conflicts methods for ItemsParser."""
-
     """Mixin providing conflicts methods for ItemsParser."""
 
     def _conflict_quest_items(self, infobox, base_item_type, rr, language):

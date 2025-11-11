@@ -29,6 +29,8 @@ See PyPoE/LICENSE
 
 from collections import OrderedDict
 
+from PyPoE.cli.exporter.wiki.parser.utils import find_template, format_result_rows
+
 # =============================================================================
 # Globals
 # =============================================================================
@@ -70,6 +72,7 @@ class WikiCondition:
 
                 return True
 
+            k: str
             for k in self.COPY_KEYS:
                 try:
                     self.data[k] = self.template_arguments['kwargs'][k]

@@ -59,7 +59,7 @@ class ItemsParser(
             "LabyrinthMapItem": self._conflict_labyrinth_map_item,
             "MiscMapItem": self._conflict_misc_map_item,
             "DelveSocketableCurrency": self._conflict_delve_socketable_currency,
-            "DelveStackableSocketableCurrency": _conflict_delve_stackable_socketable_currency,
+            "DelveStackableSocketableCurrency": self._conflict_delve_stackable_socketable_currency,
             "AtlasRegionUpgradeItem": self._conflict_atlas_region_upgrade,
         }
 
@@ -488,8 +488,8 @@ class ItemsParser(
             "UtilityFlask": (self._type_level, self._type_flask, self._type_flask_charges),
             "UtilityFlaskCritical": (self._type_level, self._type_flask, self._type_flask_charges),
             # Gems
-            "Active Skill Gem": (_skill_gem,),
-            "Support Skill Gem": (_skill_gem,),
+            "Active Skill Gem": (self._skill_gem,),
+            "Support Skill Gem": (self._skill_gem,),
             # Currency-like items
             "Currency": (self._type_currency,),
             "StackableCurrency": (self._type_currency, self._type_essence, self._type_blight_item),
