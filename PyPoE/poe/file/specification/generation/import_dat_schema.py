@@ -29,7 +29,7 @@ def main():
 def _read_latest_dat_schema_release() -> str:
     url = 'https://github.com/poe-tool-dev/dat-schema/releases/download/latest/schema.min.json'
     response = urllib.request.urlopen(url)
-    return response.read().decode()
+    return response.read().decode()  # type: ignore[no-any-return]
 
 
 def _read_dat_schema_local() -> str:

@@ -35,7 +35,7 @@ from PyPoE.cli.exporter.wiki.parsers.skill import SkillParserShared
 # =============================================================================
 
 
-class ItemsParser(
+class ItemsParser(  # type: ignore[misc]
     SkillsMixin,
     TypesMixin,
     ExtrasMixin,

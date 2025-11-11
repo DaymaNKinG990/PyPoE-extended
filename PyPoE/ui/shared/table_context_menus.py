@@ -33,7 +33,7 @@ See PyPoE/LICENSE
 
 # 3rd-party
 from PySide6.QtCore import *
-from PySide6.QtWidgets import *
+from PySide6.QtWidgets import *  # type: ignore[assignment]
 
 # self
 

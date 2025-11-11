@@ -190,7 +190,7 @@ class ProphecyParser(parser.BaseParser):
             infobox['seal_cost'] = prophecy['SealCost']
 
             if not prophecy['IsEnabled']:
-                infobox['drop_enabled'] = False
+                infobox['drop_enabled'] = False  # type: ignore[assignment]
 
             # handle items with duplicate name entries
             if len(self.rr['Prophecies.dat'].index['Name'][name]) > 1:

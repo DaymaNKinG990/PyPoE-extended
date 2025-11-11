@@ -33,7 +33,7 @@ See PyPoE/LICENSE
 import os
 
 # 3rd Party
-from graphviz import Digraph
+from graphviz import Digraph  # type: ignore[import-not-found]
 
 # Self
 from PyPoE.cli.core import console
