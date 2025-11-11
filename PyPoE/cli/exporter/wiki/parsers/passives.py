@@ -368,7 +368,7 @@ class PassiveSkillParser(parser.BaseParser):
                 #    index = stat_ids.index('damage_taken_+%_from_hits')
                 #    del stat_ids[index]
                 #    del values[index]
-                for i, (sid, val) in enumerate(zip(stat_ids, values, strict=False)):
+                for _i, (sid, val) in enumerate(zip(stat_ids, values, strict=False)):
                     j += 1
                     data[f"stat{j}_id"] = sid
                     data[f"stat{j}_value"] = val

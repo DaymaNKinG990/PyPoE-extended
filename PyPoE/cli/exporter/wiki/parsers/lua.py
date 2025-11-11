@@ -47,7 +47,7 @@ from PyPoE.poe.text import parse_description_tags
 # Globals
 # =============================================================================
 
-__all__ = ["QuestRewardReader", "LuaHandler"]
+__all__ = ["LuaHandler"]
 
 # =============================================================================
 # Functions
@@ -897,7 +897,7 @@ class DelveParser(GenericLuaParser):
             self._copy_from_keys(row, self._COPY_KEYS_DELVE_UPGRADES, delve_upgrades)
             delve_upgrades[-1]["cost"] = row["Cost"]
 
-            for i, (stat, value) in enumerate(row["Stats"]):
+            for _i, (stat, value) in enumerate(row["Stats"]):
                 self._copy_from_keys(row, self._COPY_KEYS_DELVE_UPGRADES, delve_upgrade_stats)
                 delve_upgrade_stats[-1]["id"] = stat["Id"]
                 delve_upgrade_stats[-1]["value"] = value

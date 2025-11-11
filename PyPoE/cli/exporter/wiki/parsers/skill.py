@@ -363,7 +363,7 @@ class SkillParserShared(parser.BaseParser):
             "stats": OrderedDict(),
         }
 
-        for i, row in enumerate(gepl):
+        for _i, row in enumerate(gepl):
             data: defaultdict[Any, Any] = defaultdict()
 
             stats = [
@@ -584,7 +584,7 @@ class SkillParserShared(parser.BaseParser):
             if key in static["stats"]:
                 try:
                     sdict = level_data[0]["stats"][key]
-                except:
+                except (KeyError, IndexError):
                     sdict = level_data[-1]["stats"][key]
                 line = sdict["line"]
                 stats.extend(sdict["stats"])

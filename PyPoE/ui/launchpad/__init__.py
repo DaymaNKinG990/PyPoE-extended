@@ -85,12 +85,15 @@ class LaunchpadMainWindow(QMainWindow):
         return wrapped
 
     def _handle_closed_child(self, qwidget):
+        index = None
         for i, item in enumerate(self.instances):
             if item == qwidget:
+                index = i
                 break
 
-        self.buttons[i].setEnabled(True)
-        self.buttons[i].setText(qwidget.NAME)
+        if index is not None:
+            self.buttons[index].setEnabled(True)
+            self.buttons[index].setText(qwidget.NAME)
 
     def run_application(self, i):
         self.buttons[i].setEnabled(False)

@@ -344,7 +344,7 @@ class ModParser(BaseParser):
             stat_ids = [st["Id"] for st in stats]
             stat_values = []
 
-            for i, stat in enumerate(stats):
+            for i, _stat in enumerate(stats):
                 j = i + 1
                 values = [mod[f"Stat{j}Min"], mod[f"Stat{j}Max"]]
                 if values[0] == values[1]:

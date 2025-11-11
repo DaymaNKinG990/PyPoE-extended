@@ -560,14 +560,14 @@ class Index(Bundle):
         file_count = struct.unpack_from("<I", raw, offset=offset)[0]
         offset += 4
 
-        for i in range(0, file_count):
+        for _i in range(0, file_count):
             fr = FileRecord(raw, self, offset)
             self.files[fr.hash] = fr
             offset += fr.SIZE
 
         count = struct.unpack_from("<I", raw, offset=offset)[0]
         offset += 4
-        for i in range(0, count):
+        for _i in range(0, count):
             dr = DirectoryRecord(raw, self, offset)
             self.directories[dr.hash] = dr
             offset += dr.SIZE

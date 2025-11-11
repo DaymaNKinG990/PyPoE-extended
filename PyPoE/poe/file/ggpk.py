@@ -739,14 +739,14 @@ class GGPKFile(AbstractFileReadOnly, metaclass=InheritedDocStringsMeta):
         else:
             root = parent
 
-        l: list[tuple[int, str, DirectoryNode]] = []
+        nodes_list: list[tuple[int, str, DirectoryNode]] = []
         if isinstance(root.record, DirectoryRecord):
             for entry in root.record.entries:
-                l.append((entry.offset, entry.hash, root))
+                nodes_list.append((entry.offset, entry.hash, root))
 
         try:
             while True:
-                offset, hash, parent = l.pop()
+                offset, hash, parent = nodes_list.pop()
                 try:
                     base_record = self.records[offset]
                 except KeyError:
@@ -765,7 +765,7 @@ class GGPKFile(AbstractFileReadOnly, metaclass=InheritedDocStringsMeta):
 
                     if node.is_directory and isinstance(base_record, DirectoryRecord):
                         for entry in base_record.entries:
-                            l.append((entry.offset, entry.hash, node))
+                            nodes_list.append((entry.offset, entry.hash, node))
         except IndexError:
             pass
 

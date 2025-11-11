@@ -109,14 +109,7 @@ class IDLRecord(Record):
         self.y2 = int(y2)
 
     def __str__(self):
-        return '"%s" "%s" %i %i %i %i' % (
-            self.destination,
-            self.source,
-            self.x1,
-            self.y1,
-            self.x2,
-            self.y2,
-        )
+        return f'"{self.destination}" "{self.source}" {self.x1} {self.y1} {self.x2} {self.y2}'
 
     @property
     def w(self):

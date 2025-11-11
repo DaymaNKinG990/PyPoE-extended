@@ -278,7 +278,7 @@ class PSGFile(AbstractFileReadOnly):
         offset += 4
 
         self.groups = []
-        for i in range(0, group_length):
+        for _i in range(0, group_length):
             x, y, flag, passive_length = struct.unpack_from("<ffbI", data, offset=offset)
             offset += 4 * 2 + 4 + 1
 
