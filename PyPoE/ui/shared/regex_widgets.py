@@ -33,7 +33,7 @@ import re
 
 # 3rd Party
 from PySide6.QtCore import *
-from PySide6.QtWidgets import *
+from PySide6.QtWidgets import *  # type: ignore[assignment]
 
 # self
 
@@ -61,8 +61,8 @@ class RegexFlagsBox(QGroupBox):
 
         self.setTitle(self.tr('RegEx Options'))
 
-        self.layout = QVBoxLayout()
-        self.setLayout(self.layout)
+        self.main_layout = QVBoxLayout()
+        self.setLayout(self.main_layout)
 
         self._regex_flags = [
             {
@@ -142,10 +142,10 @@ class RegexFlagsBox(QGroupBox):
             if flag_info['flag'] & disabled_flags:
                 delete.append(flag_info)
             else:
-                box = QCheckBox(flag_info['description'], parent=self)
+                box = QCheckBox(flag_info['description'], parent=self)  # type: ignore[call-overload]
                 box.setToolTip(flag_info['tooltip'])
-                self.layout.addWidget(box)
-                setattr(self, flag_info['variable'], box)
+                self.main_layout.addWidget(box)
+                setattr(self, flag_info['variable'], box)  # type: ignore[arg-type]
 
         for item in delete:
             self._regex_flags.remove(item)
@@ -156,15 +156,15 @@ class RegexFlagsBox(QGroupBox):
     def get_flags(self):
         flags = 0
         for flag_info in self._regex_flags:
-            if getattr(self, flag_info['variable']).isChecked():
-                flags |= flag_info['flag']
+            if getattr(self, flag_info['variable']).isChecked():  # type: ignore[call-overload]
+                flags |= flag_info['flag']  # type: ignore[operator]
 
         return flags
 
     def set_defaults(self, flags=None):
         flags = self._default_flags if flags is None else flags
         for flag_info in self._regex_flags:
-            box = getattr(self, flag_info['variable'])
+            box = getattr(self, flag_info['variable'])  # type: ignore[call-overload]
             if flag_info['flag'] & flags:
                 box.setCheckState(Qt.CheckState.Checked)
             else:
