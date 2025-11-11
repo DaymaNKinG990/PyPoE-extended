@@ -32,18 +32,17 @@ from __future__ import annotations
 import io
 import os
 import warnings
-from collections import OrderedDict
-from collections.abc import Iterable
-from typing import Union, List, Tuple, Dict, Any, Callable, Iterable as t_Iterable, TYPE_CHECKING
+from collections.abc import Callable, Iterable
+from collections.abc import Iterable as t_Iterable
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from PyPoE.poe.file.translations.cache import TranslationFileCache
 
 from PyPoE.poe.file.shared import AbstractFileReadOnly, ParserError
 from PyPoE.poe.file.translations.constants import (
-    regex_ids,
     regex_id_strings,
-    regex_strings,
+    regex_ids,
     regex_int,
     regex_isnumber,
     regex_lang,
@@ -51,17 +50,14 @@ from PyPoE.poe.file.translations.constants import (
     regex_translation_string,
 )
 from PyPoE.poe.file.translations.exceptions import (
-    TranslationWarning,
-    MissingIdentifierWarning,
-    UnknownIdentifierWarning,
     DuplicateIdentifierWarning,
+    TranslationWarning,
 )
 from PyPoE.poe.file.translations.models import (
     Translation,
     TranslationLanguage,
-    TranslationString,
     TranslationRange,
-    TranslationQuantifierHandler,
+    TranslationString,
 )
 from PyPoE.poe.file.translations.results import (
     TranslationResult,
@@ -72,11 +68,12 @@ from PyPoE.poe.file.translations.results import (
 # Globals
 # =============================================================================
 
-__all__ = ['TranslationFile']
+__all__ = ["TranslationFile"]
 
 # =============================================================================
 # Classes
 # =============================================================================
+
 
 class TranslationFile(AbstractFileReadOnly):
     """
@@ -98,12 +95,14 @@ class TranslationFile(AbstractFileReadOnly):
         is only one.
     """
 
-    __slots__ = ['translations', 'translations_hash', '_base_dir', '_parent']
+    __slots__ = ["translations", "translations_hash", "_base_dir", "_parent"]
 
-    def __init__(self,
-                 file_path: Union[t_Iterable[str], str, None] = None,
-                 base_dir: Union[str, None] = None,
-                 parent: Union['TranslationFileCache', None] = None):
+    def __init__(
+        self,
+        file_path: t_Iterable[str] | str | None = None,
+        base_dir: str | None = None,
+        parent: TranslationFileCache | None = None,
+    ):
         """
         Creates a new TranslationFile instance from the given translation
         file(s).
@@ -141,18 +140,18 @@ class TranslationFile(AbstractFileReadOnly):
         TypeError
             if parent is not a :class:`TranslationFileCache`
         """
-        self.translations: List[Translation] = []
-        self.translations_hash: Dict[str, List[Translation]] = {}
+        self.translations: list[Translation] = []
+        self.translations_hash: dict[str, list[Translation]] = {}
         self._base_dir: str | None = base_dir
 
         if parent is not None:
             # Check class name instead of isinstance to avoid circular import at runtime
-            if parent.__class__.__name__ != 'TranslationFileCache':
-                raise TypeError('Parent must be a TranslationFileCache.')
+            if parent.__class__.__name__ != "TranslationFileCache":
+                raise TypeError("Parent must be a TranslationFileCache.")
             if base_dir is not None:
-                raise ValueError('Set either parent or base_dir, but not both.')
+                raise ValueError("Set either parent or base_dir, but not both.")
 
-        self._parent: Union['TranslationFileCache', None] = parent
+        self._parent: TranslationFileCache | None = parent
 
         # Note str must be first since strings are iterable as well
         if isinstance(file_path, (str, bytes, io.BytesIO)):
@@ -163,7 +162,7 @@ class TranslationFile(AbstractFileReadOnly):
 
     def _read(self, buffer, *args, **kwargs):
         self.translations = []
-        data = buffer.read().decode('utf-16')
+        data = buffer.read().decode("utf-16")
 
         # starts with bom?
         offset = 0
@@ -172,16 +171,14 @@ class TranslationFile(AbstractFileReadOnly):
             offset = match.end()
             match_next = regex_tokens.search(data, offset)
             offset_max = match_next.start() if match_next else len(data)
-            if match.group('description'):
-                translation = Translation(identifier=match.group('identifier'))
+            if match.group("description"):
+                translation = Translation(identifier=match.group("identifier"))
 
                 # Parse the IDs for the translations
                 id_count_match = regex_int.search(data, offset, offset_max)
                 if id_count_match is None:
                     raise ValueError(
-                        'Couldn\'t find id count between offset %s and %s' % (
-                            offset, offset_max
-                        )
+                        "Couldn't find id count between offset %s and %s" % (offset, offset_max)
                     )
                 offset = id_count_match.end()
                 id_count = int(id_count_match.group())
@@ -189,9 +186,7 @@ class TranslationFile(AbstractFileReadOnly):
                 id_string = regex_ids.search(data, offset, offset_max)
                 if id_string is None:
                     raise ValueError(
-                        'Couldn\'t find id count between offset %s and %s' % (
-                            offset, offset_max
-                        )
+                        "Couldn't find id count between offset %s and %s" % (offset, offset_max)
                     )
 
                 # Actually extract the individual ids
@@ -200,24 +195,22 @@ class TranslationFile(AbstractFileReadOnly):
                 if len(translation.ids) != id_count:
                     print(data[offset:offset_max])
                     raise ValueError(
-                        'Mismatched number of id strings found (%s found vs %s '
-                        'expected) between offset %s and %s' % (
-                            len(translation.ids), id_count, offset, offset_max
-                        )
+                        "Mismatched number of id strings found (%s found vs %s "
+                        "expected) between offset %s and %s"
+                        % (len(translation.ids), id_count, offset, offset_max)
                     )
 
                 offset = id_string.end()
 
                 t = True
-                language = 'English'
+                language = "English"
                 while t:
                     tl = TranslationLanguage(language, parent=translation)
                     tcount_match = regex_int.search(data, offset, offset_max)
                     if tcount_match is None:
                         raise ValueError(
-                            'Couldn\'t find translation count between offset %s and %s' % (
-                                offset, offset_max
-                            )
+                            "Couldn't find translation count between offset %s and %s"
+                            % (offset, offset_max)
                         )
                     offset = tcount_match.end()
                     tcount = int(tcount_match.group())
@@ -228,16 +221,17 @@ class TranslationFile(AbstractFileReadOnly):
                         t = False
                     else:
                         offset_next_lang = language_match.start()
-                        language = language_match.group('language')
+                        language = language_match.group("language")
 
                     for i in range(0, tcount):
                         ts_match = regex_translation_string.search(data, offset, offset_next_lang)
                         if not ts_match:
                             raise ParserError(
-                                'Malformed translation string near line %s @ ids %s: %s' % (
-                                    data.count('\n', 0, offset),
+                                "Malformed translation string near line %s @ ids %s: %s"
+                                % (
+                                    data.count("\n", 0, offset),
                                     translation.ids,
-                                    data[offset:offset_next_lang+1],
+                                    data[offset : offset_next_lang + 1],
                                 )
                             )
 
@@ -246,40 +240,37 @@ class TranslationFile(AbstractFileReadOnly):
                         ts = TranslationString(parent=tl)
 
                         # Min/Max limiter
-                        limiter = ts_match.group('minmax').strip().split()
+                        limiter = ts_match.group("minmax").strip().split()
                         for j in range(0, id_count):
                             matchstr = limiter[j]
-                            if matchstr.startswith('!'):
+                            if matchstr.startswith("!"):
                                 matchstr = matchstr[1:]
                                 negated = True
                             else:
                                 negated = False
 
-                            if matchstr == '#':
-                                TranslationRange(None, None, parent=ts,
-                                                 negated=negated)
+                            if matchstr == "#":
+                                TranslationRange(None, None, parent=ts, negated=negated)
                             elif regex_isnumber.match(matchstr):
                                 value = int(matchstr)
-                                TranslationRange(value, value, parent=ts,
-                                                 negated=negated)
-                            elif '|' in matchstr:
-                                minmax = matchstr.split('|')
-                                min = int(minmax[0]) if minmax[0] != '#' else None
-                                max = int(minmax[1]) if minmax[1] != '#' else None
-                                TranslationRange(min, max, parent=ts,
-                                                 negated=negated)
+                                TranslationRange(value, value, parent=ts, negated=negated)
+                            elif "|" in matchstr:
+                                minmax = matchstr.split("|")
+                                min = int(minmax[0]) if minmax[0] != "#" else None
+                                max = int(minmax[1]) if minmax[1] != "#" else None
+                                TranslationRange(min, max, parent=ts, negated=negated)
                             else:
-                                TranslationRange(None, None, parent=ts,
-                                                 negated=negated)
+                                TranslationRange(None, None, parent=ts, negated=negated)
                                 warnings.warn(
-                                    'Malformed quantifier string "%s" near index %s (parent %s). Assuming # instead.' % (
-                                        matchstr, ts_match.start('minmax'), translation.ids
-                                    ), TranslationWarning)
+                                    'Malformed quantifier string "%s" near index %s (parent %s). Assuming # instead.'
+                                    % (matchstr, ts_match.start("minmax"), translation.ids),
+                                    TranslationWarning,
+                                )
 
-                        ts._set_string(ts_match.group('description'))
+                        ts._set_string(ts_match.group("description"))
 
                         ts.quantifier.register_from_string(
-                            ts_match.group('quantifier'),
+                            ts_match.group("quantifier"),
                         )
 
                     offset = offset_next_lang
@@ -288,19 +279,21 @@ class TranslationFile(AbstractFileReadOnly):
                 for translation_id in translation.ids:
                     self._add_translation_hashed(translation_id, translation)
 
-            elif match.group('no_description'):
+            elif match.group("no_description"):
                 pass
-            elif match.group('include'):
+            elif match.group("include"):
                 if self._parent:
-                    self.merge(self._parent.get_file(match.group('include')))
+                    self.merge(self._parent.get_file(match.group("include")))
                 elif self._base_dir:
-                    real_path = os.path.join(self._base_dir, match.group('include'))
+                    real_path = os.path.join(self._base_dir, match.group("include"))
                     self.merge(TranslationFile(real_path, base_dir=self._base_dir))
                 else:
                     warnings.warn(
-                        'Translation file includes other file, but no base_dir '
-                        'or parent specified. Skipping.', TranslationWarning)
-            elif match.group('header'):
+                        "Translation file includes other file, but no base_dir "
+                        "or parent specified. Skipping.",
+                        TranslationWarning,
+                    )
+            elif match.group("header"):
                 pass
 
             # Done, search next
@@ -310,7 +303,7 @@ class TranslationFile(AbstractFileReadOnly):
         if not isinstance(other, TranslationFile):
             return False
 
-        for attr in ('translations', 'translations_hash'):
+        for attr in ("translations", "translations_hash"):
             if getattr(self, attr) != getattr(other, attr):
                 return False
 
@@ -325,23 +318,27 @@ class TranslationFile(AbstractFileReadOnly):
 
                 # Identical ids, but more recent - update
                 if translation.ids == old_translation.ids:
-                    self.translations_hash[translation_id] = [translation, ]
+                    self.translations_hash[translation_id] = [
+                        translation,
+                    ]
                     # Attempt to remove the old one if it exists
                     try:
                         self.translations.remove(old_translation)
-                    except ValueError as e:
+                    except ValueError:
                         pass
 
                     return
 
-                '''print('Diff for id: %s' % translation_id)
+                """print('Diff for id: %s' % translation_id)
                 translation.diff(other)
-                print('')'''
+                print('')"""
 
                 warnings.warn('Duplicate id "%s"' % translation_id, DuplicateIdentifierWarning)
                 self.translations_hash[translation_id].append(translation)
         else:
-            self.translations_hash[translation_id] = [translation, ]
+            self.translations_hash[translation_id] = [
+                translation,
+            ]
 
     def copy(self):
         """
@@ -360,7 +357,7 @@ class TranslationFile(AbstractFileReadOnly):
 
         return t
 
-    def merge(self, other: 'TranslationFile'):
+    def merge(self, other: TranslationFile):
         """
         Merges the current translation file with another translation file.
 
@@ -376,22 +373,23 @@ class TranslationFile(AbstractFileReadOnly):
         """
 
         if not isinstance(other, TranslationFile):
-            TypeError('Wrong type: %s' % type(other))
+            TypeError("Wrong type: %s" % type(other))
         self.translations += other.translations
         for trans_id in other.translations_hash:
             for trans in other.translations_hash[trans_id]:
                 self._add_translation_hashed(trans_id, trans)
 
-        #self.translations_hash.update(other.translations_hash)
+        # self.translations_hash.update(other.translations_hash)
 
-    def get_translation(self,
-                        tags: List[str],
-                        values: Union[List[int], List[Tuple[int, int]]],
-                        lang: str = 'English',
-                        full_result: bool = False,
-                        use_placeholder: Union[bool, Callable] = False,
-                        only_values: bool = False,
-                        ) -> Union[List[int], List[str], TranslationResult]:
+    def get_translation(
+        self,
+        tags: list[str],
+        values: list[int] | list[tuple[int, int]],
+        lang: str = "English",
+        full_result: bool = False,
+        use_placeholder: bool | Callable = False,
+        only_values: bool = False,
+    ) -> list[int] | list[str] | TranslationResult:
         """
         Attempts to retrieve a translation from the loaded translation file for
         the specified language with the given tags and values.
@@ -436,7 +434,9 @@ class TranslationFile(AbstractFileReadOnly):
         # I.e. the case for always_freeze
 
         if isinstance(tags, str):
-            tags = [tags, ]
+            tags = [
+                tags,
+            ]
 
         trans_found: list[Translation] = []
         trans_missing: list[str] = []
@@ -457,7 +457,7 @@ class TranslationFile(AbstractFileReadOnly):
                 trans_missing_values.append(values[i])
                 continue
 
-            #tr = self.translations_hash[tag][-1]
+            # tr = self.translations_hash[tag][-1]
             for tr in self.translations_hash[tag]:
                 index = tr.ids.index(tag)
                 if tr in trans_found:
@@ -483,10 +483,8 @@ class TranslationFile(AbstractFileReadOnly):
 
         if partial:
             warnings.warn(
-                'Partial tag match for %s' % ', '.join([
-                   str(p) for p in partial
-                ]),
-                TranslationWarning
+                "Partial tag match for %s" % ", ".join([str(p) for p in partial]),
+                TranslationWarning,
             )
 
         trans_lines = []
@@ -496,13 +494,15 @@ class TranslationFile(AbstractFileReadOnly):
         extra_strings = []
         string_instances = []
         for i, tr in enumerate(trans_found):
-
             tl = tr.get_language(lang)
             ts, short_values, is_range = tl.get_string(trans_found_values[i])  # type: ignore[arg-type]
             if ts:
                 string_instances.append(ts)
                 result = ts.format_string(
-                    short_values, is_range, use_placeholder, only_values  # type: ignore[arg-type]
+                    short_values,
+                    is_range,
+                    use_placeholder,
+                    only_values,  # type: ignore[arg-type]
                 )
                 trans_lines.append(result[0])
                 trans_found_lines.append(result[0])
@@ -512,7 +512,7 @@ class TranslationFile(AbstractFileReadOnly):
                     extra_strings.append(result[3])
 
             else:
-                trans_found_lines.append('')
+                trans_found_lines.append("")
                 values_parsed.append([])
 
         if full_result:
@@ -536,9 +536,7 @@ class TranslationFile(AbstractFileReadOnly):
         else:
             return trans_lines  # type: ignore[return-value]
 
-    def reverse_translation(self,
-                            string: str,
-                            lang: str = 'English') -> TranslationReverseResult:
+    def reverse_translation(self, string: str, lang: str = "English") -> TranslationReverseResult:
         """
         Attempt to reverse a translation string and return probable candidates
         as well as probable values the translation string was used with.
@@ -576,4 +574,3 @@ class TranslationFile(AbstractFileReadOnly):
                 values_found.append(values)
 
         return TranslationReverseResult(translations_found, values_found)
-

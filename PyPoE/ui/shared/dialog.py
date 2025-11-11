@@ -43,17 +43,18 @@ from PyPoE.ui.shared.regex_widgets import RegexFlagsBox
 # Imports
 # =============================================================================
 
-__all__ = ['RegExSearchDialog']
+__all__ = ["RegExSearchDialog"]
 
 # =============================================================================
 # Imports
 # =============================================================================
 
+
 class RegExSearchDialog(QDialog):
     def __init__(self, *args, **kwargs):
         QDialog.__init__(self, *args, **kwargs)
 
-        self.setWindowTitle(self.tr('RegEx Search Dialog'))
+        self.setWindowTitle(self.tr("RegEx Search Dialog"))
 
         self.master_layout = QVBoxLayout()
         self.setLayout(self.master_layout)
@@ -61,24 +62,26 @@ class RegExSearchDialog(QDialog):
         self.regex_box = RegexFlagsBox(default_flags=re.IGNORECASE)
         self.master_layout.addWidget(self.regex_box)
 
-        self.option_group_box = QGroupBox(self.tr('Search Options'))
+        self.option_group_box = QGroupBox(self.tr("Search Options"))
         self.master_layout.addWidget(self.option_group_box)
 
         self.option_group_box_layout = QVBoxLayout()
         self.option_group_box.setLayout(self.option_group_box_layout)
 
-        self.option_search_directories = QCheckBox(self.tr('Search directory names'))
+        self.option_search_directories = QCheckBox(self.tr("Search directory names"))
         self.option_group_box_layout.addWidget(self.option_search_directories)
 
-        self.option_full_path = QCheckBox(self.tr('Show full path'))
+        self.option_full_path = QCheckBox(self.tr("Show full path"))
         self.option_group_box_layout.addWidget(self.option_full_path)
 
-        self.master_layout.addWidget(QLabel(self.tr('Enter Regular Expression:')))
+        self.master_layout.addWidget(QLabel(self.tr("Enter Regular Expression:")))
 
         self.regex_input = QLineEdit()
         self.master_layout.addWidget(self.regex_input)
 
-        self.button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel | QDialogButtonBox.Reset)
+        self.button_box = QDialogButtonBox(
+            QDialogButtonBox.Ok | QDialogButtonBox.Cancel | QDialogButtonBox.Reset
+        )
         self.button_box.accepted.connect(self.accept)
         self.button_box.rejected.connect(self.reject)
 
@@ -95,7 +98,9 @@ class RegExSearchDialog(QDialog):
         try:
             self.regex_compiled = re.compile(self.regex_input.text(), self.regex_box.get_flags())
         except re.error as e:
-            QMessageBox.critical(self, self.tr('RegEx Error'), self.tr('regular Expression error:\n %s') % e.args[0])
+            QMessageBox.critical(
+                self, self.tr("RegEx Error"), self.tr("regular Expression error:\n %s") % e.args[0]
+            )
             # TODO: This may be unncessary. Actually should  accept even return rejected? No idea.
             return QDialog.Rejected
 
@@ -105,8 +110,8 @@ class RegExSearchDialog(QDialog):
         """
         Set defaults and empty the input text
         """
-        self.regex_compiled = re.compile('')
-        self.regex_input.setText('')
+        self.regex_compiled = re.compile("")
+        self.regex_input.setText("")
         self.regex_box.set_defaults()
         self.option_search_directories.setCheckState(Qt.CheckState.Unchecked)
         self.option_full_path.setCheckState(Qt.CheckState.Checked)

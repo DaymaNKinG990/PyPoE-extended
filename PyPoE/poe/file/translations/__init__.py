@@ -34,50 +34,44 @@ See PyPoE/LICENSE
 # =============================================================================
 
 # Import all public APIs from submodules for backward compatibility
-from PyPoE.poe.file.translations.exceptions import (
-    TranslationWarning,
-    MissingIdentifierWarning,
-    UnknownIdentifierWarning,
-    DuplicateIdentifierWarning,
-)
-
+from PyPoE.poe.file.translations.cache import TranslationFileCache
 from PyPoE.poe.file.translations.constants import (
     CUSTOM_TRANSLATION_FILE,
-    regex_translation_string,
-    regex_ids,
     regex_id_strings,
-    regex_strings,
+    regex_ids,
     regex_int,
     regex_isnumber,
     regex_lang,
+    regex_strings,
     regex_tokens,
+    regex_translation_string,
 )
-
+from PyPoE.poe.file.translations.exceptions import (
+    DuplicateIdentifierWarning,
+    MissingIdentifierWarning,
+    TranslationWarning,
+    UnknownIdentifierWarning,
+)
+from PyPoE.poe.file.translations.file import TranslationFile
 from PyPoE.poe.file.translations.models import (
-    TranslationReprMixin,
+    TQReminderString,
     Translation,
     TranslationLanguage,
-    TranslationString,
-    TranslationRange,
-    TranslationQuantifierHandler,
     TranslationQuantifier,
-    TQReminderString,
+    TranslationQuantifierHandler,
+    TranslationRange,
+    TranslationReprMixin,
+    TranslationString,
 )
-
 from PyPoE.poe.file.translations.results import (
     TranslationResult,
     TranslationReverseResult,
 )
-
-from PyPoE.poe.file.translations.file import TranslationFile
-
-from PyPoE.poe.file.translations.cache import TranslationFileCache
-
 from PyPoE.poe.file.translations.utils import (
-    get_custom_translation_file,
-    set_custom_translation_file,
     custom_translation_file,
+    get_custom_translation_file,
     install_data_dependant_quantifiers,
+    set_custom_translation_file,
 )
 
 # =============================================================================
@@ -86,38 +80,38 @@ from PyPoE.poe.file.translations.utils import (
 
 __all__ = [
     # Exceptions
-    'TranslationWarning',
-    'MissingIdentifierWarning',
-    'UnknownIdentifierWarning',
-    'DuplicateIdentifierWarning',
+    "TranslationWarning",
+    "MissingIdentifierWarning",
+    "UnknownIdentifierWarning",
+    "DuplicateIdentifierWarning",
     # Constants
-    'CUSTOM_TRANSLATION_FILE',
-    'regex_translation_string',
-    'regex_ids',
-    'regex_id_strings',
-    'regex_strings',
-    'regex_int',
-    'regex_isnumber',
-    'regex_lang',
-    'regex_tokens',
+    "CUSTOM_TRANSLATION_FILE",
+    "regex_translation_string",
+    "regex_ids",
+    "regex_id_strings",
+    "regex_strings",
+    "regex_int",
+    "regex_isnumber",
+    "regex_lang",
+    "regex_tokens",
     # Models
-    'TranslationReprMixin',
-    'Translation',
-    'TranslationLanguage',
-    'TranslationString',
-    'TranslationRange',
-    'TranslationQuantifierHandler',
-    'TranslationQuantifier',
-    'TQReminderString',
+    "TranslationReprMixin",
+    "Translation",
+    "TranslationLanguage",
+    "TranslationString",
+    "TranslationRange",
+    "TranslationQuantifierHandler",
+    "TranslationQuantifier",
+    "TQReminderString",
     # Results
-    'TranslationResult',
-    'TranslationReverseResult',
+    "TranslationResult",
+    "TranslationReverseResult",
     # File handlers
-    'TranslationFile',
-    'TranslationFileCache',
+    "TranslationFile",
+    "TranslationFileCache",
     # Utilities
-    'get_custom_translation_file',
-    'set_custom_translation_file',
-    'custom_translation_file',
-    'install_data_dependant_quantifiers',
+    "get_custom_translation_file",
+    "set_custom_translation_file",
+    "custom_translation_file",
+    "install_data_dependant_quantifiers",
 ]

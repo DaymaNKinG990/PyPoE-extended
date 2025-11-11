@@ -28,21 +28,20 @@ See PyPoE/LICENSE
 # Imports
 # =============================================================================
 
-from typing import Union
 
+from PyPoE.poe.file.translations.constants import CUSTOM_TRANSLATION_FILE
 from PyPoE.poe.file.translations.file import TranslationFile
 from PyPoE.poe.file.translations.models import TQReminderString
-from PyPoE.poe.file.translations.constants import CUSTOM_TRANSLATION_FILE
 
 # =============================================================================
 # Globals
 # =============================================================================
 
 __all__ = [
-    'get_custom_translation_file',
-    'set_custom_translation_file',
-    'custom_translation_file',
-    'install_data_dependant_quantifiers',
+    "get_custom_translation_file",
+    "set_custom_translation_file",
+    "custom_translation_file",
+    "install_data_dependant_quantifiers",
 ]
 
 _custom_translation_file = None
@@ -55,10 +54,10 @@ _custom_translation_file = None
 def get_custom_translation_file() -> TranslationFile:
     """
     Returns the custom translation file.
-    
+
     If no custom file has been set, it will attempt to load the default
     custom translation file.
-    
+
     Returns
     -------
     TranslationFile
@@ -71,10 +70,10 @@ def get_custom_translation_file() -> TranslationFile:
     return _custom_translation_file
 
 
-def set_custom_translation_file(file: Union[str, None] = None):
+def set_custom_translation_file(file: str | None = None):
     """
     Sets the custom translation file.
-    
+
     Parameters
     ----------
     file : str or None
@@ -95,7 +94,7 @@ custom_translation_file = get_custom_translation_file
 def install_data_dependant_quantifiers(relational_reader):
     """
     Installs data-dependent quantifiers that require access to game data files.
-    
+
     Parameters
     ----------
     relational_reader

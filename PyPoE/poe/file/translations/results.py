@@ -28,11 +28,10 @@ See PyPoE/LICENSE
 # Imports
 # =============================================================================
 
-from typing import List, Dict, Union, Tuple
 
 from PyPoE.poe.file.translations.models import (
-    TranslationReprMixin,
     Translation,
+    TranslationReprMixin,
     TranslationString,
 )
 
@@ -41,13 +40,14 @@ from PyPoE.poe.file.translations.models import (
 # =============================================================================
 
 __all__ = [
-    'TranslationResult',
-    'TranslationReverseResult',
+    "TranslationResult",
+    "TranslationReverseResult",
 ]
 
 # =============================================================================
 # Classes
 # =============================================================================
+
 
 class TranslationResult(TranslationReprMixin):
     """
@@ -81,53 +81,54 @@ class TranslationResult(TranslationReprMixin):
         List of dictionary containing extra strings returned.
         The key is the quantifier id used and the value is the string returned.
     """
+
     __slots__ = [
-        'found',
-        'found_lines',
-        'lines',
-        'missing_ids',
-        'missing_values',
-        'partial',
-        'values',
-        'values_unused',
-        'values_parsed',
-        'source_ids',
-        'source_values',
-        'extra_strings',
-        'string_instances'
+        "found",
+        "found_lines",
+        "lines",
+        "missing_ids",
+        "missing_values",
+        "partial",
+        "values",
+        "values_unused",
+        "values_parsed",
+        "source_ids",
+        "source_values",
+        "extra_strings",
+        "string_instances",
     ]
 
-    def __init__(self,
-                 found,
-                 found_lines,
-                 lines,
-                 missing,
-                 missing_values,
-                 partial,
-                 values,
-                 unused,
-                 values_parsed,
-                 source_ids,
-                 source_values,
-                 extra_strings,
-                 string_instances,
-                 ):
-        self.found: List[Translation] = found
-        self.found_lines: List[str] = found_lines
-        self.lines: List[str] = lines
-        self.missing_ids: List[str] = missing
-        self.missing_values: List[int] = missing_values
-        self.partial: List[Translation] = partial
-        self.values: List[int] = values
-        self.values_unused: List[int] = unused
-        self.values_parsed: List[str] = values_parsed
-        self.source_ids: List[str] = source_ids
-        self.source_values: Union[List[int], List[Tuple[int, int]]] = \
-            source_values
-        self.extra_strings: List[Dict[str, str]] = extra_strings
-        self.string_instances: List[TranslationString] = string_instances
+    def __init__(
+        self,
+        found,
+        found_lines,
+        lines,
+        missing,
+        missing_values,
+        partial,
+        values,
+        unused,
+        values_parsed,
+        source_ids,
+        source_values,
+        extra_strings,
+        string_instances,
+    ):
+        self.found: list[Translation] = found
+        self.found_lines: list[str] = found_lines
+        self.lines: list[str] = lines
+        self.missing_ids: list[str] = missing
+        self.missing_values: list[int] = missing_values
+        self.partial: list[Translation] = partial
+        self.values: list[int] = values
+        self.values_unused: list[int] = unused
+        self.values_parsed: list[str] = values_parsed
+        self.source_ids: list[str] = source_ids
+        self.source_values: list[int] | list[tuple[int, int]] = source_values
+        self.extra_strings: list[dict[str, str]] = extra_strings
+        self.string_instances: list[TranslationString] = string_instances
 
-    def _get_found_ids(self) -> List[List[str]]:
+    def _get_found_ids(self) -> list[list[str]]:
         """
         Generates a list of found ids and returns it.
 
@@ -163,14 +164,14 @@ class TranslationReverseResult(TranslationReprMixin):
     values
         List of values
     """
+
     __slots__ = [
-        'translations',
-        'values',
+        "translations",
+        "values",
     ]
 
-    def __init__(self,
-                 translations: List[Translation],
-                 values: List[Union[int, float]] | List[List[int]]):
-        self.translations: List[Translation] = translations
-        self.values: List[Union[int, float]] | List[List[int]] = values
-
+    def __init__(
+        self, translations: list[Translation], values: list[int | float] | list[list[int]]
+    ):
+        self.translations: list[Translation] = translations
+        self.values: list[int | float] | list[list[int]] = values

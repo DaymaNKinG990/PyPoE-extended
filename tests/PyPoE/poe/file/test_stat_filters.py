@@ -30,10 +30,9 @@ See PyPoE/LICENSE
 # =============================================================================
 
 # Python
-from PyPoE.poe.file import stat_filters
-
 # 3rd-party
-import pytest
+
+from PyPoE.poe.file import stat_filters
 
 # self
 
@@ -52,5 +51,4 @@ import pytest
 
 def test_stat_filter_file(file_system):
     f = stat_filters.StatFilterFile()
-    f.read(file_system.get_file(
-        'Metadata/StatDescriptions/skillpopup_stat_filters.txt'))
+    f.read(file_system.get_file("Metadata/StatDescriptions/skillpopup_stat_filters.txt"))

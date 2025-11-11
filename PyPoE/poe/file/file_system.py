@@ -39,22 +39,21 @@ Classes
 
 # Python
 import os
-from typing import Union
 
 # 3rd-party
 import brotli  # type: ignore[import-untyped]
 
-# self
-from PyPoE.poe.file.shared import FILE_SYSTEM_TYPES, AbstractFileSystemNode
-from PyPoE.poe.file.ggpk import GGPKFile, FileRecord
 from PyPoE.poe.file.bundle import Index
-from PyPoE.poe.file.shared import ParserError
+from PyPoE.poe.file.ggpk import FileRecord, GGPKFile
+
+# self
+from PyPoE.poe.file.shared import FILE_SYSTEM_TYPES, AbstractFileSystemNode, ParserError
 
 # =============================================================================
 # Globals
 # =============================================================================
 
-__all__ = ['FileSystem']
+__all__ = ["FileSystem"]
 
 # =============================================================================
 # Classes
@@ -62,23 +61,25 @@ __all__ = ['FileSystem']
 
 
 class FileSystemNode(AbstractFileSystemNode):
-    _REPR_ARGUMENTS_IGNORE = {'parent'}
+    _REPR_ARGUMENTS_IGNORE = {"parent"}
 
-    __slots__ = ['file_system'] + AbstractFileSystemNode.__slots__
+    __slots__ = ["file_system"] + AbstractFileSystemNode.__slots__
 
-    def __init__(self,
-                 parent: 'FileSystemNode | None',
-                 file_system_type: FILE_SYSTEM_TYPES,
-                 is_file: bool,
-                 file_system: 'FileSystem',
-                 name: str):
-
+    def __init__(
+        self,
+        parent: "FileSystemNode | None",
+        file_system_type: FILE_SYSTEM_TYPES,
+        is_file: bool,
+        file_system: "FileSystem",
+        name: str,
+    ):
         super().__init__(
             parent,  # type: ignore[arg-type]
             file_system_type,
-            is_file)
+            is_file,
+        )
 
-        self.file_system: 'FileSystem' = file_system
+        self.file_system: FileSystem = file_system
         self._name: str = name
 
     @property
@@ -104,6 +105,7 @@ class FileSystem:
     Further decompression of bundles or reading of data will be only be done
     when the get_file method is called.
     """
+
     def __init__(self, root_path: str):
         """
         Parameters
@@ -111,25 +113,25 @@ class FileSystem:
         root_path
             The root game directory path (where PathOfExile.exe is located)
         """
-        self.directory: Union[FileSystemNode, None] = None
+        self.directory: FileSystemNode | None = None
 
         self.root_path: str = root_path
-        self.ggpk: Union[GGPKFile, None] = None
+        self.ggpk: GGPKFile | None = None
 
-        ggpk_path = os.path.join(root_path, 'Content.ggpk')
-        if os.path.exists(os.path.join(root_path, 'Content.ggpk')):
+        ggpk_path = os.path.join(root_path, "Content.ggpk")
+        if os.path.exists(os.path.join(root_path, "Content.ggpk")):
             self.ggpk = GGPKFile()
             self.ggpk.read(ggpk_path)
             self.ggpk.directory_build()
 
-        self.index: Union[Index, None] = Index()
+        self.index: Index | None = Index()
         try:
             if self.ggpk:
                 node = self.ggpk[self.index.PATH]
                 if isinstance(node.record, FileRecord):
                     self.index.read(node.record.extract())
                 else:
-                    raise ParserError('Index path does not point to a file')
+                    raise ParserError("Index path does not point to a file")
             else:
                 self.index.read(os.path.join(root_path, self.index.PATH))
         except FileNotFoundError:
@@ -160,10 +162,9 @@ class FileSystem:
                     if isinstance(node.record, FileRecord):
                         fr.bundle.read(node.record.extract())
                     else:
-                        raise ParserError('Bundle path does not point to a file')
+                        raise ParserError("Bundle path does not point to a file")
                 else:
-                    fr.bundle.read(os.path.join(
-                        self.root_path, fr.bundle.ggpk_path))
+                    fr.bundle.read(os.path.join(self.root_path, fr.bundle.ggpk_path))
                 return fr.get_file()
 
         # If the file is in the index, this section can't be reached
@@ -173,19 +174,19 @@ class FileSystem:
                 if isinstance(node.record, FileRecord):
                     return node.record.extract()  # type: ignore[no-any-return]
                 else:
-                    raise ParserError('Path does not point to a file')
+                    raise ParserError("Path does not point to a file")
             except FileNotFoundError:
                 pass
 
         # If no GGPK is loaded or the file isn't within the GGPK, lastly the
         # root directory is tried
         try:
-            with open(os.path.join(self.root_path, path), 'rb') as f:
+            with open(os.path.join(self.root_path, path), "rb") as f:
                 return f.read()
         except FileNotFoundError:
             raise FileNotFoundError(
-                'Specified file can not be found in the Index, content.ggpk '
-                'or disk')
+                "Specified file can not be found in the Index, content.ggpk or disk"
+            )
 
     def extract_dds(self, data: bytes) -> bytes:
         """
@@ -221,20 +222,18 @@ class FileSystem:
             If whatever bytes were read were not brotli compressed
         """
         # Already a DDS file, so return it
-        if data[:4] == b'DDS ':
+        if data[:4] == b"DDS ":
             return data
         # Is this a reference?
-        elif data[:1] == b'*':
+        elif data[:1] == b"*":
             path = data[1:].decode()
             data = self.get_file(path)
             return self.extract_dds(data)
         else:
-            size = int.from_bytes(data[:4], 'little')
+            size = int.from_bytes(data[:4], "little")
             dec = brotli.decompress(data[4:])
             if len(dec) != size:
-                raise ParserError(
-                    'Decompressed size does not match size in the header'
-                )
+                raise ParserError("Decompressed size does not match size in the header")
             return dec  # type: ignore[no-any-return]
 
     def build_directory(self) -> FileSystemNode:
@@ -251,7 +250,7 @@ class FileSystem:
         """
         self.directory = FileSystemNode(
             file_system=self,
-            name='',
+            name="",
             parent=None,
             file_system_type=FILE_SYSTEM_TYPES.ROOT,
             is_file=False,
@@ -259,7 +258,7 @@ class FileSystem:
 
         for path, directories, files in os.walk(self.root_path):
             p = os.path.commonprefix([self.root_path, path])
-            node = self.directory[path.replace(p, '')]
+            node = self.directory[path.replace(p, "")]
             for name in directories:
                 node.children[name] = FileSystemNode(
                     parent=node,  # type: ignore[arg-type]
@@ -278,6 +277,7 @@ class FileSystem:
                 )
 
         if self.ggpk:
+
             def add_to_directory(node, depth):
                 # Return at depth 0? Root object
 
@@ -293,13 +293,14 @@ class FileSystem:
                     file_system=self,
                     name=node.name,
                 )
+
             if self.ggpk.directory:
                 self.ggpk.directory.walk(function=add_to_directory)
 
         if self.index:  # type: ignore[union-attr]
             for dir_record in self.index.directories.values():
                 parent = self.directory
-                for directory in dir_record.path.split('/'):
+                for directory in dir_record.path.split("/"):
                     try:
                         parent = parent.children[directory]  # type: ignore[assignment]
                     except KeyError:
@@ -319,7 +320,7 @@ class FileSystem:
                     name=file_name,
                     file_system_type=FILE_SYSTEM_TYPES.BUNDLE,
                     is_file=True,
-                    parent=parent
+                    parent=parent,
                 )
                 parent.children[file_name] = node
 

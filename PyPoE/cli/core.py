@@ -69,7 +69,7 @@ _console = Console()
 # Globals
 # =============================================================================
 
-__all__ = ['Msg', 'OutputHook', 'run', 'console']
+__all__ = ["Msg", "OutputHook", "run", "console"]
 
 # =============================================================================
 # Classes
@@ -89,6 +89,7 @@ class Msg(Enum):
     error
         red error message
     """
+
     default = ""
     error = "bold red"
     warning = "bold yellow"
@@ -98,6 +99,7 @@ class OutputHook:
     """
     Warning hook to reformat / restyle warning messages properly.
     """
+
     def __init__(self, show_warning):
         self._orig_show_warning = show_warning
         self._orig_format_warning = warnings.formatwarning
@@ -106,17 +108,19 @@ class OutputHook:
 
     def format_warning(self, message, category, filename, lineno, line=None):
         kwargs = {
-            'message': message,
-            'category': category.__name__,
-            'filename': filename,
-            'lineno': lineno,
-            'line': line,
+            "message": message,
+            "category": category.__name__,
+            "filename": filename,
+            "lineno": lineno,
+            "line": line,
         }
         f = "%(filename)s:%(lineno)s:\n%(category)s: %(message)s\n" % kwargs
         return console(f, msg=Msg.warning, rtr=True)
+
     #
     def show_warning(self, *args, **kwargs):
         self._orig_show_warning(*args, **kwargs)
+
 
 # =============================================================================
 # Functions
@@ -143,10 +147,10 @@ def run(parser, config):
         config object to use for the CLI application wide config
     """
     args = parser.parse_args()
-    if hasattr(args, 'func'):
+    if hasattr(args, "func"):
         try:
             code = args.func(args)
-        except Exception as e:
+        except Exception:
             console(traceback.format_exc(), msg=Msg.error)
             code = -1
     else:
@@ -181,7 +185,7 @@ def console(message, msg=Msg.default, rtr=False, raw=False):
     if raw:
         f = message
     else:
-        timestamp = strftime('%X ')
+        timestamp = strftime("%X ")
         if msg.value:
             f = f"[{msg.value}]{timestamp}{message}[/]"
         else:
@@ -190,4 +194,3 @@ def console(message, msg=Msg.default, rtr=False, raw=False):
         return f
     else:
         _console.print(f, markup=True, highlight=False)
-

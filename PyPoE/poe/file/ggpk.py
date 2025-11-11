@@ -75,7 +75,7 @@ Miscellaneous
 import io
 import os
 import struct
-from typing import Optional, List, Dict, Union, BinaryIO, Any
+from typing import Any, BinaryIO
 
 from PyPoE.poe.file.shared import (
     FILE_SYSTEM_TYPES,
@@ -484,9 +484,7 @@ class DirectoryNode(AbstractFileSystemNode):
         record: DirectoryRecord | FileRecord,
         hash: str,
     ):
-        super().__init__(
-            parent=parent, file_system_type=FILE_SYSTEM_TYPES.GGPK, is_file=is_file
-        )
+        super().__init__(parent=parent, file_system_type=FILE_SYSTEM_TYPES.GGPK, is_file=is_file)
         self.record: DirectoryRecord | FileRecord = record
         self.hash: str = hash
 
@@ -520,8 +518,8 @@ class GGPKFile(AbstractFileReadOnly, metaclass=InheritedDocStringsMeta):
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         AbstractFileReadOnly.__init__(self, *args, **kwargs)
-        self.directory: Optional[DirectoryNode] = None
-        self.records: Dict[int, BaseRecord] = {}
+        self.directory: DirectoryNode | None = None
+        self.records: dict[int, BaseRecord] = {}
 
     def __getitem__(self, item: str) -> DirectoryNode:
         """
@@ -573,12 +571,7 @@ class GGPKFile(AbstractFileReadOnly, metaclass=InheritedDocStringsMeta):
     # Private
     #
 
-    def _read_record(
-        self, 
-        records: Dict[int, BaseRecord], 
-        ggpkfile: BinaryIO, 
-        offset: int
-    ) -> None:
+    def _read_record(self, records: dict[int, BaseRecord], ggpkfile: BinaryIO, offset: int) -> None:
         length = struct.unpack("<i", ggpkfile.read(4))[0]
         tag = ggpkfile.read(4)
 
@@ -689,7 +682,7 @@ class GGPKFile(AbstractFileReadOnly, metaclass=InheritedDocStringsMeta):
 
         return new_files, deleted_files, changed_files
 
-    def build_directory(self, parent: Optional[DirectoryNode] = None) -> DirectoryNode:
+    def build_directory(self, parent: DirectoryNode | None = None) -> DirectoryNode:
         """
         Rebuilds the directory or the specified :class:`DirectoryNode`
         If the root directory is rebuild it will be stored in the directory
@@ -722,7 +715,7 @@ class GGPKFile(AbstractFileReadOnly, metaclass=InheritedDocStringsMeta):
             ggpkrecord = self.records[0]
             if not isinstance(ggpkrecord, GGPKRecord):
                 raise ParserError(f"Expected GGPKRecord at offset 0, got {type(ggpkrecord)}")
-            
+
             record: DirectoryRecord | FileRecord | None = None
             for offset in ggpkrecord.offsets:
                 rec = self.records[offset]
@@ -762,7 +755,7 @@ class GGPKFile(AbstractFileReadOnly, metaclass=InheritedDocStringsMeta):
                 else:
                     if not isinstance(base_record, (DirectoryRecord, FileRecord)):
                         continue
-                    
+
                     node = DirectoryNode(
                         parent=parent,
                         is_file=isinstance(base_record, FileRecord),

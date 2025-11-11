@@ -37,52 +37,48 @@ from PyPoE import DATA_DIR
 # =============================================================================
 
 __all__ = [
-    'CUSTOM_TRANSLATION_FILE',
-    'regex_translation_string',
-    'regex_ids',
-    'regex_id_strings',
-    'regex_strings',
-    'regex_int',
-    'regex_isnumber',
-    'regex_lang',
-    'regex_tokens',
+    "CUSTOM_TRANSLATION_FILE",
+    "regex_translation_string",
+    "regex_ids",
+    "regex_id_strings",
+    "regex_strings",
+    "regex_int",
+    "regex_isnumber",
+    "regex_lang",
+    "regex_tokens",
 ]
 
 # =============================================================================
 # Constants
 # =============================================================================
 
-CUSTOM_TRANSLATION_FILE = os.path.join(DATA_DIR, 'custom_descriptions.txt')
+CUSTOM_TRANSLATION_FILE = os.path.join(DATA_DIR, "custom_descriptions.txt")
 
 # =============================================================================
 # Regex Patterns
 # =============================================================================
 
 regex_translation_string = re.compile(
-    r'^'
-    r'[\s]*'
-    r'(?P<minmax>(?:[0-9\-\|#!]+[ \t]+)+)'
+    r"^"
+    r"[\s]*"
+    r"(?P<minmax>(?:[0-9\-\|#!]+[ \t]+)+)"
     r'"(?P<description>.*\s*)"'
-    r'(?P<quantifier>(?:[ \t]*[\w%]+)*)'
-    r'[ \t]*[\r\n]*'
-    r'$',
-    re.UNICODE | re.MULTILINE
+    r"(?P<quantifier>(?:[ \t]*[\w%]+)*)"
+    r"[ \t]*[\r\n]*"
+    r"$",
+    re.UNICODE | re.MULTILINE,
 )
 
-regex_ids = re.compile(r'\S+.*(?!\s[0-9]+)', re.UNICODE | re.MULTILINE)
-regex_id_strings = re.compile(r'([\S]+)', re.UNICODE)
+regex_ids = re.compile(r"\S+.*(?!\s[0-9]+)", re.UNICODE | re.MULTILINE)
+regex_id_strings = re.compile(r"([\S]+)", re.UNICODE)
 regex_strings = re.compile(r'(?:"(.+)")|([\S]+)+', re.UNICODE)
-regex_int = re.compile(r'[0-9]+', re.UNICODE)
-regex_isnumber = re.compile(r'^[0-9\-]+$', re.UNICODE)
-regex_lang = re.compile(
-    r'^[\s]*lang "(?P<language>[\w ]+)"[\s]*$',
-    re.UNICODE | re.MULTILINE
-)
+regex_int = re.compile(r"[0-9]+", re.UNICODE)
+regex_isnumber = re.compile(r"^[0-9\-]+$", re.UNICODE)
+regex_lang = re.compile(r'^[\s]*lang "(?P<language>[\w ]+)"[\s]*$', re.UNICODE | re.MULTILINE)
 regex_tokens = re.compile(
     r'(?:^"(?P<header>.*)"$)'
     r'|(?:^include "(?P<include>.*)")'
-    r'|(?:^no_description (?P<no_description>[\w+%]*)$)'
-    r'|(?P<description>^description[\s]*(?P<identifier>[\S]*)[\s]*$)',
-    re.UNICODE | re.MULTILINE
+    r"|(?:^no_description (?P<no_description>[\w+%]*)$)"
+    r"|(?P<description>^description[\s]*(?P<identifier>[\S]*)[\s]*$)",
+    re.UNICODE | re.MULTILINE,
 )
-

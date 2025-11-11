@@ -31,27 +31,28 @@ See PyPoE/LICENSE
 
 import re
 import warnings
+from collections import OrderedDict, defaultdict
+from collections.abc import Callable
 from enum import IntEnum
 from string import ascii_letters
-from collections import OrderedDict, defaultdict
-from typing import Union, Tuple, List, Any, Callable, Dict, Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Union
 
-from PyPoE.shared.mixins import ReprMixin
 from PyPoE.poe.file.translations.exceptions import TranslationWarning
+from PyPoE.shared.mixins import ReprMixin
 
 # =============================================================================
 # Globals
 # =============================================================================
 
 __all__ = [
-    'TranslationReprMixin',
-    'Translation',
-    'TranslationLanguage',
-    'TranslationString',
-    'TranslationRange',
-    'TranslationQuantifierHandler',
-    'TranslationQuantifier',
-    'TQReminderString',
+    "TranslationReprMixin",
+    "Translation",
+    "TranslationLanguage",
+    "TranslationString",
+    "TranslationRange",
+    "TranslationQuantifierHandler",
+    "TranslationQuantifier",
+    "TQReminderString",
 ]
 
 # =============================================================================
@@ -60,49 +61,51 @@ __all__ = [
 
 
 def _diff_list(self, other, diff=True):
-    print('List len: %s vs %s' % (len(self), len(other)))
+    print("List len: %s vs %s" % (len(self), len(other)))
     for item in self:
         try:
             other.remove(item)
         except ValueError:
-            print('Not in other: %s' % item)
+            print("Not in other: %s" % item)
             if diff:
                 pass
 
     if other:
-        print('Not in self: %s' % other)
+        print("Not in self: %s" % other)
 
 
 def _diff_dict(self, other):
     for key in self.keys():
         if key in other:
             if self[key] != other[key]:
-                print('Value mismatch @ %s: %s vs %s' % (key, self[key], other[key]))
+                print("Value mismatch @ %s: %s vs %s" % (key, self[key], other[key]))
             del other[key]
         else:
-            print('Not in other: %s' % key)
+            print("Not in other: %s" % key)
 
     if other:
-        print('Not in self: %s' % list(other.keys()))
+        print("Not in self: %s" % list(other.keys()))
+
 
 # =============================================================================
 # Classes
 # =============================================================================
 
+
 class TranslationReprMixin(ReprMixin):
     """Mixin for translation classes that adds parent repr."""
-    
+
     # Type hints for attributes that will be provided by subclasses
     if TYPE_CHECKING:
         parent: Any
 
     _REPR_ARGUMENTS_TO_ATTRIBUTES = {
-        'parent': '_parent_repr',
+        "parent": "_parent_repr",
     }
 
     @property
     def _parent_repr(self):
-        return '%s<%s>' % (self.parent.__class__.__name__, hex(id(self.parent)))
+        return "%s<%s>" % (self.parent.__class__.__name__, hex(id(self.parent)))
 
 
 class Translation(TranslationReprMixin):
@@ -123,16 +126,14 @@ class Translation(TranslationReprMixin):
         Identifier if present else None
     """
 
-    __slots__ = ['languages', 'ids', 'identifier']
+    __slots__ = ["languages", "ids", "identifier"]
 
-    _REPR_EXTRA_ATTRIBUTES = OrderedDict((
-        ('ids', None),
-    ))
+    _REPR_EXTRA_ATTRIBUTES = OrderedDict((("ids", None),))
 
-    def __init__(self, identifier: Union[str, None] = None):
-        self.languages: List[TranslationLanguage] = []
-        self.ids: List[str] = []
-        self.identifier: Union[str, None] = identifier
+    def __init__(self, identifier: str | None = None):
+        self.languages: list[TranslationLanguage] = []
+        self.ids: list[str] = []
+        self.identifier: str | None = identifier
 
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, Translation):
@@ -159,8 +160,7 @@ class Translation(TranslationReprMixin):
         if self.languages != other.languages:
             _diff_list(self.languages, other.languages)
 
-    def get_language(self,
-                     language: str = 'English') -> 'TranslationLanguage':
+    def get_language(self, language: str = "English") -> "TranslationLanguage":
         """
         Returns the :class:`TranslationLanguage` record for the specified
         language.
@@ -183,7 +183,7 @@ class Translation(TranslationReprMixin):
         for tr in self.languages:
             if tr.language == language:
                 return tr
-            elif tr.language == 'English':
+            elif tr.language == "English":
                 etr = tr
 
         return etr  # type: ignore[return-value]
@@ -204,7 +204,7 @@ class TranslationLanguage(TranslationReprMixin):
         List of :class:`TranslationString` instances for this language
     """
 
-    __slots__ = ['parent', 'language', 'strings']
+    __slots__ = ["parent", "language", "strings"]
 
     def __init__(self, language, parent):
         parent.languages.append(self)
@@ -232,16 +232,14 @@ class TranslationLanguage(TranslationReprMixin):
             raise TypeError()
 
         if self.language != other.language:
-            print('Self: %s, other: %s' % (self.language, other.language))
+            print("Self: %s, other: %s" % (self.language, other.language))
 
         if self.strings != other.strings:
             _diff_list(self.strings, other.strings)
 
-    def get_string(self,
-                   values: Union[List[int], List[Tuple[int, int]]]) ->\
-            Tuple[Union['TranslationString', None],
-                  Union[List[bool], None],
-                  Union[List[int], None]]:
+    def get_string(
+        self, values: list[int] | list[tuple[int, int]]
+    ) -> tuple[Union["TranslationString", None], list[bool] | None, list[int] | None]:
         """
         Formats the string according with the given values and returns the
         TranslationString instance as well as any left over (unused) values.
@@ -281,7 +279,7 @@ class TranslationLanguage(TranslationReprMixin):
         temp = []
         for ts in self.strings:
             # TODO: check whether this really is a non issue now
-            #if len(values) != len(ts.range):
+            # if len(values) != len(ts.range):
             #   raise Exception('mismatch %s' % ts.range)
 
             match = ts.match_range(test_values)
@@ -296,11 +294,12 @@ class TranslationLanguage(TranslationReprMixin):
 
         return ts, short_values, is_range  # type: ignore[return-value]
 
-    def format_string(self,
-                      values: Union[List[int], List[Tuple[int, int]]],
-                      use_placeholder: Union[bool, Callable[[int], Any]] =
-                          False,
-                      only_values: bool = False) -> Tuple[Union[str, List[int]], List[int], List[int], Dict[str, str]]:
+    def format_string(
+        self,
+        values: list[int] | list[tuple[int, int]],
+        use_placeholder: bool | Callable[[int], Any] = False,
+        only_values: bool = False,
+    ) -> tuple[str | list[int], list[int], list[int], dict[str, str]]:
         """
         Formats the string according with the given values and
         returns the string and any left over (unused) values.
@@ -338,10 +337,13 @@ class TranslationLanguage(TranslationReprMixin):
             return None  # type: ignore[return-value]
 
         return ts.format_string(
-            short_values, is_range, use_placeholder, only_values  # type: ignore[arg-type]
+            short_values,
+            is_range,
+            use_placeholder,
+            only_values,  # type: ignore[arg-type]
         )
 
-    def reverse_string(self, string: str) -> List[int] | None:
+    def reverse_string(self, string: str) -> list[int] | None:
         """
         Attempts to find a match for the given string and returns a list of
         reversed values if a match is found for this language.
@@ -391,31 +393,24 @@ class TranslationString(TranslationReprMixin):
         list of tag types
     """
 
-    __slots__ = ['parent', 'quantifier', 'range', 'strings', 'tags',
-                 'tags_types']
-    
-    _REPR_EXTRA_ATTRIBUTES = OrderedDict((
-        ('string', None),
-    ))
+    __slots__ = ["parent", "quantifier", "range", "strings", "tags", "tags_types"]
+
+    _REPR_EXTRA_ATTRIBUTES = OrderedDict((("string", None),))
 
     # replacement tags used in translations
-    _re_split = re.compile(
-        r'(?:\{(?P<id>[0-9]*)(?:[\:]*)(?P<type>[^\}]*)\})',
-        re.UNICODE
-    )
+    _re_split = re.compile(r"(?:\{(?P<id>[0-9]*)(?:[\:]*)(?P<type>[^\}]*)\})", re.UNICODE)
 
-    _RANGE_FORMAT = '({0}-{1})'
-    _NEGATIVE_RANGE_FORMAT = '-({0}-{1})'
+    _RANGE_FORMAT = "({0}-{1})"
+    _NEGATIVE_RANGE_FORMAT = "-({0}-{1})"
 
     def __init__(self, parent: TranslationLanguage):
         parent.strings.append(self)
         self.parent: TranslationLanguage = parent
-        self.quantifier: TranslationQuantifierHandler = \
-            TranslationQuantifierHandler()
-        self.range: List[TranslationRange] = []
-        self.tags: List[int] = []
-        self.tags_types: List[str] = []
-        self.strings: List[str] = []
+        self.quantifier: TranslationQuantifierHandler = TranslationQuantifierHandler()
+        self.range: list[TranslationRange] = []
+        self.tags: list[int] = []
+        self.tags_types: list[str] = []
+        self.strings: list[str] = []
 
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, TranslationString):
@@ -436,12 +431,12 @@ class TranslationString(TranslationReprMixin):
         return hash((self.string, tuple(self.range), self.quantifier))
 
     def _set_string(self, string: str):
-        string = string.replace('%%', '%').replace('\\n', '\n')
+        string = string.replace("%%", "%").replace("\\n", "\n")
 
         start = None
         for match in self._re_split.finditer(string):
-            self.strings.append(string[start:match.start()])
-            intid = match.group('id')
+            self.strings.append(string[start : match.start()])
+            intid = match.group("id")
             if intid:
                 self.tags.append(int(intid))
             # Empty values appear in order
@@ -451,7 +446,7 @@ class TranslationString(TranslationReprMixin):
                 else:
                     self.tags.append(0)
 
-            self.tags_types.append(match.group('type'))
+            self.tags_types.append(match.group("type"))
             start = match.end()
         self.strings.append(string[start:])
 
@@ -468,11 +463,11 @@ class TranslationString(TranslationReprMixin):
         for i, tag in enumerate(self.tags):
             s.append(self.strings[i])
             if self.tags_types[i]:
-                s.append('{%s:%s}' % (tag, self.tags_types[i]))
+                s.append("{%s:%s}" % (tag, self.tags_types[i]))
             else:
-                s.append('{%s}' % tag)
+                s.append("{%s}" % tag)
         s.append(self.strings[-1])
-        return ''.join(s)
+        return "".join(s)
 
     @property
     def as_format_string(self) -> str:
@@ -487,9 +482,9 @@ class TranslationString(TranslationReprMixin):
         s = []
         for i, tag in enumerate(self.tags):
             s.append(self.strings[i])
-            s.append('{%s}' % tag)
+            s.append("{%s}" % tag)
         s.append(self.strings[-1])
-        return ''.join(s)
+        return "".join(s)
 
     def diff(self, other):
         if not isinstance(other, TranslationString):
@@ -502,14 +497,15 @@ class TranslationString(TranslationReprMixin):
             _diff_list(self.range, other.range)
 
         if self.string != other.string:
-            print('String mismatch: %s vs %s' % (self.string, other.string))
+            print("String mismatch: %s vs %s" % (self.string, other.string))
 
-    def format_string(self,
-                      values: Union[List[int], List[Tuple[int, int]]],
-                      is_range: List[bool],
-                      use_placeholder: Union[bool, Callable[[int], Any]] =
-                          False,
-                      only_values: bool = False) -> Tuple[Union[str, List[int]], List[int], List[int], Dict[str, str]]:
+    def format_string(
+        self,
+        values: list[int] | list[tuple[int, int]],
+        is_range: list[bool],
+        use_placeholder: bool | Callable[[int], Any] = False,
+        only_values: bool = False,
+    ) -> tuple[str | list[int], list[int], list[int], dict[str, str]]:
         """
         Formats the string for the given values.
 
@@ -561,16 +557,19 @@ class TranslationString(TranslationReprMixin):
             if not only_values:
                 string.append(self.strings[i])
                 # For adding the plus sign to the $+d and $+d%% formats
-                if '+' in self.tags_types[i] and (
-                        is_range[tagid] and value[1] > 0 or not is_range[tagid]  # type: ignore[call-overload, index, operator]
-                        and value > 0):  # type: ignore[operator]
-                    string.append('+')
+                if "+" in self.tags_types[i] and (
+                    is_range[tagid]
+                    and value[1] > 0
+                    or not is_range[tagid]  # type: ignore[call-overload, index, operator]
+                    and value > 0
+                ):  # type: ignore[operator]
+                    string.append("+")
 
                 if not use_placeholder:
-                    if 'd' in self.tags_types[i]:
-                        fmt = '{0:n}'
+                    if "d" in self.tags_types[i]:
+                        fmt = "{0:n}"
                     else:
-                        fmt = '{0}'
+                        fmt = "{0}"
 
                     if is_range[tagid]:  # type: ignore[call-overload]
                         # Move the minus outside if both values are negative
@@ -580,16 +579,16 @@ class TranslationString(TranslationReprMixin):
                                 range_fmt = self._NEGATIVE_RANGE_FORMAT
                             else:
                                 range_fmt = self._RANGE_FORMAT
-                        #TODO: how to show ranges for text stuff?
+                        # TODO: how to show ranges for text stuff?
                         except TypeError:
                             range_fmt = self._RANGE_FORMAT
                         value = range_fmt.format(  # type: ignore[assignment]
-                            fmt, fmt.replace('{0', '{1')
+                            fmt, fmt.replace("{0", "{1")
                         ).format(*value)  # type: ignore[misc]
                     else:
                         value = fmt.format(value)  # type: ignore[assignment]
                 elif use_placeholder is True:
-                    value = ascii_letters[23+i]  # type: ignore[assignment]
+                    value = ascii_letters[23 + i]  # type: ignore[assignment]
                 elif callable(use_placeholder):
                     value = use_placeholder(i)  # type: ignore[assignment]
             string.append(value)  # type: ignore[arg-type]
@@ -604,11 +603,11 @@ class TranslationString(TranslationReprMixin):
         if only_values:
             string = values  # type: ignore[assignment]
         else:
-            string = ''.join(string + [self.strings[-1]])  # type: ignore[assignment]
+            string = "".join(string + [self.strings[-1]])  # type: ignore[assignment]
 
         return string, unused, values, extra_strings  # type: ignore[return-value]
 
-    def match_range(self, values: List[Union[int, float]]) -> int:
+    def match_range(self, values: list[int | float]) -> int:
         """
         Returns the accumulative range rating of the specified values.
 
@@ -626,7 +625,7 @@ class TranslationString(TranslationReprMixin):
             rating += self.range[i].in_range(value)  # type: ignore[arg-type]
         return rating
 
-    def reverse_string(self, string: str) -> Union[List[int], None]:
+    def reverse_string(self, string: str) -> list[int] | None:
         """
         Attempts to match this :class:`TranslationString` against the given
         string.
@@ -656,19 +655,19 @@ class TranslationString(TranslationReprMixin):
             # Matched at the start of string, no preceeding value
 
             # Fix for TR strings starting with value
-            if i == 1 and self.strings[0] == '':
+            if i == 1 and self.strings[0] == "":
                 values_indexes.append(match)
             index = match + len(partial)
             values_indexes.append(index)
 
         # Fix for TR strings ending with value
-        if self.strings[-1] == '':
+        if self.strings[-1] == "":
             values_indexes[-1] = None  # type: ignore[call-overload]
 
         values = []
-        for i in range(0, len(values_indexes)-1):
+        for i in range(0, len(values_indexes) - 1):
             j = i + 1
-            values.append(string[values_indexes[i]:values_indexes[j]])
+            values.append(string[values_indexes[i] : values_indexes[j]])
 
         # tags may appear multiple times, reduce to one tag per value
         tags = {}
@@ -679,17 +678,13 @@ class TranslationString(TranslationReprMixin):
         for i in values:  # type: ignore[assignment]
             if i in tags:
                 # Fix for %1$+d
-                values[i] = tags[i].strip('%')
+                values[i] = tags[i].strip("%")
             else:
                 # The only definitive case
                 r = self.range[i]
                 warn = True
                 if r.negated:
-                    if r.min == r.max and r.max is not None:
-                        val = r.max + 1
-                    elif r.min is not None and r.max is not None:
-                        val = r.max + 1
-                    elif r.min is None and r.max is not None:
+                    if r.min == r.max and r.max is not None or r.min is not None and r.max is not None or r.min is None and r.max is not None:
                         val = r.max + 1
                     elif r.min is not None and r.min is None:
                         val = r.min - 1
@@ -699,9 +694,7 @@ class TranslationString(TranslationReprMixin):
                     if r.min == r.max and r.max is not None:
                         val = r.min  # type: ignore[assignment]
                         warn = False
-                    elif r.min is not None and r.max is not None:
-                        val = r.max
-                    elif r.min is None and r.max is not None:
+                    elif r.min is not None and r.max is not None or r.min is None and r.max is not None:
                         val = r.max
                     elif r.min is not None and r.min is None:
                         val = r.min
@@ -712,7 +705,7 @@ class TranslationString(TranslationReprMixin):
                     warnings.warn(
                         'Can not safely find a value at index "%s", using '
                         'range value "%s" instead' % (i, val),
-                        TranslationWarning
+                        TranslationWarning,
                     )
 
                 values[i] = val  # type: ignore[call-overload]
@@ -741,13 +734,11 @@ class TranslationRange(TranslationReprMixin):
         Whether the value is negated
     """
 
-    __slots__ = ['parent', 'min', 'max', 'negated']
+    __slots__ = ["parent", "min", "max", "negated"]
 
-    def __init__(self,
-                 min: int | None,
-                 max: int | None,
-                 parent: TranslationString,
-                 negated: bool = False):
+    def __init__(
+        self, min: int | None, max: int | None, parent: TranslationString, negated: bool = False
+    ):
         parent.range.append(self)
         self.parent: TranslationString = parent
         self.min: int | None = min
@@ -772,7 +763,7 @@ class TranslationRange(TranslationReprMixin):
     def __hash__(self) -> int:
         return hash((self.min, self.max))
 
-    def in_range(self, value:int ) -> int:
+    def in_range(self, value: int) -> int:
         """
         Checks whether the value is in range and returns the rating/accuracy
         of the check performed.
@@ -815,9 +806,9 @@ class TranslationRange(TranslationReprMixin):
                 return -10000
         elif self.min is not None and self.max is not None:
             if f_and(f_comp(self.min, value), f_comp(value, self.max)):
-                 return 3
+                return 3
             else:
-                 return -10000
+                return -10000
 
         return -100
 
@@ -829,7 +820,7 @@ class TranslationQuantifierHandler(TranslationReprMixin):
     In the GGG files often there are qualifiers specified to adjust the output
     of the values; for example, a value might be negated (i.e so that it would
     show "5% reduced Damage" instead of "-5% reduced Damage").
-    
+
     Attributes
     ----------
     index_handlers : dict[str, list[int]]
@@ -842,24 +833,24 @@ class TranslationQuantifierHandler(TranslationReprMixin):
         Class variable. Installed reverse handlers.
     """
 
-    _REPR_EXTRA_ATTRIBUTES = OrderedDict((
-        ('index_handlers', None),
-        ('string_handlers', None),
-    ))
+    _REPR_EXTRA_ATTRIBUTES = OrderedDict(
+        (
+            ("index_handlers", None),
+            ("string_handlers", None),
+        )
+    )
 
-    handlers: dict[str, Any] = {
-    }
+    handlers: dict[str, Any] = {}
 
-    reverse_handlers: dict[str, Any] = {
-    }
+    reverse_handlers: dict[str, Any] = {}
 
     regex: Any = None
 
-    __slots__ = ['index_handlers', 'string_handlers']
+    __slots__ = ["index_handlers", "string_handlers"]
 
     def __init__(self):
-        self.index_handlers: Dict[str, List[int]] = defaultdict(list)
-        self.string_handlers: Dict[str, List[int]] = defaultdict(list)
+        self.index_handlers: dict[str, list[int]] = defaultdict(list)
+        self.string_handlers: dict[str, list[int]] = defaultdict(list)
 
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, TranslationQuantifierHandler):
@@ -871,20 +862,19 @@ class TranslationQuantifierHandler(TranslationReprMixin):
         return True
 
     def __hash__(self) -> int:
-        #return hash((tuple(self.registered_handlers.keys()), tuple(self.registered_handlers.values())))
+        # return hash((tuple(self.registered_handlers.keys()), tuple(self.registered_handlers.values())))
         return hash(tuple(self.index_handlers.keys()))
 
     def _warn_uncaptured(self, name: str):
         raise TypeError(f"Uncaptured quantifier {name}, add in PyPoE/poe/translations.py")
-        
-    def _whole_float_to_int(self, value: float) -> Union[float, int]:
+
+    def _whole_float_to_int(self, value: float) -> float | int:
         if isinstance(value, float) and value.is_integer():
             return int(value)
         return value
 
-
     @classmethod
-    def install_quantifier(cls, quantifier: 'TranslationQuantifier'):
+    def install_quantifier(cls, quantifier: "TranslationQuantifier"):
         """
         Install the specified quantifier into the generic quantifier handling
 
@@ -902,16 +892,13 @@ class TranslationQuantifierHandler(TranslationReprMixin):
 
     @classmethod
     def init(cls):
-        cls.regex = re.compile(
-            r'(%s)(?!\_)' % '|'.join(cls.handlers.keys()),
-            re.UNICODE
-        )
+        cls.regex = re.compile(r"(%s)(?!\_)" % "|".join(cls.handlers.keys()), re.UNICODE)
 
     def diff(self, other: Any):
         if not isinstance(other, TranslationQuantifierHandler):
             raise TypeError
 
-        #if self.registered_handlers != other.registered_handlers:
+        # if self.registered_handlers != other.registered_handlers:
         _diff_dict(self.index_handlers, other.index_handlers)
 
     def _get_handler_func(self, handler_name: str) -> Callable:
@@ -938,7 +925,7 @@ class TranslationQuantifierHandler(TranslationReprMixin):
 
         for partial in values:
             partial = partial.strip()
-            if partial == '':
+            if partial == "":
                 continue
             handler = self.handlers.get(partial)
             if handler:
@@ -947,15 +934,20 @@ class TranslationQuantifierHandler(TranslationReprMixin):
                     try:
                         self.index_handlers[handler.id].append(int(args[0]))
                     except ValueError as e:
-                        warnings.warn('Broken quantifier "%s" - Error: %s' % (string, e.args[0]), TranslationWarning)
+                        warnings.warn(
+                            'Broken quantifier "%s" - Error: %s' % (string, e.args[0]),
+                            TranslationWarning,
+                        )
                 elif handler.type == TranslationQuantifier.QuantifierTypes.STRING:
                     self.string_handlers[handler.id] = args
             else:
-                raise TypeError(f"Uncaptured quantifier {partial}, add in PyPoE/poe/translations.py")
+                raise TypeError(
+                    f"Uncaptured quantifier {partial}, add in PyPoE/poe/translations.py"
+                )
 
-    def handle(self,    
-               values: Union[List[int], List[Tuple[int, int]]],
-               is_range: List[bool]) -> Tuple[List[Any], Dict[str, str]]:
+    def handle(
+        self, values: list[int] | list[tuple[int, int]], is_range: list[bool]
+    ) -> tuple[list[Any], dict[str, str]]:
         """
         Handle the given values based on the registered quantifiers.
 
@@ -989,9 +981,9 @@ class TranslationQuantifierHandler(TranslationReprMixin):
 
         for i, value in enumerate(values):
             if is_range[i]:
-                 values[i] = tuple([self._whole_float_to_int(v) for v in value])  # type: ignore[call-overload, assignment, attr-defined]
+                values[i] = tuple([self._whole_float_to_int(v) for v in value])  # type: ignore[call-overload, assignment, attr-defined]
             else:
-                 values[i] = self._whole_float_to_int(value)  # type: ignore[call-overload, assignment, arg-type]
+                values[i] = self._whole_float_to_int(value)  # type: ignore[call-overload, assignment, arg-type]
 
         strings = OrderedDict()
         for handler_name, args in self.string_handlers.items():
@@ -1002,7 +994,7 @@ class TranslationQuantifierHandler(TranslationReprMixin):
 
         return values, strings
 
-    def handle_reverse(self, values: List[int]) -> List[int]:
+    def handle_reverse(self, values: list[int]) -> list[int]:
         """
         Reverses the quantifier for the given values.
 
@@ -1055,15 +1047,21 @@ class TranslationQuantifier(TranslationReprMixin):
         STRING = 2
 
     __slots__ = [
-        'id', 'arg_size', 'type', 'handler', 'reverse_handler',
+        "id",
+        "arg_size",
+        "type",
+        "handler",
+        "reverse_handler",
     ]
 
-    def __init__(self,
-                 id: str,
-                 arg_size: int = 1,
-                 type: QuantifierTypes = QuantifierTypes.INT,
-                 handler: Union[Callable, None] = None,
-                 reverse_handler: Union[Callable, None] = None):
+    def __init__(
+        self,
+        id: str,
+        arg_size: int = 1,
+        type: QuantifierTypes = QuantifierTypes.INT,
+        handler: Callable | None = None,
+        reverse_handler: Callable | None = None,
+    ):
         """
         Parameters
         ----------
@@ -1081,10 +1079,10 @@ class TranslationQuantifier(TranslationReprMixin):
         self.id: str = id
         self.arg_size: int = arg_size
         if not isinstance(type, self.QuantifierTypes):
-            raise ValueError('Type must be a QuantifierTypes instance')
+            raise ValueError("Type must be a QuantifierTypes instance")
         self.type: TranslationQuantifier.QuantifierTypes = type
-        self.handler: Union[Callable, None] = handler
-        self.reverse_handler: Union[Callable, None] = reverse_handler
+        self.handler: Callable | None = handler
+        self.reverse_handler: Callable | None = reverse_handler
         TranslationQuantifierHandler.install_quantifier(self)
 
 
@@ -1092,13 +1090,11 @@ class TQReminderString(TranslationQuantifier):
     def __init__(self, relational_reader, *args, **kwargs):
         self.relational_reader = relational_reader
         super().__init__(
-            id='reminderstring',
+            id="reminderstring",
             type=self.QuantifierTypes.STRING,
             handler=self.handle,
             reverse_handler=None,
         )
 
     def handle(self, *args):
-        return self.relational_reader['ClientStrings.dat'].index['Id'][args[0].strip()]['Text']
-
-
+        return self.relational_reader["ClientStrings.dat"].index["Id"][args[0].strip()]["Text"]

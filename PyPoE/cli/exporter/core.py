@@ -45,16 +45,16 @@ Documentation
 # Python
 import argparse
 
-# 3rd party
-
-# self
-from PyPoE.shared.config.validator import IntEnumValidator
-from PyPoE.poe.constants import VERSION, DISTRIBUTOR
 from PyPoE.cli.core import run
-from PyPoE.cli.handler import ConfigHandler, SetupHandler
 from PyPoE.cli.exporter import config
 from PyPoE.cli.exporter.dat import DatHandler
 from PyPoE.cli.exporter.wiki.core import WikiHandler
+from PyPoE.cli.handler import ConfigHandler, SetupHandler
+from PyPoE.poe.constants import DISTRIBUTOR, VERSION
+
+# 3rd party
+# self
+from PyPoE.shared.config.validator import IntEnumValidator
 
 # =============================================================================
 # Classes
@@ -67,26 +67,26 @@ from PyPoE.cli.exporter.wiki.core import WikiHandler
 
 
 def setup_config():
-    config.validator.functions.update({
-        'is_version': IntEnumValidator(
-            enum=VERSION,
-        ),
-        'is_distributor': IntEnumValidator(
-            enum=DISTRIBUTOR,
-        )
-    })
-
-    config.add_option('version', 'is_version(default=%s)' %
-                      VERSION.DEFAULT.value)
-    config.add_option('distributor', 'is_distributor(default=%s)' %
-                      DISTRIBUTOR.DEFAULT.value)
-    config.add_option(
-        'ggpk_path', 'is_directory(default="", exists=True, allow_empty=True)'
+    config.validator.functions.update(
+        {
+            "is_version": IntEnumValidator(
+                enum=VERSION,
+            ),
+            "is_distributor": IntEnumValidator(
+                enum=DISTRIBUTOR,
+            ),
+        }
     )
-    config.add_option('language',
-                      'option("English", "French", "German", "Portuguese",'
-                      '"Russian", "Spanish", "Thai", "Simplified Chinese",'
-                      '"Traditional Chinese", "Korean", default="English")')
+
+    config.add_option("version", "is_version(default=%s)" % VERSION.DEFAULT.value)
+    config.add_option("distributor", "is_distributor(default=%s)" % DISTRIBUTOR.DEFAULT.value)
+    config.add_option("ggpk_path", 'is_directory(default="", exists=True, allow_empty=True)')
+    config.add_option(
+        "language",
+        'option("English", "French", "German", "Portuguese",'
+        '"Russian", "Spanish", "Thai", "Simplified Chinese",'
+        '"Traditional Chinese", "Korean", default="English")',
+    )
 
 
 def main():
@@ -108,5 +108,6 @@ def main():
     # Execute
     run(main_parser, config)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

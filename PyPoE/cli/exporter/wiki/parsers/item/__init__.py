@@ -34,21 +34,20 @@ See PyPoE/LICENSE
 # =============================================================================
 
 from PyPoE.cli.exporter.wiki.parsers.item.base import (
-    # Helper functions
-    _apply_column_map,
-    _type_factory,
-    _simple_conflict_factory,
-    # Classes
-    WikiCondition,
     ItemWikiCondition,
     MapItemWikiCondition,
-    UniqueMapItemWikiCondition,
     ProphecyWikiCondition,
+    UniqueMapItemWikiCondition,
+    # Classes
+    WikiCondition,
+    # Helper functions
+    _apply_column_map,
+    _simple_conflict_factory,
+    _type_factory,
 )
-
 from PyPoE.cli.exporter.wiki.parsers.item.handler import ItemsHandler
-from PyPoE.cli.exporter.wiki.parsers.item.prophecy import ProphecyParser
 from PyPoE.cli.exporter.wiki.parsers.item.parser import ItemsParser
+from PyPoE.cli.exporter.wiki.parsers.item.prophecy import ProphecyParser
 
 # =============================================================================
 # Public API
@@ -56,18 +55,17 @@ from PyPoE.cli.exporter.wiki.parsers.item.parser import ItemsParser
 
 __all__ = [
     # Helper functions
-    '_apply_column_map',
-    '_type_factory',
-    '_simple_conflict_factory',
+    "_apply_column_map",
+    "_type_factory",
+    "_simple_conflict_factory",
     # WikiCondition classes
-    'WikiCondition',
-    'ItemWikiCondition',
-    'MapItemWikiCondition',
-    'UniqueMapItemWikiCondition',
-    'ProphecyWikiCondition',
+    "WikiCondition",
+    "ItemWikiCondition",
+    "MapItemWikiCondition",
+    "UniqueMapItemWikiCondition",
+    "ProphecyWikiCondition",
     # Main classes
-    'ItemsHandler',
-    'ProphecyParser',
-    'ItemsParser',
+    "ItemsHandler",
+    "ProphecyParser",
+    "ItemsParser",
 ]
-

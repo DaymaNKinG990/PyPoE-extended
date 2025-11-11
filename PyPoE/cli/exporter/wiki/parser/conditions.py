@@ -27,7 +27,6 @@ See PyPoE/LICENSE
 # Imports
 # =============================================================================
 
-from collections import OrderedDict
 
 from PyPoE.cli.exporter.wiki.parser.utils import find_template, format_result_rows
 
@@ -35,15 +34,15 @@ from PyPoE.cli.exporter.wiki.parser.utils import find_template, format_result_ro
 # Globals
 # =============================================================================
 
-__all__ = ['WikiCondition']
+__all__ = ["WikiCondition"]
 
 # =============================================================================
 # Classes
 # =============================================================================
 
+
 class WikiCondition:
-    COPY_KEYS = (
-    )
+    COPY_KEYS = ()
     COPY_MATCH = None
 
     NAME = NotImplemented
@@ -59,14 +58,13 @@ class WikiCondition:
         self.template_arguments = None
 
     def __call__(self, *args, **kwargs):
-        page = kwargs.get('page')
+        page = kwargs.get("page")
 
         if page is not None:
             # Abuse this so it can be called as "text" and "condition"
             if self.template_arguments is None:
-                self.template_arguments = find_template(
-                    page.text(), self.MATCH or self.NAME)
-                if len(self.template_arguments['texts']) == 1:
+                self.template_arguments = find_template(page.text(), self.MATCH or self.NAME)
+                if len(self.template_arguments["texts"]) == 1:
                     self.template_arguments = None
                     return False
 
@@ -75,23 +73,25 @@ class WikiCondition:
             k: str
             for k in self.COPY_KEYS:
                 try:
-                    self.data[k] = self.template_arguments['kwargs'][k]
+                    self.data[k] = self.template_arguments["kwargs"][k]
                 except KeyError:
                     pass
 
             if self.COPY_MATCH:
-                for k, v in self.template_arguments['kwargs'].items():
+                for k, v in self.template_arguments["kwargs"].items():
                     if self.COPY_MATCH.match(k):
                         self.data[k] = v
 
-            prefix = ''
-            if self.ADD_INCLUDE and '<onlyinclude></onlyinclude>' not in \
-                    page.text():
-                prefix = '<onlyinclude></onlyinclude>'
+            prefix = ""
+            if self.ADD_INCLUDE and "<onlyinclude></onlyinclude>" not in page.text():
+                prefix = "<onlyinclude></onlyinclude>"
 
-            return self.handler(prefix + self.template_arguments['texts'][0] + \
-                   self._get_text() + \
-                   ''.join(self.template_arguments['texts'][1:]))
+            return self.handler(
+                prefix
+                + self.template_arguments["texts"][0]
+                + self._get_text()
+                + "".join(self.template_arguments["texts"][1:])
+            )
         else:
             return self.handler(self._get_text())
 
@@ -106,8 +106,7 @@ class WikiCondition:
             ordered_dict=self.data,
         )
 
+
 # =============================================================================
 # Functions
 # =============================================================================
-
-

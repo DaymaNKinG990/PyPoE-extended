@@ -43,20 +43,20 @@ Documentation
 # =============================================================================
 
 # Python
-from typing import Union, List, Dict, Any
+from typing import Any
+
+from PyPoE.poe.file.file_system import FileSystem
+from PyPoE.poe.file.shared import AbstractFileReadOnly
 
 # 3rd-party
-
 # self
 from PyPoE.shared.mixins import ReprMixin
-from PyPoE.poe.file.shared import AbstractFileReadOnly
-from PyPoE.poe.file.file_system import FileSystem
 
 # =============================================================================
 # Globals
 # =============================================================================
 
-__all__ = ['AbstractFileCache']
+__all__ = ["AbstractFileCache"]
 
 # =============================================================================
 # Classes
@@ -76,12 +76,14 @@ class AbstractFileCache(ReprMixin):
 
     FILE_TYPE = None
 
-    def __init__(self,
-                 path_or_file_system: Union[str, FileSystem, None] = None,
-                 files: List[str] | None = None,
-                 files_shortcut: bool = True,
-                 instance_options: Dict[str, Any] | None = None,
-                 read_options: Dict[str, Any] | None = None):
+    def __init__(
+        self,
+        path_or_file_system: str | FileSystem | None = None,
+        files: list[str] | None = None,
+        files_shortcut: bool = True,
+        instance_options: dict[str, Any] | None = None,
+        read_options: dict[str, Any] | None = None,
+    ):
         """
         Parameters
         ----------
@@ -113,12 +115,10 @@ class AbstractFileCache(ReprMixin):
         else:
             self.file_system = FileSystem(root_path=path_or_file_system)  # type: ignore[arg-type]
 
-        self.instance_options: Dict[str, Any] = {} if \
-            instance_options is None else instance_options
-        self.read_options: Dict[str, Any] = {} if \
-            read_options is None else read_options
+        self.instance_options: dict[str, Any] = {} if instance_options is None else instance_options
+        self.read_options: dict[str, Any] = {} if read_options is None else read_options
 
-        self.files: Dict[str, AbstractFileReadOnly] = {}
+        self.files: dict[str, AbstractFileReadOnly] = {}
 
         read_func = self.__getitem__ if files_shortcut else self.get_file
 
@@ -146,10 +146,7 @@ class AbstractFileCache(ReprMixin):
         """
         return self.get_file(item)
 
-    def _get_file_instance_args(self,
-                                file_name: str,
-                                *args,
-                                **kwargs) -> Dict[str, Any]:
+    def _get_file_instance_args(self, file_name: str, *args, **kwargs) -> dict[str, Any]:
         """
         Returns a dictionary of keyword arguments to pass to the file's
         __init__ method upon initial reading.
@@ -168,10 +165,7 @@ class AbstractFileCache(ReprMixin):
         options = dict(self.instance_options)
         return options
 
-    def _get_read_args(self,
-                       file_name: str,
-                       *args,
-                       **kwargs) -> Dict[str, Any]:
+    def _get_read_args(self, file_name: str, *args, **kwargs) -> dict[str, Any]:
         """
         Returns a dictionary of keyword arguments to pass to the file's
         read method upon initial reading.
@@ -191,14 +185,11 @@ class AbstractFileCache(ReprMixin):
             Dictionary of keyword arguments
         """
         options = dict(self.read_options)
-        options['file_path_or_raw'] = self.file_system.get_file(file_name)
+        options["file_path_or_raw"] = self.file_system.get_file(file_name)
 
         return options
 
-    def _create_instance(self,
-                         file_name: str,
-                         *args,
-                         **kwargs) -> Any:
+    def _create_instance(self, file_name: str, *args, **kwargs) -> Any:
         """
         Creates a new instance for the given file name
 
@@ -219,10 +210,7 @@ class AbstractFileCache(ReprMixin):
         f.read(**self._get_read_args(file_name=file_name, *args, **kwargs))  # type: ignore[misc]
         return f  # type: ignore[no-any-return]
 
-    def get_file(self,
-                 file_name: str,
-                 *args,
-                 **kwargs) -> AbstractFileReadOnly:
+    def get_file(self, file_name: str, *args, **kwargs) -> AbstractFileReadOnly:
         """
         Returns the the specified file from the cache.
 

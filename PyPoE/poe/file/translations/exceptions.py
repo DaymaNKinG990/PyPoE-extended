@@ -34,10 +34,10 @@ from PyPoE.poe.file.shared import ParserWarning
 # =============================================================================
 
 __all__ = [
-    'TranslationWarning',
-    'MissingIdentifierWarning',
-    'UnknownIdentifierWarning',
-    'DuplicateIdentifierWarning',
+    "TranslationWarning",
+    "MissingIdentifierWarning",
+    "UnknownIdentifierWarning",
+    "DuplicateIdentifierWarning",
 ]
 
 # =============================================================================
@@ -47,20 +47,23 @@ __all__ = [
 
 class TranslationWarning(ParserWarning):
     """Base warning class for translation-related warnings."""
+
     pass
 
 
 class MissingIdentifierWarning(TranslationWarning):
     """Warning raised when a required identifier is missing."""
+
     pass
 
 
 class UnknownIdentifierWarning(TranslationWarning):
     """Warning raised when an unknown identifier is encountered."""
+
     pass
 
 
 class DuplicateIdentifierWarning(TranslationWarning):
     """Warning raised when a duplicate identifier is found."""
-    pass
 
+    pass

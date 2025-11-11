@@ -10,8 +10,8 @@ Class attributes are defined in the main ItemsParser class.
 # =============================================================================
 
 import warnings
-from typing import TYPE_CHECKING, Any, Dict
 from collections import OrderedDict
+from typing import TYPE_CHECKING, Any
 
 from PyPoE.cli.core import Msg, console
 from PyPoE.poe.sim.formula import GemTypes, gem_stat_requirement
@@ -23,16 +23,16 @@ from PyPoE.poe.sim.formula import GemTypes, gem_stat_requirement
 
 class SkillsMixin:
     """Mixin providing skills methods for ItemsParser."""
-    
+
     # Type hints for attributes from parent ItemsParser class
     if TYPE_CHECKING:
         rr: Any
-        _LANG: Dict[str, Dict[str, str]]
+        _LANG: dict[str, dict[str, str]]
         _language: str
         _parsed_args: Any
         _attribute_map: Any
         _conflict_active_skill_gems_map: Any
-        
+
         def _skill(self, *args: Any, **kwargs: Any) -> bool: ...
 
     def _skill_gem(self, infobox, base_item_type):

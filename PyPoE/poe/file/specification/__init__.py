@@ -24,7 +24,6 @@ import importlib
 from importlib.machinery import SourceFileLoader
 
 # 3rd-party
-
 # self
 from PyPoE.poe.constants import VERSION
 
@@ -32,7 +31,7 @@ from PyPoE.poe.constants import VERSION
 # Globals
 # =============================================================================
 
-__all__ = ['load']
+__all__ = ["load"]
 
 # =============================================================================
 # Globals
@@ -88,19 +87,15 @@ def load(path=None, version=VERSION.DEFAULT, reload=False, validate=None):
 
         if version in (VERSION.STABLE, VERSION.BETA, VERSION.ALPHA):
             module = importlib.import_module(
-                'PyPoE.poe.file.specification.data.%s' %
-                version.name.lower()
+                "PyPoE.poe.file.specification.data.%s" % version.name.lower()
             )
         else:
-            raise ValueError(
-                'Unknown version or version currently not supported: %s' %
-                version
-            )
+            raise ValueError("Unknown version or version currently not supported: %s" % version)
     else:
         if validate is None:
             validate = True
 
-        module = SourceFileLoader('', path).load_module()
+        module = SourceFileLoader("", path).load_module()
 
     if reload:
         importlib.reload(module)

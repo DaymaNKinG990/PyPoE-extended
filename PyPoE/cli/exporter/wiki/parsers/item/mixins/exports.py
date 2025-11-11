@@ -11,8 +11,8 @@ Class attributes are defined in the main ItemsParser class.
 
 import os
 import warnings
-from typing import TYPE_CHECKING, Any, Dict
 from collections import OrderedDict, defaultdict
+from typing import TYPE_CHECKING, Any
 
 from PyPoE.cli.core import Msg, console
 from PyPoE.cli.exporter.wiki.handler import ExporterResult
@@ -25,7 +25,7 @@ from PyPoE.cli.exporter.wiki.parsers.item.base import MapItemWikiCondition
 
 class ExportsMixin:
     """Mixin providing exports methods for ItemsParser."""
-    
+
     # Type hints for attributes from parent ItemsParser class
     if TYPE_CHECKING:
         rr: Any
@@ -34,12 +34,12 @@ class ExportsMixin:
         file_system: Any
         _parsed_args: Any
         _language: str
-        _LANG: Dict[str, Dict[str, str]]
-        _MAP_COLORS: Dict[str, str]
-        _MAP_RELEASE_VERSION: Dict[str, str]
+        _LANG: dict[str, dict[str, str]]
+        _MAP_COLORS: dict[str, str]
+        _MAP_RELEASE_VERSION: dict[str, str]
         _img_path: Any
         _type_map: Any
-        
+
         def _image_init(self, *args: Any, **kwargs: Any) -> None: ...
         def _write_dds(self, *args: Any, **kwargs: Any) -> None: ...
         def _format_map_name(self, *args: Any, **kwargs: Any) -> str: ...

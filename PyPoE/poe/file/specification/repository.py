@@ -126,9 +126,7 @@ class SQLiteSpecRepository:
             filename = row["filename"]
             files[filename] = self.get_file_spec(filename, version)
 
-        logger.info(
-            "specification_loaded", version=version_str, files_count=len(files)
-        )
+        logger.info("specification_loaded", version=version_str, files_count=len(files))
         return Specification(files)
 
     def get_file_spec(self, filename: str, version: VERSION) -> File:
@@ -161,9 +159,7 @@ class SQLiteSpecRepository:
         )
         row = cursor.fetchone()
         if not row:
-            raise ValueError(
-                f"File {filename} not found for version {version_str}"
-            )
+            raise ValueError(f"File {filename} not found for version {version_str}")
 
         file_id = row["id"]
 
@@ -293,4 +289,3 @@ class CachedSpecRepository:
         self._cache.clear()
         self._file_cache.clear()
         logger.info("cache_cleared")
-

@@ -30,11 +30,9 @@ See PyPoE/LICENSE
 # =============================================================================
 
 # Python
-from PyPoE.poe.file import psg
-from PyPoE.poe.file.dat import DatFile
-
 # 3rd-party
-import pytest
+
+from PyPoE.poe.file import psg
 
 # self
 
@@ -53,4 +51,4 @@ import pytest
 
 def test_psg(file_system, rr):
     f = psg.PSGFile(passive_skills_dat_file=rr)
-    f.read(file_system.get_file('Metadata/PassiveSkillGraph.psg'))
+    f.read(file_system.get_file("Metadata/PassiveSkillGraph.psg"))

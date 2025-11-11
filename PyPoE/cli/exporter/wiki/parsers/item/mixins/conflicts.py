@@ -10,9 +10,9 @@ Class attributes are defined in the main ItemsParser class.
 # =============================================================================
 
 import re
-from typing import TYPE_CHECKING, Any, Dict
+from typing import TYPE_CHECKING, Any
 
-from PyPoE.cli.core import console, Msg
+from PyPoE.cli.core import Msg, console
 
 # =============================================================================
 # Classes
@@ -21,13 +21,13 @@ from PyPoE.cli.core import console, Msg
 
 class ConflictsMixin:
     """Mixin providing conflicts methods for ItemsParser."""
-    
+
     # Type hints for attributes from parent ItemsParser class
     if TYPE_CHECKING:
         rr: Any
-        _LANG: Dict[str, Dict[str, str]]
+        _LANG: dict[str, dict[str, str]]
         _language: str
-        
+
         def _format_map_name(self, *args: Any, **kwargs: Any) -> str: ...
 
     def _conflict_quest_items(self, infobox, base_item_type, rr, language):

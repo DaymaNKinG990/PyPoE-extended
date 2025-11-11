@@ -27,32 +27,31 @@ See PyPoE/LICENSE
 # Imports
 # =============================================================================
 
-import os
-from typing import Union
 
-from PyPoE.shared.decorators import doc
+from PyPoE.poe.constants import MOD_GENERATION_TYPE
 from PyPoE.poe.file.shared.cache import AbstractFileCache
+from PyPoE.poe.file.translations.constants import (  # type: ignore[attr-defined]
+    CUSTOM_TRANSLATION_FILE,
+    _custom_translation_file,
+)
 from PyPoE.poe.file.translations.file import TranslationFile
 from PyPoE.poe.file.translations.models import (
+    TQReminderString,
     TranslationQuantifier,
     TranslationQuantifierHandler,
-    TQReminderString,
 )
-from PyPoE.poe.file.translations.constants import (  # type: ignore[attr-defined]
-    _custom_translation_file,
-    CUSTOM_TRANSLATION_FILE,
-)
-from PyPoE.poe.constants import MOD_GENERATION_TYPE
+from PyPoE.shared.decorators import doc
 
 # =============================================================================
 # Globals
 # =============================================================================
 
-__all__ = ['TranslationFileCache']
+__all__ = ["TranslationFileCache"]
 
 # =============================================================================
 # Classes
 # =============================================================================
+
 
 class TranslationFileCache(AbstractFileCache):
     """
@@ -68,14 +67,13 @@ class TranslationFileCache(AbstractFileCache):
     file multiple times, as such there is a fairly significant performance
     improvement over using single files.
     """
+
     FILE_TYPE = TranslationFile  # type: ignore[assignment]
 
     @doc(prepend=AbstractFileCache.__init__)
-    def __init__(self,
-                 *args,
-                 merge_with_custom_file: Union[None, bool, TranslationFile] =
-                     None,
-                 **kwargs):
+    def __init__(
+        self, *args, merge_with_custom_file: None | bool | TranslationFile = None, **kwargs
+    ):
         """
         Parameters
         ----------
@@ -93,8 +91,8 @@ class TranslationFileCache(AbstractFileCache):
             self._custom_file = merge_with_custom_file
         else:
             raise TypeError(
-                'Argument merge_with_custom_file is of wrong type. %(type)s' %
-                {'type': type(merge_with_custom_file)}
+                "Argument merge_with_custom_file is of wrong type. %(type)s"
+                % {"type": type(merge_with_custom_file)}
             )
 
         # Call order matters here
@@ -120,14 +118,14 @@ class TranslationFileCache(AbstractFileCache):
         TranslationFile
             the specified TranslationFile
         """
-        if not item.startswith('Metadata/StatDescriptions/'):
-            item = 'Metadata/StatDescriptions/' + item
+        if not item.startswith("Metadata/StatDescriptions/"):
+            item = "Metadata/StatDescriptions/" + item
         return self.get_file(item)
 
     @doc(doc=AbstractFileCache._get_file_instance_args)
     def _get_file_instance_args(self, file_name, *args, **kwargs):
         return {
-            'parent': self,
+            "parent": self,
         }
 
     def get_file(self, file_name: str) -> TranslationFile:
@@ -175,12 +173,12 @@ def _diff_list(self, other, diff=True):
     len_self = len(self)
     len_other = len(other)
     if len_self != len_other:
-        print('Different length, %s vs %s' % (len_self, len_other))
+        print("Different length, %s vs %s" % (len_self, len_other))
 
         set_self = set(self)
         set_other = set(other)
-        print('Extra items in self: %s' % set_self.difference(set_other))
-        print('Extra item in other: %s' % set_other.difference(set_self))
+        print("Extra items in self: %s" % set_self.difference(set_other))
+        print("Extra item in other: %s" % set_other.difference(set_self))
         return
 
     if diff:
@@ -196,12 +194,12 @@ def _diff_dict(self, other):
     kdiff_other = key_other.difference(key_self)
 
     if kdiff_self:
-        print('Extra keys in self:')
+        print("Extra keys in self:")
         for key in kdiff_self:
             print('Key "%s": Value "%s"' % (key, self[key]))
 
     if kdiff_other:
-        print('Extra keys in other:')
+        print("Extra keys in other:")
         for key in kdiff_other:
             print('Key "%s": Value "%s"' % (key, other[key]))
 
@@ -223,7 +221,7 @@ def get_custom_translation_file() -> TranslationFile:
     return _custom_translation_file  # type: ignore[no-any-return]
 
 
-def set_custom_translation_file(file: Union[str, None] = None):
+def set_custom_translation_file(file: str | None = None):
     """
     Sets the custom translation file.
 
@@ -234,9 +232,8 @@ def set_custom_translation_file(file: Union[str, None] = None):
         the default file will be loaded
     """
     global _custom_translation_file
-    _custom_translation_file = TranslationFile(
-        file_path=file or CUSTOM_TRANSLATION_FILE
-    )
+    _custom_translation_file = TranslationFile(file_path=file or CUSTOM_TRANSLATION_FILE)
+
 
 custom_translation_file = property(  # type: ignore[arg-type]
     fget=get_custom_translation_file,  # type: ignore[arg-type]
@@ -260,21 +257,23 @@ def install_data_dependant_quantifiers(relational_reader):
             for row in relational_reader:
                 if row[key] == value:
                     return row.rowid
+
         return _get_from_value
 
-
     TranslationQuantifier(
-        id='mod_value_to_item_class',
-        handler=lambda v: relational_reader['ItemClasses.dat'][v]['Name'],
-        reverse_handler=_get_reverse_lookup_from_reader(relational_reader['ItemClasses.dat'], 'Name'),
+        id="mod_value_to_item_class",
+        handler=lambda v: relational_reader["ItemClasses.dat"][v]["Name"],
+        reverse_handler=_get_reverse_lookup_from_reader(
+            relational_reader["ItemClasses.dat"], "Name"
+        ),
     )
 
     def _tempest_mod_text_reverse(value):
         results = []
-        for row in relational_reader['Mods.dat']:
-            if row['GenerationType'] != MOD_GENERATION_TYPE.TEMPEST:
+        for row in relational_reader["Mods.dat"]:
+            if row["GenerationType"] != MOD_GENERATION_TYPE.TEMPEST:
                 continue
-            if row['Name'] == value: 
+            if row["Name"] == value:
                 results.append(row.rowid)
 
         if len(results) == 1:
@@ -285,51 +284,57 @@ def install_data_dependant_quantifiers(relational_reader):
             return results
 
     TranslationQuantifier(
-        id='tempest_mod_text',
-        handler=lambda v: relational_reader['Mods.dat'][v]['Name'],
+        id="tempest_mod_text",
+        handler=lambda v: relational_reader["Mods.dat"][v]["Name"],
         reverse_handler=_tempest_mod_text_reverse,
     )
-
 
     def _get_reverse_lookup_from_reader(relational_reader, key):  # type: ignore[no-redef]
         def _get_from_value(value):
             for row in relational_reader:
                 if row[key] == value:
                     return row.rowid
+
         return _get_from_value
 
-
     TranslationQuantifier(
-        id='display_indexable_support',
-        handler=lambda v: relational_reader['IndexableSupportGems.dat'][v]['Name'],
-        reverse_handler=_get_reverse_lookup_from_reader(relational_reader['IndexableSupportGems.dat'], 'Name'),
+        id="display_indexable_support",
+        handler=lambda v: relational_reader["IndexableSupportGems.dat"][v]["Name"],
+        reverse_handler=_get_reverse_lookup_from_reader(
+            relational_reader["IndexableSupportGems.dat"], "Name"
+        ),
     )
 
-
     TranslationQuantifier(
-        id='tree_expansion_jewel_passive',
-        handler=lambda v: relational_reader['Data/PassiveTreeExpansionJewelSizes.dat'][v]['Name'],
-        reverse_handler=_get_reverse_lookup_from_reader(relational_reader['Data/PassiveTreeExpansionJewelSizes.dat'], 'Name'),
+        id="tree_expansion_jewel_passive",
+        handler=lambda v: relational_reader["Data/PassiveTreeExpansionJewelSizes.dat"][v]["Name"],
+        reverse_handler=_get_reverse_lookup_from_reader(
+            relational_reader["Data/PassiveTreeExpansionJewelSizes.dat"], "Name"
+        ),
     )
 
-    
     TranslationQuantifier(
-        id='affliction_reward_type',
-        handler=lambda v: relational_reader['Data/AfflictionRewardTypeVisuals.dat'][v]['Name'],
-        reverse_handler=_get_reverse_lookup_from_reader(relational_reader['Data/AfflictionRewardTypeVisuals.dat'], 'Name'),
+        id="affliction_reward_type",
+        handler=lambda v: relational_reader["Data/AfflictionRewardTypeVisuals.dat"][v]["Name"],
+        reverse_handler=_get_reverse_lookup_from_reader(
+            relational_reader["Data/AfflictionRewardTypeVisuals.dat"], "Name"
+        ),
     )
 
-    # I believe this is currently not right, as the handler actually uses a value located in additionalProperties of the item, and 
+    # I believe this is currently not right, as the handler actually uses a value located in additionalProperties of the item, and
     # not in the mod itself. THe mod itself has min = max = 0.
     TranslationQuantifier(
-        id='passive_hash',
-        handler=lambda v: relational_reader['Data/PassiveSkills.dat'][v]['PassiveSkillGraphId'],
-        reverse_handler=_get_reverse_lookup_from_reader(relational_reader['Data/PassiveSkills.dat'], 'PassiveSkillGraphId'),
+        id="passive_hash",
+        handler=lambda v: relational_reader["Data/PassiveSkills.dat"][v]["PassiveSkillGraphId"],
+        reverse_handler=_get_reverse_lookup_from_reader(
+            relational_reader["Data/PassiveSkills.dat"], "PassiveSkillGraphId"
+        ),
     )
 
     TQReminderString(relational_reader=relational_reader)
 
     TranslationQuantifierHandler.init()
+
 
 # =============================================================================
 # Init
@@ -351,317 +356,317 @@ TranslationQuantifier(
 """
 
 TranslationQuantifier(
-    id='30%_of_value',
-    handler=lambda v: v*0.3,
-    reverse_handler=lambda v: v/0.3,
+    id="30%_of_value",
+    handler=lambda v: v * 0.3,
+    reverse_handler=lambda v: v / 0.3,
 )
 
 TranslationQuantifier(
-    id='60%_of_value',
-    handler=lambda v: v*0.6,
-    reverse_handler=lambda v: v/0.6,
+    id="60%_of_value",
+    handler=lambda v: v * 0.6,
+    reverse_handler=lambda v: v / 0.6,
 )
 
 TranslationQuantifier(
-    id='deciseconds_to_seconds',
-    handler=lambda v: v/10,
-    reverse_handler=lambda v: float(v)*10,
+    id="deciseconds_to_seconds",
+    handler=lambda v: v / 10,
+    reverse_handler=lambda v: float(v) * 10,
 )
 
 TranslationQuantifier(
-    id='divide_by_three',
-    handler=lambda v: v/3,
-    reverse_handler=lambda v: float(v)*3,
+    id="divide_by_three",
+    handler=lambda v: v / 3,
+    reverse_handler=lambda v: float(v) * 3,
 )
 
 TranslationQuantifier(
-    id='divide_by_five',
-    handler=lambda v: v/5,
-    reverse_handler=lambda v: float(v)*5,
+    id="divide_by_five",
+    handler=lambda v: v / 5,
+    reverse_handler=lambda v: float(v) * 5,
 )
 
 TranslationQuantifier(
-    id='divide_by_one_hundred',
-    handler=lambda v: v/100,
-    reverse_handler=lambda v: float(v)*100,
+    id="divide_by_one_hundred",
+    handler=lambda v: v / 100,
+    reverse_handler=lambda v: float(v) * 100,
 )
 
 TranslationQuantifier(
-    id='divide_by_one_hundred_and_negate',
-    handler=lambda v: -v/100,
-    reverse_handler=lambda v: -float(v)*100,
+    id="divide_by_one_hundred_and_negate",
+    handler=lambda v: -v / 100,
+    reverse_handler=lambda v: -float(v) * 100,
 )
 
 TranslationQuantifier(
-    id='divide_by_one_hundred_0dp',
-    handler=lambda v: round(v/100, 0),
-    reverse_handler=lambda v: float(v)*100,
+    id="divide_by_one_hundred_0dp",
+    handler=lambda v: round(v / 100, 0),
+    reverse_handler=lambda v: float(v) * 100,
 )
 
 TranslationQuantifier(
-    id='divide_by_one_hundred_1dp',
-    handler=lambda v: round(v/100, 1),
-    reverse_handler=lambda v: float(v)*100,
+    id="divide_by_one_hundred_1dp",
+    handler=lambda v: round(v / 100, 1),
+    reverse_handler=lambda v: float(v) * 100,
 )
 TranslationQuantifier(
-    id='divide_by_one_hundred_2dp',
-    handler=lambda v: round(v/100, 2),
-    reverse_handler=lambda v: float(v)*100,
-)
-
-TranslationQuantifier(
-    id='divide_by_one_hundred_2dp_if_required',
-    handler=lambda v: round(v/100, 2),
-    reverse_handler=lambda v: float(v)*100,
-)
-
-
-TranslationQuantifier(
-    id='divide_by_two_0dp',
-    handler=lambda v: v//2,
-    reverse_handler=lambda v: int(v)*2,
+    id="divide_by_one_hundred_2dp",
+    handler=lambda v: round(v / 100, 2),
+    reverse_handler=lambda v: float(v) * 100,
 )
 
 TranslationQuantifier(
-    id='divide_by_six',
-    handler=lambda v: v/6,
-    reverse_handler=lambda v: int(v)*6,
+    id="divide_by_one_hundred_2dp_if_required",
+    handler=lambda v: round(v / 100, 2),
+    reverse_handler=lambda v: float(v) * 100,
+)
+
+
+TranslationQuantifier(
+    id="divide_by_two_0dp",
+    handler=lambda v: v // 2,
+    reverse_handler=lambda v: int(v) * 2,
 )
 
 TranslationQuantifier(
-    id='divide_by_ten_0dp',
-    handler=lambda v: v//10,
-    reverse_handler=lambda v: int(v)*10,
+    id="divide_by_six",
+    handler=lambda v: v / 6,
+    reverse_handler=lambda v: int(v) * 6,
 )
 
 TranslationQuantifier(
-    id='divide_by_ten_1dp',
-    handler=lambda v: round(v/10, 1),
-    reverse_handler=lambda v: int(v)*10,
+    id="divide_by_ten_0dp",
+    handler=lambda v: v // 10,
+    reverse_handler=lambda v: int(v) * 10,
 )
 
 TranslationQuantifier(
-    id='divide_by_ten_1dp_if_required',
-    handler=lambda v: round(v/10, 1),
-    reverse_handler=lambda v: int(v)*10,
+    id="divide_by_ten_1dp",
+    handler=lambda v: round(v / 10, 1),
+    reverse_handler=lambda v: int(v) * 10,
 )
 
 TranslationQuantifier(
-    id='divide_by_twelve',
-    handler=lambda v: v/12,
-    reverse_handler=lambda v: int(v)*12,
+    id="divide_by_ten_1dp_if_required",
+    handler=lambda v: round(v / 10, 1),
+    reverse_handler=lambda v: int(v) * 10,
 )
 
 TranslationQuantifier(
-    id='divide_by_fifteen_0dp',
-    handler=lambda v: v//15,
-    reverse_handler=lambda v: int(v)*15,
+    id="divide_by_twelve",
+    handler=lambda v: v / 12,
+    reverse_handler=lambda v: int(v) * 12,
 )
 
 TranslationQuantifier(
-    id='divide_by_fifty',
-    handler=lambda v: v/50,
-    reverse_handler=lambda v: int(v)*50,
+    id="divide_by_fifteen_0dp",
+    handler=lambda v: v // 15,
+    reverse_handler=lambda v: int(v) * 15,
 )
 
 TranslationQuantifier(
-    id='divide_by_twenty_then_double_0dp',
-    handler=lambda v: v//20*2,
-    reverse_handler=lambda v: int(v)*20//2,
+    id="divide_by_fifty",
+    handler=lambda v: v / 50,
+    reverse_handler=lambda v: int(v) * 50,
 )
 
 TranslationQuantifier(
-    id='divide_by_one_thousand',
-    handler=lambda v: v/1000,
-    reverse_handler=lambda v: int(v)*1000,
+    id="divide_by_twenty_then_double_0dp",
+    handler=lambda v: v // 20 * 2,
+    reverse_handler=lambda v: int(v) * 20 // 2,
 )
 
 TranslationQuantifier(
-    id='milliseconds_to_seconds',
-    handler=lambda v: v/1000,
-    reverse_handler=lambda v: float(v)*1000,
+    id="divide_by_one_thousand",
+    handler=lambda v: v / 1000,
+    reverse_handler=lambda v: int(v) * 1000,
 )
 
 TranslationQuantifier(
-    id='milliseconds_to_seconds_halved',
-    handler=lambda v: v/500,
-    reverse_handler=lambda v: float(v)*500,
+    id="milliseconds_to_seconds",
+    handler=lambda v: v / 1000,
+    reverse_handler=lambda v: float(v) * 1000,
 )
 
 TranslationQuantifier(
-    id='milliseconds_to_seconds_0dp',
-    handler=lambda v: int(round(v/1000, 0)),
-    reverse_handler=lambda v: float(v)*1000,
-)
-TranslationQuantifier(
-    id='milliseconds_to_seconds_1dp',
-    handler=lambda v: round(v/1000, 1),
-    reverse_handler=lambda v: float(v)*1000,
+    id="milliseconds_to_seconds_halved",
+    handler=lambda v: v / 500,
+    reverse_handler=lambda v: float(v) * 500,
 )
 
 TranslationQuantifier(
-    id='milliseconds_to_seconds_2dp',
-    handler=lambda v: round(v/1000, 2),
-    reverse_handler=lambda v: float(v)*1000,
+    id="milliseconds_to_seconds_0dp",
+    handler=lambda v: int(round(v / 1000, 0)),
+    reverse_handler=lambda v: float(v) * 1000,
+)
+TranslationQuantifier(
+    id="milliseconds_to_seconds_1dp",
+    handler=lambda v: round(v / 1000, 1),
+    reverse_handler=lambda v: float(v) * 1000,
+)
+
+TranslationQuantifier(
+    id="milliseconds_to_seconds_2dp",
+    handler=lambda v: round(v / 1000, 2),
+    reverse_handler=lambda v: float(v) * 1000,
 )
 
 # TODO: Not exactly sure yet how this one works
 TranslationQuantifier(
-    id='milliseconds_to_seconds_2dp_if_required',
-    handler=lambda v: round(v/1000, 2),
-    reverse_handler=lambda v: float(v)*1000,
+    id="milliseconds_to_seconds_2dp_if_required",
+    handler=lambda v: round(v / 1000, 2),
+    reverse_handler=lambda v: float(v) * 1000,
 )
 
 TranslationQuantifier(
-    id='multiplicative_damage_modifier',
-    handler=lambda v: v+100,
-    reverse_handler=lambda v: float(v)-100,
+    id="multiplicative_damage_modifier",
+    handler=lambda v: v + 100,
+    reverse_handler=lambda v: float(v) - 100,
 )
 
 TranslationQuantifier(
-    id='multiplicative_permyriad_damage_modifier',
-    handler=lambda v: v/100+100,
-    reverse_handler=lambda v: (float(v)-100)*100,
+    id="multiplicative_permyriad_damage_modifier",
+    handler=lambda v: v / 100 + 100,
+    reverse_handler=lambda v: (float(v) - 100) * 100,
 )
 
 TranslationQuantifier(
-    id='multiply_by_four',
-    handler=lambda v: v*4,
-    reverse_handler=lambda v: int(v)//4,
+    id="multiply_by_four",
+    handler=lambda v: v * 4,
+    reverse_handler=lambda v: int(v) // 4,
 )
 
 TranslationQuantifier(
-    id='multiply_by_four_and_',
-    handler=lambda v: v*4,
-    reverse_handler=lambda v: int(v)//4,
+    id="multiply_by_four_and_",
+    handler=lambda v: v * 4,
+    reverse_handler=lambda v: int(v) // 4,
 )
 
 TranslationQuantifier(
-    id='multiply_by_ten',
-    handler=lambda v: v*10,
-    reverse_handler=lambda v: int(v)//10,
+    id="multiply_by_ten",
+    handler=lambda v: v * 10,
+    reverse_handler=lambda v: int(v) // 10,
 )
 
 TranslationQuantifier(
-    id='negate',
+    id="negate",
     handler=lambda v: -v,
     reverse_handler=lambda v: -float(v),
 )
 
 TranslationQuantifier(
-    id='old_leech_percent',
-    handler=lambda v: v/5,
-    reverse_handler=lambda v: float(v)*5,
+    id="old_leech_percent",
+    handler=lambda v: v / 5,
+    reverse_handler=lambda v: float(v) * 5,
 )
 
 TranslationQuantifier(
-    id='old_leech_permyriad',
-    handler=lambda v: v/500,
-    reverse_handler=lambda v: float(v)*500,
+    id="old_leech_permyriad",
+    handler=lambda v: v / 500,
+    reverse_handler=lambda v: float(v) * 500,
 )
 
 TranslationQuantifier(
-    id='per_minute_to_per_second',
-    handler=lambda v: round(v/60, 1),
-    reverse_handler=lambda v: float(v)*60,
+    id="per_minute_to_per_second",
+    handler=lambda v: round(v / 60, 1),
+    reverse_handler=lambda v: float(v) * 60,
 )
 
 TranslationQuantifier(
-    id='per_minute_to_per_second_0dp',
-    handler=lambda v: int(round(v/60, 0)),
-    reverse_handler=lambda v: float(v)*60,
+    id="per_minute_to_per_second_0dp",
+    handler=lambda v: int(round(v / 60, 0)),
+    reverse_handler=lambda v: float(v) * 60,
 )
 
 TranslationQuantifier(
-    id='per_minute_to_per_second_1dp',
-    handler=lambda v: round(v/60, 1),
-    reverse_handler=lambda v: float(v)*60,
+    id="per_minute_to_per_second_1dp",
+    handler=lambda v: round(v / 60, 1),
+    reverse_handler=lambda v: float(v) * 60,
 )
 
 TranslationQuantifier(
-    id='per_minute_to_per_second_2dp',
-    handler=lambda v: round(v/60, 2),
-    reverse_handler=lambda v: float(v)*60,
+    id="per_minute_to_per_second_2dp",
+    handler=lambda v: round(v / 60, 2),
+    reverse_handler=lambda v: float(v) * 60,
 )
 
 TranslationQuantifier(
-    id='per_minute_to_per_second_2dp_if_required',
-    handler=lambda v: round(v/60, 2) if v % 60 != 0 else v//60,
-    reverse_handler=lambda v: float(v)*60,
+    id="per_minute_to_per_second_2dp_if_required",
+    handler=lambda v: round(v / 60, 2) if v % 60 != 0 else v // 60,
+    reverse_handler=lambda v: float(v) * 60,
 )
 
 TranslationQuantifier(
-    id='times_twenty',
-    handler=lambda v: v*20,
-    reverse_handler=lambda v: int(v)//20,
+    id="times_twenty",
+    handler=lambda v: v * 20,
+    reverse_handler=lambda v: int(v) // 20,
 )
 
 TranslationQuantifier(
-   id='times_one_point_five',
-   handler=lambda v: v*1.5,
-   reverse_handler=lambda v: int(v/1.5),
+    id="times_one_point_five",
+    handler=lambda v: v * 1.5,
+    reverse_handler=lambda v: int(v / 1.5),
 )
 
 TranslationQuantifier(
-   id='double',
-   handler=lambda v: v*2,
-   reverse_handler=lambda v: int(v)//2,
+    id="double",
+    handler=lambda v: v * 2,
+    reverse_handler=lambda v: int(v) // 2,
 )
 
 TranslationQuantifier(
-   id='negate_and_double',
-   handler=lambda v: -v * 2,
-   reverse_handler=lambda v: int(-v) // 2,
+    id="negate_and_double",
+    handler=lambda v: -v * 2,
+    reverse_handler=lambda v: int(-v) // 2,
 )
 
 TranslationQuantifier(
-   id='divide_by_four',
-   handler=lambda v: v / 4,
-   reverse_handler=lambda v: v * 4,
+    id="divide_by_four",
+    handler=lambda v: v / 4,
+    reverse_handler=lambda v: v * 4,
 )
 
 TranslationQuantifier(
-    id='canonical_line',
+    id="canonical_line",
     type=TranslationQuantifier.QuantifierTypes.STRING,
     arg_size=0,
 )
 
 TranslationQuantifier(
-    id='canonical_stat',
+    id="canonical_stat",
 )
 
 # These will be replaced by install_data_dependant_quantifiers
 TranslationQuantifier(
-    id='mod_value_to_item_class',
+    id="mod_value_to_item_class",
 )
 
 TranslationQuantifier(
-    id='tempest_mod_text',
+    id="tempest_mod_text",
 )
 
 TranslationQuantifier(
-    id='display_indexable_support',
+    id="display_indexable_support",
 )
 
 TranslationQuantifier(
-    id='tree_expansion_jewel_passive',
+    id="tree_expansion_jewel_passive",
 )
 
 TranslationQuantifier(
-    id='affliction_reward_type',
+    id="affliction_reward_type",
 )
 
 TranslationQuantifier(
-    id='passive_hash',
+    id="passive_hash",
 )
 
 
 TranslationQuantifier(
-    id='metamorphosis_reward_description',
+    id="metamorphosis_reward_description",
 )
 
 TranslationQuantifier(
-    id='reminderstring',
+    id="reminderstring",
     type=TranslationQuantifier.QuantifierTypes.STRING,
 )
 

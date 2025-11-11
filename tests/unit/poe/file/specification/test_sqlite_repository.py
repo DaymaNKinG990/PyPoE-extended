@@ -4,16 +4,17 @@ These tests verify that specifications can be loaded from SQLite database
 instead of Python modules.
 """
 
-import pytest
-import sqlite3
 import json
-from pathlib import Path
+import sqlite3
+
+import pytest
+
 from PyPoE.poe.constants import VERSION
+from PyPoE.poe.file.specification.fields import File, Specification
 from PyPoE.poe.file.specification.repository import (
-    SQLiteSpecRepository,
     CachedSpecRepository,
+    SQLiteSpecRepository,
 )
-from PyPoE.poe.file.specification.fields import Field, File, Specification, VirtualField
 
 
 @pytest.fixture
@@ -189,6 +190,7 @@ def test_repository_context_manager(temp_spec_db):
 
 def test_cached_repository():
     """Test that caching repository works."""
+
     # Mock repository for testing
     class MockRepo:
         def __init__(self):
@@ -207,23 +209,24 @@ def test_cached_repository():
     cached = CachedSpecRepository(mock_repo)
 
     # First call should hit the repository
-    spec1 = cached.get_spec(VERSION.STABLE)
+    cached.get_spec(VERSION.STABLE)
     assert mock_repo.get_spec_calls == 1
 
     # Second call should use cache
-    spec2 = cached.get_spec(VERSION.STABLE)
+    cached.get_spec(VERSION.STABLE)
     assert mock_repo.get_spec_calls == 1  # No additional calls
 
     # File spec caching
-    file1 = cached.get_file_spec("Test.dat", VERSION.STABLE)
+    cached.get_file_spec("Test.dat", VERSION.STABLE)
     assert mock_repo.get_file_spec_calls == 1
 
-    file2 = cached.get_file_spec("Test.dat", VERSION.STABLE)
+    cached.get_file_spec("Test.dat", VERSION.STABLE)
     assert mock_repo.get_file_spec_calls == 1  # Cached
 
 
 def test_cached_repository_clear_cache():
     """Test that cache can be cleared."""
+
     class MockRepo:
         def __init__(self):
             self.calls = 0
@@ -245,4 +248,3 @@ def test_cached_repository_clear_cache():
 
     cached.get_spec(VERSION.STABLE)
     assert mock_repo.calls == 2  # Cache was cleared
-

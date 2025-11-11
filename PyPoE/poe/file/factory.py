@@ -21,7 +21,6 @@ Example:
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Optional
 
 from PyPoE.poe.constants import VERSION
 from PyPoE.poe.file.specification.fields import Specification
@@ -130,4 +129,3 @@ class FileParserFactory:
         """
         self._spec_repo.clear_cache()
         logger.info("factory_cache_cleared")
-

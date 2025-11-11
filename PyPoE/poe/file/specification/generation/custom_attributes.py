@@ -1,80 +1,78 @@
-
 class CustomizedField:
-    def __init__(self,
-                 enum: str | None = None):
+    def __init__(self, enum: str | None = None):
         self.enum = enum
 
 
 custom_attributes = {
-    'BaseItemTypes.dat': {
-        'ModDomain': CustomizedField(
-            enum='MOD_DOMAIN',
+    "BaseItemTypes.dat": {
+        "ModDomain": CustomizedField(
+            enum="MOD_DOMAIN",
         ),
-        'SiteVisibility': CustomizedField(
-            enum='BaseItemTypeVisibility',
-        ),
-    },
-    'BestiaryRecipeComponent.dat': {
-        'BeastRarity': CustomizedField(
-            enum='RARITY',
+        "SiteVisibility": CustomizedField(
+            enum="BaseItemTypeVisibility",
         ),
     },
-    'BetrayalUpgrades.dat': {
-        'BetrayalUpgradeSlotsKey': CustomizedField(
-            enum='BETRAYAL_UPGRADE_SLOTS',
+    "BestiaryRecipeComponent.dat": {
+        "BeastRarity": CustomizedField(
+            enum="RARITY",
         ),
     },
-    'CraftingBenchOptions.dat': {
-        'CraftingBenchCustomAction': CustomizedField(
-            enum='CraftingBenchCustomActions',
+    "BetrayalUpgrades.dat": {
+        "BetrayalUpgradeSlotsKey": CustomizedField(
+            enum="BETRAYAL_UPGRADE_SLOTS",
         ),
     },
-    'DelveUpgrades.dat': {
-        'DelveUpgradeTypeKey': CustomizedField(
-            enum='DELVE_UPGRADE_TYPE',
+    "CraftingBenchOptions.dat": {
+        "CraftingBenchCustomAction": CustomizedField(
+            enum="CraftingBenchCustomActions",
         ),
     },
-    'GrantedEffectsPerLevel.dat': {
-        'CooldownBypassType': CustomizedField(
-            enum='CooldownBypassTypes',
+    "DelveUpgrades.dat": {
+        "DelveUpgradeTypeKey": CustomizedField(
+            enum="DELVE_UPGRADE_TYPE",
         ),
     },
-    'HarvestObjects.dat': {
-        'ObjectType': CustomizedField(
-            enum='HARVEST_OBJECT_TYPES',
+    "GrantedEffectsPerLevel.dat": {
+        "CooldownBypassType": CustomizedField(
+            enum="CooldownBypassTypes",
         ),
     },
-    'MapFragmentMods.dat': {
-        'MapFragmentFamilies': CustomizedField(
-            enum='MAP_FRAGMENT_FAMILIES',
+    "HarvestObjects.dat": {
+        "ObjectType": CustomizedField(
+            enum="HARVEST_OBJECT_TYPES",
         ),
     },
-    'Mods.dat': {
-        'Domain': CustomizedField(
-            enum='MOD_DOMAIN',
-        ),
-        'GenerationType': CustomizedField(
-            enum='MOD_GENERATION_TYPE',
+    "MapFragmentMods.dat": {
+        "MapFragmentFamilies": CustomizedField(
+            enum="MAP_FRAGMENT_FAMILIES",
         ),
     },
-    'Scarabs.dat': {
-        'ScarabType': CustomizedField(
-            enum='SCARAB_TYPES',
+    "Mods.dat": {
+        "Domain": CustomizedField(
+            enum="MOD_DOMAIN",
+        ),
+        "GenerationType": CustomizedField(
+            enum="MOD_GENERATION_TYPE",
         ),
     },
-    'ShopPaymentPackage.dat': {
-        'ShopPackagePlatform': CustomizedField(
-            enum='SHOP_PACKAGE_PLATFORM',
+    "Scarabs.dat": {
+        "ScarabType": CustomizedField(
+            enum="SCARAB_TYPES",
         ),
     },
-    'SupporterPackSets.dat': {
-        'ShopPackagePlatform': CustomizedField(
-            enum='SHOP_PACKAGE_PLATFORM',
+    "ShopPaymentPackage.dat": {
+        "ShopPackagePlatform": CustomizedField(
+            enum="SHOP_PACKAGE_PLATFORM",
         ),
     },
-    'Words.dat': {
-        'Wordlist': CustomizedField(
-            enum='WORDLISTS',
+    "SupporterPackSets.dat": {
+        "ShopPackagePlatform": CustomizedField(
+            enum="SHOP_PACKAGE_PLATFORM",
+        ),
+    },
+    "Words.dat": {
+        "Wordlist": CustomizedField(
+            enum="WORDLISTS",
         ),
     },
 }

@@ -34,17 +34,13 @@ See PyPoE/LICENSE
 # Re-export everything from submodules for backward compatibility
 # =============================================================================
 
+from PyPoE.cli.exporter.wiki.parser.base import BaseParser
+from PyPoE.cli.exporter.wiki.parser.conditions import WikiCondition
 from PyPoE.cli.exporter.wiki.parser.constants import (
     DEFAULT_INDENT,
     _inter_wiki_map,
 )
-
-from PyPoE.cli.exporter.wiki.parser.base import BaseParser
-
 from PyPoE.cli.exporter.wiki.parser.tags import TagHandler
-
-from PyPoE.cli.exporter.wiki.parser.conditions import WikiCondition
-
 from PyPoE.cli.exporter.wiki.parser.utils import (
     _make_inter_wiki_re,
     find_template,
@@ -59,17 +55,16 @@ from PyPoE.cli.exporter.wiki.parser.utils import (
 
 __all__ = [
     # Classes
-    'BaseParser',
-    'WikiCondition',
-    'TagHandler',
+    "BaseParser",
+    "WikiCondition",
+    "TagHandler",
     # Functions
-    '_make_inter_wiki_re',
-    'find_template',
-    'format_result_rows',
-    'make_inter_wiki_links',
-    'parse_and_handle_description_tags',
+    "_make_inter_wiki_re",
+    "find_template",
+    "format_result_rows",
+    "make_inter_wiki_links",
+    "parse_and_handle_description_tags",
     # Constants
-    'DEFAULT_INDENT',
-    '_inter_wiki_map',
+    "DEFAULT_INDENT",
+    "_inter_wiki_map",
 ]
-
