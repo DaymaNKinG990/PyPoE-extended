@@ -109,8 +109,10 @@ class ItemConflictResolver:
                 qid = qid.replace(ver[0], "")
 
             try:
-                return str(base_item_type["Name"])  # type: ignore[no-any-return] + " ({})".format(
-                    self.rr["Quest.dat"].index["Id"][qid]["Name"]
+                return (  # type: ignore[no-any-return]
+                    str(base_item_type["Name"]) + " ({})".format(
+                        self.rr["Quest.dat"].index["Id"][qid]["Name"]
+                    )
                 )
             except KeyError:
                 console(f"Quest {qid} not found", msg=Msg.error)
