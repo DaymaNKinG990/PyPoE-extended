@@ -75,7 +75,7 @@ import re
 from collections.abc import Callable
 from enum import IntEnum
 from io import BytesIO
-from typing import Any, Dict, List, Union
+from typing import Any, Union
 
 # self
 from PyPoE.shared.mixins import ReprMixin

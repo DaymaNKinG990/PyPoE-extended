@@ -221,7 +221,7 @@ def parse_description_tags(text: str) -> Tag:
     out = Tag(id=None)
     last = out
 
-    for tid, _match, text in scanner.scan(text)[0]:
+    for tid, _match, text_part in scanner.scan(text)[0]:
         if tid == "lt":
             depth += 1
             in_tag.append(True)
@@ -234,7 +234,7 @@ def parse_description_tags(text: str) -> Tag:
             if has_tag[depth]:
                 in_text.append(True)
             else:
-                last.append_to_children(text)
+                last.append_to_children(text_part)
         elif tid == "rbrace":
             if has_tag[depth]:
                 del in_tag[depth]
@@ -244,21 +244,21 @@ def parse_description_tags(text: str) -> Tag:
                 last = last.parent  # type: ignore[assignment]
                 depth -= 1
             else:
-                last.append_to_children(text)
+                last.append_to_children(text_part)
         elif tid == "colon":
             if in_tag[depth]:
                 parameter[depth] = True
             else:
-                last.children[-1] += text  # type: ignore[operator]
+                last.children[-1] += text_part  # type: ignore[operator]
         elif tid == "text":
             if in_tag[depth]:
                 if parameter[depth]:
-                    last.parameter = text
+                    last.parameter = text_part
                 else:
-                    tag = Tag(id=text, parent=last)
+                    tag = Tag(id=text_part, parent=last)
                     last.children.append(tag)
                     last = tag
             else:
-                last.append_to_children(text)
+                last.append_to_children(text_part)
 
     return out

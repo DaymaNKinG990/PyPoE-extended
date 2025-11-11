@@ -473,15 +473,13 @@ def node_update_files(
 
     files_subdir = "files"
     files_count = len(download_list.keys())
-    download_index = 0
-    for hash, nodes in download_list.items():
+    for download_index, (hash, nodes) in enumerate(download_list.items()):
         pretty_hash = format(hash, "064x")
         dst_file = os.path.join(folder_path, files_subdir, pretty_hash)
         node_file_name = nodes[0].get_path()
         print(f"{files_count - download_index} file downloads remaining")
         patch_file_list.patch.download(node_file_name, dst_file=dst_file)
         print(f"downloaded: {node_file_name}")
-        download_index += 1
 
         for node in nodes:
             link_src = dst_file

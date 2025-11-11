@@ -26,7 +26,7 @@ See PyPoE/LICENSE
 # =============================================================================
 
 # 3rd-party
-from PyPoE.poe.file.specification.fields import *
+from PyPoE.poe.file.specification.fields import Specification
 
 # self
 
