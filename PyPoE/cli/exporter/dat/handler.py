@@ -31,9 +31,6 @@ See PyPoE/LICENSE
 
 # Python
 
-# 3rd-party
-from tqdm import tqdm
-
 # self
 from PyPoE.poe.constants import VERSION
 from PyPoE.poe.file import dat

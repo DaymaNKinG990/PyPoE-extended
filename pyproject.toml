@@ -33,42 +33,41 @@ dependencies = [
     "configobj>=5.0.9",
     "brotli>=1.1.0",
     "fnvhash>=0.2.1",
-    "cffi>=1.16.0",
+    "cffi>=1.17.0",
+    "msgspec>=0.18.0",
 ]
 
 [project.optional-dependencies]
 dev = [
-    "pytest>=7.4.0",
-    "pytest-cov>=4.1.0",
-    "mypy>=1.7.0",
-    "ruff>=0.1.9",
+    "pytest>=8.3.0",
+    "pytest-cov>=6.0.0",
+    "mypy>=1.13.0",
+    "ruff>=0.8.0",
     "sphinx>=7.2.0",
 ]
 cli = [
-    "colorama>=0.4.6",
-    "tqdm>=4.66.0",
+    "rich>=13.9.0",
     "mwclient>=0.10.1",
-    "mwparserfromhell>=0.6.4",
-    "rapidfuzz>=3.5.0",
+    "mwparserfromhell>=0.6.6",
+    "rapidfuzz>=3.10.0",
 ]
 ui = [
-    "pyside6>=6.6.0",
+    "pyside6>=6.8.0",
 ]
 ui-extra = [
     "pyopengl>=3.1.7",
 ]
 full = [
-    "pytest>=7.4.0",
-    "pytest-cov>=4.1.0",
-    "mypy>=1.7.0",
-    "ruff>=0.1.9",
+    "pytest>=8.3.0",
+    "pytest-cov>=6.0.0",
+    "mypy>=1.13.0",
+    "ruff>=0.8.0",
     "sphinx>=7.2.0",
-    "colorama>=0.4.6",
-    "tqdm>=4.66.0",
+    "rich>=13.9.0",
     "mwclient>=0.10.1",
-    "mwparserfromhell>=0.6.4",
-    "rapidfuzz>=3.5.0",
-    "pyside6>=6.6.0",
+    "mwparserfromhell>=0.6.6",
+    "rapidfuzz>=3.10.0",
+    "pyside6>=6.8.0",
     "pyopengl>=3.1.7",
 ]
 

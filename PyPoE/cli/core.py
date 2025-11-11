@@ -60,7 +60,10 @@ from enum import Enum
 from time import strftime
 
 # 3rd Party
-from colorama import Style, Fore
+from rich.console import Console
+
+# Rich console instance
+_console = Console()
 
 # =============================================================================
 # Globals
@@ -86,9 +89,9 @@ class Msg(Enum):
     error
         red error message
     """
-    default = Style.RESET_ALL
-    error = Style.BRIGHT + Fore.RED
-    warning = Style.BRIGHT + Fore.YELLOW
+    default = ""
+    error = "bold red"
+    warning = "bold yellow"
 
 
 class OutputHook:
@@ -178,9 +181,13 @@ def console(message, msg=Msg.default, rtr=False, raw=False):
     if raw:
         f = message
     else:
-        f = msg.value + strftime('%X ') + message + Msg.default.value
+        timestamp = strftime('%X ')
+        if msg.value:
+            f = f"[{msg.value}]{timestamp}{message}[/]"
+        else:
+            f = f"{timestamp}{message}"
     if rtr:
         return f
     else:
-        print(f)
+        _console.print(f, markup=True, highlight=False)
 

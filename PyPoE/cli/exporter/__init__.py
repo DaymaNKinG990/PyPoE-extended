@@ -33,9 +33,6 @@ See PyPoE/LICENSE
 import os
 import warnings
 
-# 3rd-Party
-from colorama import init
-
 # self
 from PyPoE import APP_DIR
 from PyPoE.cli.config import ConfigHelper
@@ -55,5 +52,4 @@ config = ConfigHelper(infile=CONFIG_PATH)
 # Init
 # =============================================================================
 
-init()
 OutputHook(warnings.showwarning)
