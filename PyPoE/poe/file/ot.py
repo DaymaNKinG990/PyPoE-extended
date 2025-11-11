@@ -56,7 +56,7 @@ Documentation
 # 3rd-party
 
 # self
-from PyPoE.poe.file.shared.keyvalues import *
+from PyPoE.poe.file.shared.keyvalues import AbstractKeyValueFile, AbstractKeyValueFileCache, AbstractKeyValueSection
 from PyPoE.shared.decorators import doc
 
 # =============================================================================
