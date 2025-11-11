@@ -33,7 +33,7 @@ See PyPoE/LICENSE
 
 # 3rd Party
 from PySide6.QtGui import QAction
-from PySide6.QtWidgets import *
+from PySide6.QtWidgets import QMenu
 
 # self
 from PyPoE.poe.file.ggpk import FileRecord
