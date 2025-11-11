@@ -226,7 +226,7 @@ class FileDataManager:
 
         if extension:
             try:
-                hdict = self.handlers[extension]
+                hdict = self.handlers[extension]  # type: ignore[index]
             except KeyError:
                 hdict = self.handlers[FileDataManager.EXTENSION_ANY]
         else:
@@ -258,17 +258,17 @@ class FileDataManager:
             raise TypeError('filenames must be a iterable or FILE_ANY')
 
         if extension in self.handlers:
-            handler = self.handlers[extension]
+            handler = self.handlers[extension]  # type: ignore[index]
         else:
             handler = {}
-            self.handlers[extension] = handler
+            self.handlers[extension] = handler  # type: ignore[index]
 
         if isinstance(filenames, int):
-            handler[filenames] = obj
+            handler[filenames] = obj  # type: ignore[assignment]
         else:
             for filename in filenames:
                 if filename in handler:
                     # TODO warning or debug message it's overriden?
-                    handler[filename] = obj
+                    handler[filename] = obj  # type: ignore[assignment]
                 else:
-                    handler[filename] = obj
+                    handler[filename] = obj  # type: ignore[assignment]

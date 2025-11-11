@@ -232,7 +232,7 @@ class IntEnumMetaOverride(EnumMeta):
         if isinstance(item, int):
             return self(item)
         else:
-            return IntEnum.__getitem__(self, item)
+            return IntEnum.__getitem__(self, item)  # type: ignore[call-arg, index]
 
 
 class IntEnumOverride(IntEnum, metaclass=IntEnumMetaOverride):
@@ -548,8 +548,8 @@ class SOCKET_COLOUR(Enum):
     def __new__(cls, char, id):
         obj = object.__new__(cls)
         obj._value_ = char
-        obj.char = char
-        obj.id = id
+        obj.char = char  # type: ignore[attr-defined]
+        obj.id = id  # type: ignore[attr-defined]
 
         return obj
 
@@ -596,10 +596,10 @@ class RARITY(Enum, metaclass=IntEnumMetaOverride):
     def __new__(cls, id, upper, lower, colour):
         obj = object.__new__(cls)
         obj._value_ = id
-        obj.id = id
-        obj.name_upper = upper
-        obj.name_lower = lower
-        obj.colour = colour
+        obj.id = id  # type: ignore[attr-defined]
+        obj.name_upper = upper  # type: ignore[attr-defined]
+        obj.name_lower = lower  # type: ignore[attr-defined]
+        obj.colour = colour  # type: ignore[attr-defined]
         return obj
 
 
