@@ -178,7 +178,7 @@ for gem in gems:
 @pytest.mark.parametrize("lvl,gtype,multi,result", cmp_tests)
 def test_stat_requirement(lvl, gtype, multi, result):
     r = formula.gem_stat_requirement(level=lvl, gtype=gtype, multi=multi)
-    assert r == result, 'Result mismatch "%s" vs expected "%s"' % (r, result)
+    assert r == result, f'Result mismatch "{r}" vs expected "{result}"'
     # print("%s %.2f (%d) %s" % (round(r)==result, r, round(r), result))
 
 

@@ -94,15 +94,15 @@ class KeyValuesSectionHash(keyvalues.AbstractKeyValueSection):
 class KeyValuesFile(keyvalues.AbstractKeyValueFile):
     EXTENSION = ".kv"
 
-    SECTIONS = dict(
-        (s.NAME, s)
+    SECTIONS = {
+        s.NAME: s
         for s in [
             KeyValuesSectionAppend,
             KeyValuesSectionOverride,
             KeyValuesSectionOverrideGeneric,
             KeyValuesSectionHash,
         ]
-    )
+    }
 
 
 class KeyValuesFileCache(keyvalues.AbstractKeyValueFileCache):

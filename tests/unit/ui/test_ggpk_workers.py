@@ -110,7 +110,7 @@ class TestGGPKLoadWorker:
         assert "Test error" in args[0]  # error_message
         assert len(args[1]) > 0  # traceback
 
-    def test_worker_autoDelete_enabled(self):
+    def test_worker_autodelete_enabled(self):
         """Test that worker has autoDelete enabled."""
         file_path = Path("test.ggpk")
         worker = GGPKLoadWorker(file_path)

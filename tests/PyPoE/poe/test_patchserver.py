@@ -237,10 +237,7 @@ def test_node_outdated_files(temp, patch_file_list, recurse, node_path):
     # get list of files in a directory node
     files_in_node = []
     # if recursing, walk through sub directories to find files
-    if recurse:
-        max_depth = -1
-    else:
-        max_depth = 1
+    max_depth = -1 if recurse else 1
     for walk_node, _depth in node.gen_walk(max_depth=max_depth):
         if isinstance(walk_node.record, ggpk.FileRecord):
             files_in_node.append(walk_node)
@@ -260,10 +257,7 @@ def test_node_update_files(patch_file_list, temp, recurse, node_path):
     patchserver.node_update_files(patch_file_list, node_path, str(temp), recurse=recurse)
 
     node = patch_file_list.directory[node_path]
-    if recurse:
-        max_depth = -1
-    else:
-        max_depth = 1
+    max_depth = -1 if recurse else 1
     for walk_node, _depth in node.gen_walk(max_depth=max_depth):
         if isinstance(walk_node.record, ggpk.FileRecord):
             assert os.path.exists(os.path.join(str(temp), node.get_path()))

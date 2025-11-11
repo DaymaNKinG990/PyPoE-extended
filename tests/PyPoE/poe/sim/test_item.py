@@ -642,4 +642,4 @@ Right click this item then left click a head slot item to apply it.""",
         i = item.ItemParser(string)
         for k, v in tests.items():
             val = getattr(i, k)
-            assert val == v, "%s: %s vs %s" % (k, val, v)
+            assert val == v, f"{k}: {val} vs {v}"

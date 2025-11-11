@@ -103,9 +103,9 @@ def ts(dbase):
 
 
 def get_test(size, unid, nresults, values):
-    tags = ["tag_size%s_uq%s_no%s" % (size, unid, i) for i in range(1, size + 1)]
+    tags = [f"tag_size{size}_uq{unid}_no{i}" for i in range(1, size + 1)]
     results = [
-        "tag_size%s_uq%s_v%s:%s" % (size, unid, i, " %s" * size) for i in range(1, nresults + 1)
+        f"tag_size{size}_uq{unid}_v{i}:{' %s' * size}" for i in range(1, nresults + 1)
     ]
 
     for i, v in enumerate(results):
@@ -424,12 +424,12 @@ class TestTranslationResults:
             test_data.append((tags, v, results[i]))
 
     def functionality(self, tf, tags, values, result, message, kwargs, rkwargs):
-        assert tf.get_translation(tags, values, **kwargs) == result, "%s: 'normal failed" % message
+        assert tf.get_translation(tags, values, **kwargs) == result, f"{message}: 'normal failed"
 
         if rkwargs is not None:
             trr = tf.reverse_translation(result[0], **rkwargs)
-            assert trr.translations[0].ids == tags, "%s: reverse failed incorrect tags" % message
-            assert trr.values[0] == values, "%s: failed reverse incorrect values" % message
+            assert trr.translations[0].ids == tags, f"{message}: reverse failed incorrect tags"
+            assert trr.values[0] == values, f"{message}: failed reverse incorrect values"
 
     #
     # Actual tests
@@ -475,7 +475,7 @@ class TestTranslationResults:
             row.rowid,
         ]
         result = [
-            "Item class: %s" % row["Name"],
+            f"Item class: {row['Name']}",
         ]
 
         assert tf_data.get_translation(tags, values) == result, "normal failed"
@@ -494,7 +494,7 @@ class TestTranslationResults:
             row.rowid,
         ]
         result = [
-            "Mod: %s" % row["Name"],
+            f"Mod: {row['Name']}",
         ]
 
         assert tf_data.get_translation(tags, values) == result, "normal failed"

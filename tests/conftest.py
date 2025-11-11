@@ -93,7 +93,7 @@ def pytest_generate_tests(metafunc):
     if run:
         run = False
     if "dat_file_name" in metafunc.fixturenames:
-        file_names = [fn for fn in load(version=get_version(metafunc.config))]
+        file_names = list(load(version=get_version(metafunc.config)))
 
         metafunc.parametrize("dat_file_name", file_names)
     elif (

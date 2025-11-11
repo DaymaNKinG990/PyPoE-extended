@@ -96,7 +96,7 @@ class TestIDLRecord:
         record, d = idl_record
 
         for i, attr in enumerate(record.__slots__):
-            assert getattr(record, attr) == d[i], "Attribute %s mismatch" % attr
+            assert getattr(record, attr) == d[i], f"Attribute {attr} mismatch"
 
     def test_eq(self, idl_record, idl_record_extra):
         record, d = idl_record
@@ -104,10 +104,10 @@ class TestIDLRecord:
         assert record == IDLRecord(*d), (
             "Record should be equal to record initialized with the same data"
         )
-        assert not record == idl_record_extra, (
+        assert record != idl_record_extra, (
             "Record should not be equal to record initialized with different data"
         )
-        assert not record == 5, "Record should not be equal to other data types"
+        assert record != 5, "Record should not be equal to other data types"
 
     def test_repr(self, idl_record):
         record, d = idl_record

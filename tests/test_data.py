@@ -53,7 +53,7 @@ from PyPoE.poe.file.specification import load
 
 @pytest.fixture(scope="module")
 def files(poe_version):
-    return [section for section in load(version=poe_version)]
+    return list(load(version=poe_version))
 
 
 # =============================================================================

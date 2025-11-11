@@ -43,9 +43,9 @@ from PyPoE.poe import text
 
 def sample_parser(**kwargs):
     if kwargs["parameter"]:
-        return '<%(id)s attr="%(parameter)s">%(hstr)s</%(id)s>' % kwargs
+        return f'<{kwargs["id"]} attr="{kwargs["parameter"]}">{kwargs["hstr"]}</{kwargs["id"]}>'
     else:
-        return "<%(id)s>%(hstr)s</%(id)s>" % kwargs
+        return f'<{kwargs["id"]}>{kwargs["hstr"]}</{kwargs["id"]}>'
 
 
 # =============================================================================

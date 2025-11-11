@@ -242,7 +242,9 @@ class TestDatValue:
         # Property Tests
         with pytest.raises(TypeError):
             self.dv_basic.data_size
+        with pytest.raises(TypeError):
             self.dv_basic.data_start_offset
+        with pytest.raises(TypeError):
             self.dv_basic.data_end_offset
         assert not self.dv_basic.is_data, "Should not be data"
         assert not self.dv_basic.has_data, "Should not have any data"
@@ -260,7 +262,9 @@ class TestDatValue:
         # Property Tests
         with pytest.raises(TypeError):
             self.dv_raw.data_size
+        with pytest.raises(TypeError):
             self.dv_raw.data_start_offset
+        with pytest.raises(TypeError):
             self.dv_raw.data_end_offset
         assert not self.dv_raw.is_data, "Should not be data"
         assert not self.dv_raw.has_data, "Should not have any data"
@@ -294,7 +298,9 @@ class TestDatValue:
         # Child Property tests
         with pytest.raises(TypeError):
             self.dv_pointer.child.data_size
+        with pytest.raises(TypeError):
             self.dv_pointer.child.data_start_offset
+        with pytest.raises(TypeError):
             self.dv_pointer.child.data_end_offset
         assert self.dv_pointer.child.is_data, "Should be data"
         assert not self.dv_pointer.child.has_data, "Should not have any data"
@@ -330,7 +336,9 @@ class TestDatValue:
             child = self.dv_list.children[i]
             with pytest.raises(TypeError):
                 child.data_size
+            with pytest.raises(TypeError):
                 child.data_start_offset
+            with pytest.raises(TypeError):
                 child.data_end_offset
             assert child.is_data, "Should be data"
             assert not child.has_data, "Should not have any data"
@@ -362,12 +370,7 @@ class TestDatValue:
 
     @pytest.mark.parametrize("cmp_type,result,a,b", cmp_tests)
     def test_cmp(self, cmp_type, result, a, b):
-        assert getattr(a, cmp_type)(b) == result, "%s for %s and %s should return %s" % (
-            cmp_type,
-            a,
-            b,
-            result,
-        )
+        assert getattr(a, cmp_type)(b) == result, f"{cmp_type} for {a} and {b} should return {result}"
 
 
 #
@@ -492,10 +495,7 @@ class TestRelationalReader:
         for column, values in self.relations_expected.items():
             for i, row in enumerate(rr["Main.dat"]):
                 expected = values[i]
-                if expected is not None:
-                    expected = rr["Other.dat"][expected]
-                else:
-                    expected = None
+                expected = rr["Other.dat"][expected] if expected is not None else None
 
                 assert row[column] == expected, "Testing against expected row"
 
