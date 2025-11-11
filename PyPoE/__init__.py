@@ -62,11 +62,13 @@ def _get_app_dir():
         raise RuntimeError("Unsupported Operating System")
 
     dir = None
+    from PyPoE.shared.file_utils import directory_exists, ensure_directory
+
     for var in vars:
         if var not in os.environ:
             continue
         dir = os.environ[var]
-        if not os.path.exists(dir):
+        if not directory_exists(dir):
             continue
         break
 
@@ -74,8 +76,7 @@ def _get_app_dir():
         raise RuntimeError("Home/user directory not found")
 
     dir = os.path.join(dir, subdir)
-    if not os.path.exists(dir):
-        os.mkdir(dir)
+    ensure_directory(dir)
 
     return dir
 

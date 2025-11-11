@@ -181,10 +181,11 @@ class BaseParser:
         console(f'Converted "{out_path}" to png')
 
     def _image_init(self, parsed_args):
+        from PyPoE.shared.file_utils import ensure_directory
+
         if parsed_args.store_images:
             self._img_path = os.path.join(self.base_path, "img")
-            if not os.path.exists(self._img_path):
-                os.makedirs(self._img_path)
+            ensure_directory(self._img_path)
 
     def _get_stats(self, stats=None, values=None, mod=None, translation_file=None):
         if translation_file is None:

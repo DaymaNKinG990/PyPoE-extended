@@ -108,9 +108,10 @@ class ContextToolbar(QToolBar):
         return indexes[0].internalPointer()
 
     def _toolbar_extract_dds(self, path, node):
+        from PyPoE.shared.file_utils import read_file, write_file
+
         self.parent()._write_log(path)
-        with open(path, "rb") as f:
-            data = f.read()
+        data = read_file(path)
         if data[:4] == b"DDS ":
             return
 
@@ -119,8 +120,7 @@ class ContextToolbar(QToolBar):
         except FileNotFoundError as e:
             self.parent()._write_log(f"Broken symbolic link.\n{e}")
 
-        with open(path, "wb") as f:
-            f.write(data)
+        write_file(path, data)
 
     def _toolbar_extract(self):
         node = self._get_node()

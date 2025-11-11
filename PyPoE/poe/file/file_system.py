@@ -180,9 +180,10 @@ class FileSystem:
 
         # If no GGPK is loaded or the file isn't within the GGPK, lastly the
         # root directory is tried
+        from PyPoE.shared.file_utils import read_file
+
         try:
-            with open(os.path.join(self.root_path, path), "rb") as f:
-                return f.read()
+            return read_file(os.path.join(self.root_path, path))
         except FileNotFoundError as e:
             raise FileNotFoundError(
                 "Specified file can not be found in the Index, content.ggpk or disk"

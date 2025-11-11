@@ -563,10 +563,11 @@ class AbstractFileSystemNode(ReprMixin):
         target_directory : str
             Path to directory where to extract to.
         """
+        from PyPoE.shared.file_utils import ensure_directory, write_file
+
         dir_path = os.path.join(target_directory, self.name)
         if self.is_directory:
-            if not os.path.exists(dir_path):
-                os.mkdir(dir_path)
+            ensure_directory(dir_path)
 
             for node in self.children.values():
                 node.extract_to(dir_path)

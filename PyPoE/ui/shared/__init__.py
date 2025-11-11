@@ -67,11 +67,12 @@ class SharedMainWindow(QMainWindow):
 
         QCoreApplication.setApplicationName(app_name)
         QSettings.setDefaultFormat(QSettings.IniFormat)
+        from PyPoE.shared.file_utils import ensure_directory
+
         self.settings = QSettings()
         self.APP_ROOT_DIR = os.path.split(self.settings.fileName())[0]
         self.APP_DIR = os.path.join(self.APP_ROOT_DIR, app_name)
-        if not os.path.exists(self.APP_DIR):
-            os.makedirs(self.APP_DIR)
+        ensure_directory(self.APP_DIR)
 
         # Setup logging
         self.sig_log_message.connect(self._write_log)
