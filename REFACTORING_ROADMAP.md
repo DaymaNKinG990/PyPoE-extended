@@ -1,10 +1,10 @@
 # 🔄 PyPoE - План рефакторинга и модернизации
 
-> **Версия:** 2.0 ✅ **ЗАВЕРШЕНО**
+> **Версия:** 2.1 🔧 **В ПРОЦЕССЕ**
 > **Дата начала:** 10 ноября 2024
-> **Дата завершения:** 11 ноября 2024
-> **Статус проекта:** Beta (2.0.0)
-> **Текущее состояние:** ✅ Модернизация завершена успешно!
+> **Дата последнего обновления:** 11 ноября 2024 (Вечер)
+> **Статус проекта:** Beta → Stable (переход к 2.1.0)
+> **Текущее состояние:** ✅ Базовая модернизация завершена | 🔧 Глубокий рефакторинг продолжается
 
 ---
 
@@ -31,6 +31,189 @@
 **Отложено на будущее:**
 - ⏳ Sphinx документация
 - ⏳ Покрытие тестами >80% (требуется ~500+ дополнительных тестов)
+
+---
+
+## 🔍 ПОЛНЫЙ АНАЛИЗ И РЕВИЗИЯ (11.11.2024 Вечер)
+
+### ❌ КРИТИЧЕСКИЕ ПРОБЛЕМЫ (Требуют немедленного решения)
+
+#### 1. 🚨 Старые спецификации НЕ УДАЛЕНЫ
+```
+❌ PyPoE/poe/file/specification/data/stable.py  - 27,071 строк
+❌ PyPoE/poe/file/specification/data/beta.py    - 21,228 строк
+❌ PyPoE/poe/file/specification/data/alpha.py   - 21,228 строк
+═══════════════════════════════════════════════════════════════════
+ИТОГО: 69,527 строк мёртвого кода! (~70% кодовой базы!)
+```
+
+**Причина:** После миграции в SQLite, старые Python файлы остались
+**Последствия:**
+- Раздутая кодовая база
+- Путаница для разработчиков
+- Медленная работа IDE
+- Лишний трафик в git
+
+**Решение:** НЕМЕДЛЕННО удалить эти файлы
+
+---
+
+#### 2. 🚨 55 Wildcard Imports (Загрязнение namespace)
+```
+Критически много в UI коде:
+❌ PyPoE/ui/ggpk_viewer/core.py         - 4 wildcard imports
+❌ PyPoE/ui/shared/file/handler.py      - 4 wildcard imports
+❌ PyPoE/ui/ggpk_viewer/toolbar.py      - 2 wildcard imports
+❌ PyPoE/ui/shared/settings.py          - 2 wildcard imports
+... и еще 37 файлов
+
+from PySide6.QtCore import *      ← ❌ Импортирует ~200 символов
+from PySide6.QtWidgets import *   ← ❌ Импортирует ~150 символов
+```
+
+**Проблемы:**
+- Невозможно понять, что используется
+- Конфликты имён
+- Медленная работа IDE autocomplete
+- Сложный рефакторинг
+
+**Приоритет:** HIGH (блокирует дальнейшую модернизацию UI)
+
+---
+
+#### 3. 🚨 693 Ошибки типизации MyPy
+```bash
+$ mypy PyPoE --ignore-missing-imports
+Found 693 errors
+
+Top offenders:
+- PyPoE/poe/file/dat.py           (~150 errors)
+- PyPoE/poe/file/ggpk.py          (~100 errors)
+- PyPoE/cli/exporter/wiki/...    (~200 errors)
+- PyPoE/ui/...                    (~150 errors)
+```
+
+**Проблемы:**
+- Отсутствуют type hints
+- Неявные типы
+- `Any` везде
+- Сложный refactoring
+
+**Решение:** Постепенное добавление type hints (начать с public API)
+
+---
+
+#### 4. 🚨 157 TODO/FIXME/XXX Комментариев
+```
+Технический долг по модулям:
+❌ PyPoE/poe/file/specification/data/beta.py   - 32 TODO
+❌ PyPoE/poe/file/specification/data/alpha.py  - 32 TODO
+❌ PyPoE/ui/shared/file/manager.py             - 11 TODO
+❌ PyPoE/poe/constants.py                      - 10 TODO
+❌ PyPoE/poe/file/translations/core.py         - 5 TODO
+❌ PyPoE/poe/file/ggpk.py                      - 5 TODO
+```
+
+**Категории:**
+- Незавершённая функциональность
+- Временные workarounds
+- Требуется оптимизация
+- Известные баги
+
+---
+
+#### 5. 🚨 5 Падающих тестов
+```
+FAILED tests/PyPoE/cli/exporter/wiki/test_parser.py - 4 теста
+FAILED tests/PyPoE/poe/test_patchserver.py          - 2 теста
+```
+
+**Проблема:** Старые тесты не обновлены после рефакторинга
+
+---
+
+### ⚠️ БОЛЬШИЕ ФАЙЛЫ (Требуют разбивки)
+
+```
+Файлы > 1000 строк (кандидаты на модуляризацию):
+
+1. ❌ item/parser.py        - 2,721 строк  ← Уже разбили, но осталась монолитная логика
+2. ❌ translations/core.py   - 2,438 строк  ← Формально пакет, но один файл
+3. ❌ parser/core.py         - 2,067 строк  ← Формально пакет, но один файл
+4. ⚠️ lua.py                - 1,469 строк  ← Новый кандидат
+5. ⚠️ patchserver.py        - 1,270 строк  ← Новый кандидат
+6. ⚠️ dat.py                - 1,168 строк  ← Core модуль, сложно разбить
+7. ⚠️ constants.py          - 962 строк    ← Enum definitions
+8. ⚠️ ggpk.py               - 843 строк    ← Core модуль
+```
+
+**Проблема:** Формально создали пакеты (item/, translations/, parser/),
+но переместили весь код в один файл `core.py` или `parser.py`
+
+---
+
+### 📊 МЕТРИКИ КАЧЕСТВА
+
+#### Покрытие тестами: 33% ❌
+```
+Цель: >80%
+Текущее: 33%
+Разрыв: 47% (требуется ~600 дополнительных тестов)
+
+Модули БЕЗ тестов:
+❌ PyPoE/poe/file/psg.py              - 0%
+❌ PyPoE/poe/file/idt.py              - 0%
+❌ PyPoE/poe/file/idl.py              - 0%
+❌ PyPoE/poe/patchserver.py           - 0%
+❌ PyPoE/cli/exporter/wiki/parsers/*  - <10%
+❌ PyPoE/ui/ggpk_viewer/menu.py       - 28%
+❌ PyPoE/ui/ggpk_viewer/toolbar.py    - 15%
+```
+
+#### Документация: 0% ❌
+```
+❌ Нет Sphinx документации
+❌ Нет API Reference
+❌ Нет Tutorials
+❌ Docstrings неполные (<30% функций)
+```
+
+---
+
+### 🎯 АРХИТЕКТУРНЫЕ ПРОБЛЕМЫ
+
+#### 1. Тесная связанность (Tight Coupling)
+```python
+# Плохо: Прямые зависимости
+class GGPKViewerMainWindow:
+    def __init__(self):
+        self.ggpk = ggpk.GGPKFile()  # ← Прямая зависимость
+        self.model = GGPKModel()      # ← Не инжектится
+```
+
+**Решение:** Полный переход на DI для всех компонентов
+
+#### 2. Дублирование кода
+```
+Обнаружено дублирование:
+- Логика парсинга строк (5+ мест)
+- Обработка ошибок (10+ мест)
+- Валидация данных (8+ мест)
+```
+
+**Решение:** Выделить общие утилиты
+
+#### 3. God Objects
+```python
+# GGPKViewerMainWindow - делает СЛИШКОМ много:
+- UI инициализация
+- Event handling
+- File management
+- Settings management
+- Data parsing
+```
+
+**Решение:** Дальнейшая декомпозиция по MVVM
 
 ---
 
@@ -2725,6 +2908,422 @@ pytest tests/ && pypoe_exporter --help && uv run -m PyPoE.ui
 # 5. Commit только если всё работает
 git add . && git commit -m "Fix: ..."
 ```
+
+---
+
+## 🚀 ФАЗА 6: Глубокий рефакторинг (НОВЫЙ ПЛАН)
+
+**Время:** 2-3 недели
+**Приоритет:** CRITICAL → HIGH → MEDIUM
+**Методология:** TDD (RED → GREEN → REFACTOR → VERIFY)
+
+---
+
+### 📋 ФАЗА 6.1: Чистка кодовой базы (CRITICAL - 1-2 дня)
+
+#### Задача 6.1.1: Удалить старые спецификации ⚠️ КРИТИЧНО
+```bash
+# RED: Написать тест, что SQLite specs работают
+tests/integration/test_sqlite_specs_only.py
+
+# GREEN: Убедиться что SQLite используется везде
+grep -r "from PyPoE.poe.file.specification.data import" PyPoE/
+# Должно быть 0 результатов!
+
+# REFACTOR: Удалить старые файлы
+rm PyPoE/poe/file/specification/data/stable.py  # -27k строк
+rm PyPoE/poe/file/specification/data/beta.py    # -21k строк
+rm PyPoE/poe/file/specification/data/alpha.py   # -21k строк
+
+# VERIFY:
+pytest tests/ && pypoe_exporter --help && uv run -m PyPoE.ui
+
+# COMMIT:
+git add -A
+git commit -m "Phase 6.1.1: Remove old Python specification files (-69k lines)"
+```
+
+**Результат:** -69,000 строк кода (-70%)
+
+---
+
+#### Задача 6.1.2: Убрать wildcard imports (HIGH - 2-3 дня)
+
+**Стратегия:** Поэтапно, файл за файлом
+
+```python
+# Пример рефакторинга:
+
+# БЫЛО (PyPoE/ui/ggpk_viewer/core.py):
+from PySide6.QtCore import *
+from PySide6.QtWidgets import *
+
+# СТАЛО:
+from PySide6.QtCore import (
+    Qt, QObject, Signal, QModelIndex, QThreadPool
+)
+from PySide6.QtWidgets import (
+    QMainWindow, QSplitter, QTreeView, QTextEdit,
+    QMessageBox, QFileDialog, QProgressBar
+)
+```
+
+**План:**
+1. Начать с файлов с наименьшим числом импортов
+2. Использовать IDE для автоматического определения используемых символов
+3. Группировать импорты логически
+
+**Файлы (по приоритету):**
+```
+Priority 1 (HIGH - UI Core):
+1. PyPoE/ui/ggpk_viewer/core.py         (4 wildcards)
+2. PyPoE/ui/shared/file/handler.py      (4 wildcards)
+3. PyPoE/ui/ggpk_viewer/toolbar.py      (2 wildcards)
+4. PyPoE/ui/ggpk_viewer/menu.py         (1 wildcard)
+
+Priority 2 (MEDIUM - UI Shared):
+5-15. PyPoE/ui/shared/*.py              (25+ wildcards)
+
+Priority 3 (LOW - Tests & Scripts):
+16-55. tests/**, scripts/**             (20+ wildcards)
+```
+
+**TDD процесс:**
+```bash
+# Для каждого файла:
+# 1. RED: Запустить тесты (должны проходить)
+pytest tests/unit/ui/
+
+# 2. GREEN: Заменить wildcard imports
+# Использовать: pyflakes, pylint --errors-only
+
+# 3. REFACTOR: Отформатировать
+ruff format file.py
+
+# 4. VERIFY: Тесты + UI
+pytest tests/unit/ui/ && uv run -m PyPoE.ui
+
+# 5. COMMIT:
+git add file.py
+git commit -m "Phase 6.1.2: Remove wildcard imports from {file}"
+```
+
+**Ожидаемый результат:**
+- 55 файлов обновлено
+- 0 wildcard imports
+- Понятные зависимости
+- Быстрее IDE
+
+---
+
+#### Задача 6.1.3: Исправить падающие тесты (HIGH - 1 день)
+
+```bash
+# 1. Проанализировать ошибки
+pytest tests/PyPoE/cli/exporter/wiki/test_parser.py -v
+pytest tests/PyPoE/poe/test_patchserver.py -v
+
+# 2. Исправить или отключить устаревшие тесты
+# tests/PyPoE/cli/exporter/wiki/test_parser.py - обновить данные
+# tests/PyPoE/poe/test_patchserver.py - обновить URL/моки
+
+# 3. VERIFY:
+pytest tests/ -x  # Все тесты проходят
+
+# 4. COMMIT:
+git commit -m "Phase 6.1.3: Fix failing tests"
+```
+
+---
+
+### 📋 ФАЗА 6.2: Глубокая модуляризация (HIGH - 1 неделя)
+
+#### Задача 6.2.1: Разбить `translations/core.py` (2438 строк)
+
+**Текущая структура:**
+```
+PyPoE/poe/file/translations/
+├── __init__.py        # Пустой (только re-export)
+└── core.py            # 2438 строк - ВСЯ логика здесь!
+```
+
+**Новая структура:**
+```
+PyPoE/poe/file/translations/
+├── __init__.py                 # Public API
+├── models.py                   # Translation, TranslationString (150 строк)
+├── parser.py                   # Парсинг файлов (300 строк)
+├── formatter.py                # format_string() (200 строк)
+├── translator.py               # get_translation() (250 строк)
+├── reverse.py                  # reverse_translation() (150 строк)
+├── cache.py                    # TranslationFileCache (100 строк)
+├── quantifier.py               # Quantifier logic (150 строк)
+├── utils.py                    # Вспомогательные функции (100 строк)
+└── constants.py                # Константы и регексы (50 строк)
+```
+
+**TDD процесс:**
+```python
+# 1. RED: Написать тесты для текущего API
+tests/unit/poe/file/test_translations_api.py
+
+def test_translation_parse():
+    """Test that translation parsing still works after split."""
+    # ... тесты на публичное API ...
+
+# 2. GREEN: Разбить core.py на модули
+# Начать с models.py, затем parser.py и т.д.
+
+# 3. REFACTOR: Обновить __init__.py для backward compatibility
+from .models import Translation, TranslationString
+from .parser import TranslationFile
+from .formatter import format_string
+# ... и т.д.
+
+# 4. VERIFY:
+pytest tests/ && pypoe_exporter --help
+```
+
+---
+
+#### Задача 6.2.2: Разбить `parser/core.py` (2067 строк)
+
+**Аналогично translations**, создать:
+```
+PyPoE/cli/exporter/wiki/parser/
+├── __init__.py
+├── base.py             # BaseParser
+├── template.py         # Template handling
+├── stats.py            # Stat processing
+├── links.py            # Wiki links
+├── formatter.py        # Wiki markup
+└── utils.py            # Helpers
+```
+
+---
+
+#### Задача 6.2.3: Разбить `item/parser.py` (2721 строк)
+
+**Дальнейшая декомпозиция:**
+```python
+PyPoE/cli/exporter/wiki/parsers/item/
+├── __init__.py
+├── base.py             # ✅ Уже есть
+├── handler.py          # ✅ Уже есть
+├── prophecy.py         # ✅ Уже есть
+├── parser.py           # ❌ 2721 строк - нужно разбить!
+│
+└── Новые модули:
+    ├── weapons.py      # Weapon parsing (500 строк)
+    ├── armour.py       # Armour parsing (400 строк)
+    ├── jewels.py       # Jewel parsing (300 строк)
+    ├── maps.py         # Map parsing (400 строк)
+    ├── currency.py     # Currency parsing (250 строк)
+    ├── gems.py         # Skill gem parsing (400 строк)
+    └── utils.py        # Shared utilities (200 строк)
+```
+
+---
+
+### 📋 ФАЗА 6.3: Типизация (MEDIUM - 1 неделя)
+
+#### Задача 6.3.1: Добавить type hints в core модули
+
+**Приоритет файлов:**
+```
+Priority 1 (Public API):
+1. PyPoE/poe/file/dat.py
+2. PyPoE/poe/file/ggpk.py
+3. PyPoE/poe/file/factory.py
+4. PyPoE/poe/file/specification/repository.py
+
+Priority 2 (Parsers):
+5. PyPoE/poe/file/translations/*.py
+6. PyPoE/cli/exporter/wiki/parser/*.py
+
+Priority 3 (UI):
+7. PyPoE/ui/ggpk_viewer/*.py
+8. PyPoE/ui/shared/*.py
+```
+
+**Процесс для каждого файла:**
+```python
+# 1. Добавить from __future__ import annotations
+from __future__ import annotations
+
+# 2. Добавить импорты типов
+from typing import Optional, List, Dict, Any, Union
+from pathlib import Path
+
+# 3. Аннотировать функции
+def parse_file(
+    file_path: Path,
+    version: VERSION = VERSION.STABLE,
+    *,
+    validate: bool = True
+) -> DatFile:
+    """Parse DAT file."""
+    ...
+
+# 4. Аннотировать классы
+class DatFile:
+    def __init__(self, spec_provider: SpecificationRepository) -> None:
+        self._rows: List[Dict[str, Any]] = []
+        ...
+
+# 5. Проверить mypy
+mypy file.py --strict
+```
+
+**Цель:** Снизить ошибки mypy с 693 до <50
+
+---
+
+### 📋 ФАЗА 6.4: Тесты (MEDIUM - ongoing)
+
+#### Задача 6.4.1: Unit тесты для непокрытых модулей
+
+**План покрытия (по приоритету):**
+```
+1. PyPoE/poe/file/psg.py              0% → 80%
+2. PyPoE/poe/file/idt.py              0% → 80%
+3. PyPoE/poe/file/idl.py              0% → 80%
+4. PyPoE/ui/ggpk_viewer/menu.py      28% → 80%
+5. PyPoE/ui/ggpk_viewer/toolbar.py   15% → 80%
+```
+
+**Стратегия:** По 1 модулю в день
+
+---
+
+#### Задача 6.4.2: Integration тесты
+
+```python
+# tests/integration/test_full_pipeline.py
+
+def test_ggpk_to_dat_to_wiki():
+    """Test complete pipeline: GGPK → DAT → Wiki export."""
+    # 1. Load GGPK
+    # 2. Extract DAT
+    # 3. Parse DAT
+    # 4. Export to Wiki format
+    # 5. Verify output
+    pass
+```
+
+---
+
+### 📋 ФАЗА 6.5: Документация (LOW - ongoing)
+
+#### Задача 6.5.1: Настроить Sphinx
+
+```bash
+# 1. Установить Sphinx
+uv add sphinx sphinx-rtd-theme sphinx-autodoc-typehints
+
+# 2. Инициализировать
+cd docs
+sphinx-quickstart
+
+# 3. Настроить conf.py
+# 4. Сгенерировать API docs
+sphinx-apidoc -o source/api ../PyPoE
+
+# 5. Собрать
+make html
+```
+
+#### Задача 6.5.2: Написать docstrings
+
+**Стандарт:** Google style
+
+```python
+def parse_dat_file(
+    file_path: Path,
+    version: VERSION = VERSION.STABLE
+) -> DatFile:
+    """
+    Parse a Path of Exile .dat file.
+
+    Args:
+        file_path: Path to the .dat file
+        version: Game version for specification lookup
+
+    Returns:
+        Parsed DatFile object containing all rows
+
+    Raises:
+        FileNotFoundError: If file doesn't exist
+        ParserError: If file is malformed
+
+    Example:
+        >>> dat = parse_dat_file(Path("ActiveSkills.dat"))
+        >>> len(dat)
+        423
+    """
+    ...
+```
+
+---
+
+### 📊 ИТОГОВАЯ ТАБЛИЦА ФАЗЫ 6
+
+| Приоритет | Задача | Время | Эффект | Сложность |
+|-----------|--------|-------|--------|-----------|
+| 🚨 **CRITICAL** | 6.1.1 Удалить старые specs | 2 часа | **-69,000 строк** | ★☆☆☆☆ |
+| 🔴 **HIGH** | 6.1.2 Убрать wildcard imports | 2-3 дня | 55 файлов, читаемость | ★★☆☆☆ |
+| 🔴 **HIGH** | 6.1.3 Исправить тесты | 1 день | 5 тестов исправлено | ★★☆☆☆ |
+| 🟠 **HIGH** | 6.2.1 Разбить translations | 2 дня | -2,438 строк файл | ★★★☆☆ |
+| 🟠 **HIGH** | 6.2.2 Разбить parser | 2 дня | -2,067 строк файл | ★★★☆☆ |
+| 🟠 **HIGH** | 6.2.3 Разбить item/parser | 3 дня | -2,721 строк файл | ★★★★☆ |
+| 🟡 **MEDIUM** | 6.3.1 Типизация (693→50 ошибок) | 1 неделя | Type safety, IDE | ★★★☆☆ |
+| 🟡 **MEDIUM** | 6.4.1 Unit тесты (33%→60%) | ongoing | +200 тестов | ★★★★☆ |
+| 🟢 **LOW** | 6.5.1 Sphinx документация | 1 неделя | API docs | ★★☆☆☆ |
+
+**КРИТИЧЕСКИЙ ПУТЬ (начать немедленно):**
+```
+День 1-2:   🚨 6.1.1 Удалить specs → 🔴 6.1.3 Исправить тесты
+День 3-5:   🔴 6.1.2 Wildcard imports (начать с Priority 1)
+День 6-7:   🟠 6.2.1 Разбить translations/core.py
+День 8-9:   🟠 6.2.2 Разбить parser/core.py
+День 10-12: 🟠 6.2.3 Разбить item/parser.py
+Неделя 2:   🟡 6.3.1 Типизация (параллельно с тестами)
+Неделя 3:   🟡 6.4.1 Тесты + 🟢 6.5.1 Документация
+```
+
+---
+
+### 🎯 ОЖИДАЕМЫЕ РЕЗУЛЬТАТЫ ФАЗЫ 6
+
+**После завершения Фазы 6:**
+```
+✅ Код:
+├── Строк кода: ~73,000 → ~5,000 (-70,000 specs + модуляризация)
+├── Wildcard imports: 55 → 0
+├── Файлов >2000 строк: 3 → 0
+├── Файлов >1000 строк: 8 → 2
+└── Средний размер файла: ~500 строк
+
+✅ Качество:
+├── MyPy ошибки: 693 → <50 (-92%)
+├── TODO/FIXME: 157 → <50 (-67%)
+├── Покрытие тестами: 33% → 60% (+27%)
+├── Падающие тесты: 5 → 0
+└── Документация: 0% → 50% (API docs)
+
+✅ Архитектура:
+├── Модуляризация: ✅ Полная
+├── SOLID принципы: ✅ Соблюдены
+├── Dependency Injection: ✅ Везде
+├── Type hints: ✅ В core модулях
+└── Читаемость кода: ⭐⭐⭐⭐⭐
+```
+
+**Метрики производительности разработки:**
+- IDE autocomplete: 5x быстрее (без wildcard imports)
+- Время компиляции mypy: 3x быстрее (меньше кода)
+- Время запуска тестов: без изменений
+- Onboarding новых разработчиков: 2x быстрее (документация)
 
 ---
 
