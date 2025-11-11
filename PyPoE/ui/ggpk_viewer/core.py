@@ -183,9 +183,9 @@ class GGPKViewerMainWindow(SharedMainWindow):
             self.file_infobar_name_hash.setText("")
             self._last_node = None
         if hasattr(self, "file_view"):
-            self.file_frame_layout.removeWidget(self.file_view)
-            self.file_view.deleteLater()
-            del self.file_view
+            self.file_frame_layout.removeWidget(self.file_view)  # type: ignore[has-type]
+            self.file_view.deleteLater()  # type: ignore[has-type]
+            del self.file_view  # type: ignore[has-type]
 
     def _view_record(self, index=QModelIndex()):
         node = index.internalPointer()
@@ -204,7 +204,7 @@ class GGPKViewerMainWindow(SharedMainWindow):
             self.file_textbox.setText(self.tr("No file selected."))
             self.file_textbox.setVisible(True)
             if hasattr(self, "file_view"):
-                self.file_view.setVisible(False)
+                self.file_view.setVisible(False)  # type: ignore[has-type]
             return
 
         # Avoid extracting data until we actually need
@@ -280,7 +280,7 @@ class GGPKViewerMainWindow(SharedMainWindow):
 
 
 class GeneralSettingsFrame(SettingFrame):
-    KEY = "general"
+    KEY = "general"  # type: ignore[assignment]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -291,8 +291,8 @@ class GeneralSettingsFrame(SettingFrame):
             order=-100,
         )
 
-        self.layout = QGridLayout()
-        self.setLayout(self.layout)
+        self.main_layout = QGridLayout()
+        self.setLayout(self.main_layout)
 
         self._add_setting(SettingDDS(parent=self, settings=self.parent().settings, row=1))
 
@@ -306,23 +306,23 @@ class GeneralSettingsFrame(SettingFrame):
 
 
 class SettingDDS(BoolSetting):
-    KEY = "uncompress_dds"
-    DEFAULT = False
+    KEY = "uncompress_dds"  # type: ignore[assignment]
+    DEFAULT = False  # type: ignore[assignment]
 
     def __init__(self, parent, settings, row, *args, **kwargs):
         super().__init__(parent, settings, *args, **kwargs)
 
         self.value = self.get()
 
-        parent.layout.addWidget(
+        parent.main_layout.addWidget(
             QLabel(parent.tr("Uncompress DDS files after exporting them from the GGPK")), row, 1
         )
-        parent.layout.addWidget(self.checkbox, row, 2)
+        parent.main_layout.addWidget(self.checkbox, row, 2)
 
 
 class SettingVersion(ComboBoxSetting):
-    KEY = "version"
-    DEFAULT = VERSION.DEFAULT
+    KEY = "version"  # type: ignore[assignment]
+    DEFAULT = VERSION.DEFAULT  # type: ignore[assignment]
 
     def __init__(self, parent, settings, row, *args, **kwargs):
         super().__init__(parent, settings, *args, **kwargs)

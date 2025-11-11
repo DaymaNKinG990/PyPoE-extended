@@ -35,11 +35,11 @@ import time
 import re
 from collections.abc import Iterable
 from concurrent.futures import ThreadPoolExecutor
-from requests.exceptions import HTTPError
+from requests.exceptions import HTTPError  # type: ignore[import-untyped]
 
 # 3rd Party
 try:
-    import mwclient
+    import mwclient  # type: ignore[import-untyped]
 except Exception as e:
     mwclient = None
 
@@ -130,7 +130,7 @@ class WikiHandler:
         else:
             pages = row['wiki_page']
         console('Scanning for wiki page candidates "%s"' %
-                ', '.join([p['page'] for p in pages]))
+                ', '.join([p['page'] for p in pages]))  # type: ignore[misc]
         page_found = False
         new = False
         for pdata in pages:
@@ -149,7 +149,7 @@ class WikiHandler:
                     success = condition(page=page)
                 elif isinstance(condition, Iterable):
                     for cond in condition:
-                        success = cond(page=page)
+                        success = cond(page=page)  # type: ignore[operator]
                         if not success:
                             break
                 else:
@@ -349,7 +349,7 @@ class ExporterHandler(BaseHandler):
             'id',
             help='Extract via a list of internal ids.'
         )
-        self.add_default_parsers(
+        self.add_default_parsers(  # type: ignore[misc]
             parser=a_id,
             cls=cls,
             func=cls.by_id,
@@ -367,7 +367,7 @@ class ExporterHandler(BaseHandler):
             'name',
             help='Extract via a list of names.'
         )
-        self.add_default_parsers(
+        self.add_default_parsers(  # type: ignore[misc]
             parser=a_name,
             cls=cls,
             func=cls.by_name,
@@ -386,7 +386,7 @@ class ExporterHandler(BaseHandler):
             'rowid',
             help='Extract via rowid in the primary dat file.'
         )
-        self.add_default_parsers(
+        self.add_default_parsers(  # type: ignore[misc]
             parser=a_rid,
             cls=cls,
             func=cls.by_rowid,
