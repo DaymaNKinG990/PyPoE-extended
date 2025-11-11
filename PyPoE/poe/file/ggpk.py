@@ -109,11 +109,13 @@ __all__ = ["GGPKFile"]
 # =============================================================================
 
 
-class GGPKException(Exception):
+class GGPKError(Exception):
+    """Error raised when processing GGPK files."""
     pass
 
 
-class InvalidTagException(GGPKException):
+class InvalidTagException(GGPKError):
+    """Error raised when an invalid tag is encountered in a GGPK file."""
     pass
 
 

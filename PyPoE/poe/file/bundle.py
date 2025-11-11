@@ -228,10 +228,7 @@ class Bundle(AbstractFileReadOnly):
         last = self.entry_count - 1  # type: ignore[operator]
         if ooz:
             for i in range(start, end):  # type: ignore[arg-type]
-                if i != last:
-                    size = self.chunk_size
-                else:
-                    size = self.size_decompressed % self.chunk_size  # type: ignore[operator]
+                size = self.chunk_size if i != last else self.size_decompressed % self.chunk_size  # type: ignore[operator]
 
                 out = ffi.new("uint8_t[]", size + 64)  # type: ignore[operator]
                 chunk_data = self.data[i]
@@ -262,10 +259,7 @@ class Bundle(AbstractFileReadOnly):
                     fn = os.path.join(tempdir, f"chunk{i}")
 
                     with open(f"{fn}.in", "wb") as f:
-                        if i != last:
-                            size = 262144
-                        else:
-                            size = self.size_decompressed % 262144  # type: ignore[operator]
+                        size = 262144 if i != last else self.size_decompressed % 262144  # type: ignore[operator]
                         f.write(struct.pack("<Q", size))
                         f.write(self.data[i])  # type: ignore[arg-type]
 

@@ -639,26 +639,26 @@ class DatReader(ReprMixin):
                 columns.add(c)
 
         columns_1to1 = set()
-        columns_1toN = set()
-        columns_NtoN = set()
+        columns_1to_n = set()
+        columns_n_to_n = set()
         for column in columns:
             if column in self.columns_unique:  # type: ignore[attr-defined]
                 self.index[column] = {}
                 columns_1to1.add(column)
             elif self.specification.fields[column].type.startswith("ref|list"):  # type: ignore[union-attr]
-                columns_NtoN.add(column)
+                columns_n_to_n.add(column)
                 self.index[column] = defaultdict(list)  # type: ignore[arg-type]
             else:
-                columns_1toN.add(column)
+                columns_1to_n.add(column)
                 self.index[column] = defaultdict(list)  # type: ignore[arg-type]
 
         # Second loop
         for row in self:
             for column in columns_1to1:
                 self.index[column][row[column]] = row
-            for column in columns_1toN:
+            for column in columns_1to_n:
                 self.index[column][row[column]].append(row)
-            for column in columns_NtoN:
+            for column in columns_n_to_n:
                 for value in row[column]:
                     self.index[column][value].append(row)
 

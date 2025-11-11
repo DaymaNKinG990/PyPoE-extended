@@ -349,7 +349,8 @@ class DDSDataHandler(FileDataHandler):
 
     """
 
-    class DDSException(Exception):
+    class DDSError(Exception):
+        """Error raised when processing DDS files."""
         pass
 
     @staticmethod
@@ -388,9 +389,9 @@ class DDSDataHandler(FileDataHandler):
         try:
             file_data = io.BytesIO(file_system.extract_dds(file_bytes))
         except NotImplementedError as e:
-            raise DDSDataHandler.DDSException(*e.args) from e
+            raise DDSDataHandler.DDSError(*e.args) from e
         except ValueError as e:
-            raise DDSDataHandler.DDSException(
+            raise DDSDataHandler.DDSError(
                 'This file is a reference to "{}"'.format(file_bytes[1:].decode("utf-8"))
             ) from e
 

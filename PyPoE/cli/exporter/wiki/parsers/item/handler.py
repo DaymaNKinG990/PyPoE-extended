@@ -43,12 +43,8 @@ ProphecyParser = None
 class ItemsHandler(ExporterHandler):
     def __init__(self, sub_parser, *args, **kwargs):
         # Late import to avoid circular dependency
-        from PyPoE.cli.exporter.wiki.parsers.item.parser import ItemsParser as IP
-        from PyPoE.cli.exporter.wiki.parsers.item.prophecy import ProphecyParser as PP
-
-        global ItemsParser, ProphecyParser
-        ItemsParser = IP
-        ProphecyParser = PP
+        from PyPoE.cli.exporter.wiki.parsers.item.parser import ItemsParser
+        from PyPoE.cli.exporter.wiki.parsers.item.prophecy import ProphecyParser
 
         super().__init__(self, sub_parser, *args, **kwargs)
         self.parser = sub_parser.add_parser("items", help="Items Exporter")

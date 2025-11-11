@@ -281,10 +281,7 @@ class FileSystem:
             def add_to_directory(node, depth):
                 # Return at depth 0? Root object
 
-                if node.parent:
-                    root = self.directory[node.parent.get_path()]  # type: ignore[index]
-                else:
-                    root = self.directory
+                root = self.directory[node.parent.get_path()] if node.parent else self.directory  # type: ignore[index]
 
                 root.children[node.name] = FileSystemNode(  # type: ignore[assignment]
                     parent=root,  # type: ignore[arg-type]

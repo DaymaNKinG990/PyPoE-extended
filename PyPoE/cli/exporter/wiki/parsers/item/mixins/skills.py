@@ -9,6 +9,7 @@ Class attributes are defined in the main ItemsParser class.
 # Imports
 # =============================================================================
 
+import contextlib
 import warnings
 from collections import OrderedDict
 from typing import TYPE_CHECKING, Any
@@ -206,11 +207,9 @@ class SkillsMixin:
                     except KeyError:
                         print(base_item_type["Id"], base_item_type["Name"])
                         raise
-            try:
-                # Index starts at 0 while levels start at 1
-                infobox[prefix + "experience"] = exp_total[i - 1]
-            except IndexError:
-                pass
+                    # Index starts at 0 while levels start at 1
+                    with contextlib.suppress(IndexError):
+                        infobox[prefix + "experience"] = exp_total[i - 1]
 
         return True
 

@@ -191,6 +191,7 @@ Documentation
 # =============================================================================
 
 # Python
+import contextlib
 from collections import OrderedDict
 
 # 3rd-party
@@ -409,12 +410,10 @@ class File:
 
                 delete.update(virtual_field.fields)
 
+            # TODO: This can happen when virtual keys are invalid, move from validator to here?
             for item in delete:
-                try:
+                with contextlib.suppress(KeyError):
                     del self.columns[item]
-                # TODO: This can happen when virtual keys are invalid, move from validator to here?
-                except KeyError:
-                    pass
 
             for item in delete_zip:
                 del self.columns_zip[item]
