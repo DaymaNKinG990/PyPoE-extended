@@ -66,7 +66,7 @@ from PySide6.QtWidgets import (
     QTextEdit,
 )
 try:
-    from OpenGL import GL
+    from OpenGL import GL  # type: ignore[import-not-found]
 except ImportError:
     GL = None
 
@@ -120,7 +120,7 @@ class DatStyle(QStyledItemDelegate):
     def _sort_value(self, dat_value):
         if self.parent().option_dereference_pointer.isChecked():
             if dat_value.is_list:
-                return self._show_value(dat_value)
+                return self._show_value(dat_value, dat_value)  # type: ignore[call-arg]
             elif dat_value.is_pointer:
                 return dat_value.child.value
         if dat_value.is_list:
@@ -163,7 +163,7 @@ class DatStyle(QStyledItemDelegate):
 
     def _get_text(self, data):
         if isinstance(data, DatValue):
-            outstr = []
+            outstr: list[str] = []
             self._show_value(outstr, data, data.specification.display_type)
             text = ''.join(outstr)
         else:
@@ -209,15 +209,15 @@ class DatFrame(QFrame):
         self._dat_file = dat_file
 
         QFrame.__init__(self, parent=parent)
-        self.layout = QVBoxLayout()
-        self.layout.setContentsMargins(0, 0, 0, 0)
-        self.setLayout(self.layout)
+        self.main_layout = QVBoxLayout()
+        self.main_layout.setContentsMargins(0, 0, 0, 0)
+        self.setLayout(self.main_layout)
 
         #
         # Information Stuff
         #
-        self.frame_info = QGroupBox(self.tr('File Overview', parent=self))
-        self.layout.addWidget(self.frame_info)
+        self.frame_info = QGroupBox(self.tr('File Overview'))  # type: ignore[call-arg]
+        self.main_layout.addWidget(self.frame_info)
 
         self.frame_info_layout = QGridLayout()
         self.frame_info_layout.setColumnStretch(5, 1)
@@ -262,8 +262,8 @@ class DatFrame(QFrame):
         #
         # Options
         #
-        self.option_group_box = QGroupBox(self.tr('Options', parent=self))
-        self.layout.addWidget(self.option_group_box)
+        self.option_group_box = QGroupBox(self.tr('Options'))  # type: ignore[call-arg]
+        self.main_layout.addWidget(self.option_group_box)
 
         self.option_group_box_layout = QHBoxLayout()
         self.option_group_box.setLayout(self.option_group_box_layout)
@@ -468,7 +468,7 @@ class ImageDataHandler(FileDataHandler):
     def get_widget(self, file_data, file_name, *args, **kwargs):
         self._verify_data(file_data)
 
-        q = QByteArray.fromRawData(file_data.read())
+        q = QByteArray.fromRawData(file_data.read())  # type: ignore[call-arg]
 
         img = QImage.fromData(q)
         label = QLabel(*args, **kwargs)
