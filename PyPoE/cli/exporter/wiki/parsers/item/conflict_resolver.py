@@ -121,9 +121,11 @@ class ItemConflictResolver:
             # Descent skill books
             match = re.match(r"SkillBooks/Descent2_(?P<id>[0-9]+)", qid)
             if match:
-                return str(base_item_type["Name"])  # type: ignore[no-any-return] + " ({} {})".format(
-                    self.lang_map[self.language]["descent"],
-                    match.group("id"),
+                return (  # type: ignore[no-any-return]
+                    str(base_item_type["Name"]) + " ({} {})".format(
+                        self.lang_map[self.language]["descent"],
+                        match.group("id"),
+                    )
                 )
             else:
                 # Bandit respec
