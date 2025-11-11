@@ -21,6 +21,12 @@ A .ggpk file, namely content.ggpk, is a container containing a virtual directory
 and file contents. It is basically just packing the files together without
 compression.
 
+⚠️  MIGRATION NOTICE:
+This file is being refactored as part of Phase 7.3.
+The new refactored GGPKFile is available in PyPoE.poe.file.ggpk.file.
+This file will be deprecated in a future version.
+For new code, use: from PyPoE.poe.file.ggpk import GGPKFile
+
 Agreement
 ===============================================================================
 

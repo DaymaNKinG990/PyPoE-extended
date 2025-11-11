@@ -71,10 +71,17 @@ class GGPKFile(AbstractFileReadOnly, metaclass=InheritedDocStringsMeta):
         super().__init__(*args, **kwargs)
 
         # Initialize components (DI pattern)
-        self._reader = reader or GGPKReader(container=self)
-        self._record_manager = record_manager or GGPKRecordManager()
-        self._directory_builder = directory_builder or GGPKDirectoryBuilder()
-        self._diff_comparator = diff_comparator or GGPKDiffComparator()
+        # Use 'is None' instead of 'or' because empty managers are falsy
+        self._reader = reader if reader is not None else GGPKReader(container=self)
+        self._record_manager = (
+            record_manager if record_manager is not None else GGPKRecordManager()
+        )
+        self._directory_builder = (
+            directory_builder if directory_builder is not None else GGPKDirectoryBuilder()
+        )
+        self._diff_comparator = (
+            diff_comparator if diff_comparator is not None else GGPKDiffComparator()
+        )
 
         # State
         self.directory: DirectoryNode | None = None
