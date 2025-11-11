@@ -56,21 +56,42 @@ class UtilsMixin:
         def _image_init(self, *args: Any, **kwargs: Any) -> None: ...
         def _write_dds(self, *args: Any, **kwargs: Any) -> None: ...
 
-    def __init__(self, *args, **kwargs):
+    def __init__(
+        self,
+        *args: Any,
+        relational_reader_english: RelationalReader | None = None,
+        **kwargs: Any,
+    ):
+        """
+        Initialize UtilsMixin.
+
+        Args:
+            *args: Positional arguments passed to parent
+            relational_reader_english: Optional RelationalReader for English language
+                (used when current language is not English)
+            **kwargs: Keyword arguments passed to parent
+
+        Note:
+            If relational_reader_english is not provided and language is not English,
+            a new RelationalReader will be created as before (backward compatibility).
+        """
         super().__init__(*args, **kwargs)
         self._parsed_args = None
         self._language = config.get_option("language")
         if self._language != "English":
-            self.rr2 = RelationalReader(
-                path_or_file_system=self.file_system,
-                files=["BaseItemTypes.dat", "Prophecies.dat"],
-                read_options={
-                    "use_dat_value": False,
-                    "auto_build_index": True,
-                },
-                raise_error_on_missing_relation=False,
-                language="English",
-            )
+            if relational_reader_english is not None:
+                self.rr2 = relational_reader_english
+            else:
+                self.rr2 = RelationalReader(
+                    path_or_file_system=self.file_system,
+                    files=["BaseItemTypes.dat", "Prophecies.dat"],
+                    read_options={
+                        "use_dat_value": False,
+                        "auto_build_index": True,
+                    },
+                    raise_error_on_missing_relation=False,
+                    language="English",
+                )
         else:
             self.rr2 = None
 
