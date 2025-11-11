@@ -45,7 +45,7 @@ from collections import OrderedDict, defaultdict
 
 # 3rd-party
 from PySide6.QtCore import *
-from PySide6.QtWidgets import *
+from PySide6.QtWidgets import *  # type: ignore[assignment]
 
 # self
 from PyPoE.ui.shared.regex_widgets import RegexFlagsBox
@@ -91,7 +91,7 @@ class AbstractFilter:
 
 class RegexFilter(AbstractFilter):
 
-    NAME = QT_TR_NOOP('Regular Expression Filter')
+    NAME = QT_TR_NOOP('Regular Expression Filter')  # type: ignore[assignment]
 
     def __init__(self, value, flags=0):
         self.value = value
@@ -187,7 +187,7 @@ class TypedFilter(AbstractFilter):
         }),
     ))
 
-    NAME = QT_TR_NOOP('Simple Operation Filter')
+    NAME = QT_TR_NOOP('Simple Operation Filter')  # type: ignore[assignment]
 
     def __init__(self, value, operation, type):
         if type not in self.types:
@@ -317,8 +317,8 @@ class FilterWizardColumnPage(FilterWizardPageShared):
         QWizardPage.__init__(self, *args, **kwargs)
         self.setTitle(self.tr('Select a column'))
 
-        self.layout = QVBoxLayout()
-        self.setLayout(self.layout)
+        self.main_layout = QVBoxLayout()
+        self.setLayout(self.main_layout)
 
         self.column_list = QComboBox(parent=self)
         fp = self.parent().filter_proxy
@@ -329,7 +329,7 @@ class FilterWizardColumnPage(FilterWizardPageShared):
                 len(fp.filters[column_id]),
             ))
         self.registerField('COLUMN_LIST', self.column_list)
-        self.layout.addWidget(self.column_list)
+        self.main_layout.addWidget(self.column_list)
 
 
 class FilterWizardFilterSelectionPage(FilterWizardPageShared):
@@ -337,12 +337,12 @@ class FilterWizardFilterSelectionPage(FilterWizardPageShared):
         QWizardPage.__init__(self, *args, **kwargs)
         self.setTitle(self.tr('Select a filter'))
 
-        self.layout = QVBoxLayout()
-        self.setLayout(self.layout)
+        self.main_layout = QVBoxLayout()
+        self.setLayout(self.main_layout)
 
         self.filter_list = QComboBox(parent=self)
         self.registerField('FILTER_LIST', self.filter_list)
-        self.layout.addWidget(self.filter_list)
+        self.main_layout.addWidget(self.filter_list)
 
     def initializePage(self):
         self.filter_list.clear()
@@ -368,8 +368,8 @@ class FilterWizardFilterSettingsPage(FilterWizardPageShared):
         self.setTitle(self.tr('Modify filter settings'))
         self.setFinalPage(True)
 
-        self.layout = QVBoxLayout()
-        self.setLayout(self.layout)
+        self.main_layout = QVBoxLayout()
+        self.setLayout(self.main_layout)
 
     def _get_filter(self):
         return self.get_filters()[self.field('COLUMN_LIST')][self.field('FILTER_LIST')]
@@ -379,8 +379,8 @@ class FilterWizardFilterSettingsPage(FilterWizardPageShared):
 
     def cleanupPage(self):
 
-        self.layout = QVBoxLayout()
-        self.setLayout(self.layout)
+        self.main_layout = QVBoxLayout()
+        self.setLayout(self.main_layout)
 
     def initializePage(self):
         filter = self._get_filter()
@@ -409,14 +409,14 @@ class FilterWizardCreateFilterPage(FilterWizardPageShared):
         QWizardPage.__init__(self, *args, **kwargs)
         self.setTitle(self.tr('Create a new filter'))
 
-        self.layout = QVBoxLayout()
-        self.setLayout(self.layout)
+        self.main_layout = QVBoxLayout()
+        self.setLayout(self.main_layout)
 
         self.filter_type_list = QComboBox(parent=self)
         for filter_cls in FILTERS:
             self.filter_type_list.addItem(filter_cls.NAME)
 
-        self.layout.addWidget(self.filter_type_list)
+        self.main_layout.addWidget(self.filter_type_list)
 
     def cleanupPage(self):
         try:
@@ -494,7 +494,7 @@ class FilterMenu(QMenu):
 
 class FilterProxyModel(QSortFilterProxyModel):
     def __init__(self, parent, *args, **kwargs):
-        QSortFilterProxyModel.__init__(self, *args, parent=parent, **kwargs)
+        QSortFilterProxyModel.__init__(self, parent=parent, **kwargs)
 
         self.reset_all_filters()
 
