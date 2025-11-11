@@ -39,6 +39,7 @@ import re
 import warnings
 from collections import OrderedDict, defaultdict
 from functools import partialmethod
+from typing import Any
 
 # Self
 from PyPoE.poe import text
@@ -66,11 +67,11 @@ class OutOfBoundsWarning(UserWarning):
 
 
 class ModWikiCondition(WikiCondition):
-    COPY_KEYS = (
+    COPY_KEYS = (  # type: ignore[assignment]
         'tier_text',
     )
 
-    NAME = 'Mod'
+    NAME = 'Mod'  # type: ignore[assignment]
 
 
 class ModsHandler(ExporterHandler):
@@ -289,7 +290,7 @@ class ModParser(BaseParser):
                 data['tags'] = tags
 
             if mod['ModTypeKey']:
-                sell_price = defaultdict(int)
+                sell_price: Any = defaultdict(int)
                 for msp in mod['ModTypeKey']['ModSellPriceTypesKeys']:
                     for i, (item_id, amount) in enumerate(
                             MOD_SELL_PRICES[msp['Id']].items(), start=1):
@@ -298,7 +299,7 @@ class ModParser(BaseParser):
                         data['sell_price%s_amount' % i] = amount
 
                 # Make sure this is always the same order
-                sell_price = sorted(sell_price.items(), key=lambda x:x[0])
+                sell_price = sorted(sell_price.items(), key=lambda x:x[0])  # type: ignore[assignment]
 
                 for i, (item_name, amount) in enumerate(sell_price, start=1):
                     data['sell_price%s_name' % i] = item_name
@@ -340,7 +341,7 @@ class ModParser(BaseParser):
 
             info = {}
             info['name'] = mod['Name']
-            effects = []
+            effects: list[str] = []
 
             stat_ids = [st['Id'] for st in stats]
             stat_values = []
@@ -358,7 +359,7 @@ class ModParser(BaseParser):
                 pass
             else:
                 # Value is incremented by 1 for some reason
-                tempest = self.rr['ExplodingStormBuffs.dat'][stat_values[index]-1]
+                tempest = self.rr['ExplodingStormBuffs.dat'][stat_values[index]-1]  # type: ignore[operator]
 
                 stat_ids.pop(index)
                 stat_values.pop(index)
