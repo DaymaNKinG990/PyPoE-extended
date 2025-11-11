@@ -112,8 +112,8 @@ class StatFilterFile(AbstractFileReadOnly):
         re.UNICODE | re.MULTILINE,
     )
 
-    groups = None
-    skills = None
+    groups: dict[str, list[str]] | None = None
+    skills: dict[str, dict[str, list[str]]] | None = None
 
     def _read(self, buffer, *args, **kwargs):
         data = buffer.read().decode('utf-16')
@@ -132,7 +132,7 @@ class StatFilterFile(AbstractFileReadOnly):
                         stats.extend(self.groups[stat[1:]])
                     else:
                         stats.append(stat)
-                self.skills[match.group('skill_id')] = SkillEntry(
+                self.skills[match.group('skill_id')] = SkillEntry(  # type: ignore[assignment]
                     skill_id=match.group('skill_id'),
                     translation_file_path=match.group('file'),
                     stats=stats,

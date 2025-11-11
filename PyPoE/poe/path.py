@@ -39,7 +39,7 @@ import os
 try:
     import winreg
 except ImportError:
-    winreg = None
+    winreg = None  # type: ignore[assignment]
 
 # self
 from PyPoE.poe.constants import VERSION, DISTRIBUTOR
@@ -66,7 +66,7 @@ class PoEPathList(list):
     def __init__(self, only_existing=True):
         self._only_existing = True
 
-    def append(self, path, version, distributor):
+    def append(self, path, version, distributor):  # type: ignore[override]
         if path is None:
             return
 
