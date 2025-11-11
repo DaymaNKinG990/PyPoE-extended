@@ -213,6 +213,8 @@ __all__ = ['Specification', 'File', 'Field', 'VirtualField']
 
 
 class _Common:
+    __slots__: tuple[str, ...] = ()  # Will be overridden in subclasses
+    
     def as_dict(self) -> dict:
         """
         Returns
@@ -390,8 +392,8 @@ class File:
     ]
 
     def __init__(self,
-                 fields: Tuple['Field', ...] = None,
-                 virtual_fields: Tuple['VirtualField', ...] = None
+                 fields: Tuple['Field', ...] | None = None,
+                 virtual_fields: Tuple['VirtualField', ...] | None = None
                  ):
         """
         Parameters
@@ -403,22 +405,25 @@ class File:
             OrderedDict containing the field name as key and a
             :class:`VirtualField` instance as value
         """
+        fields_dict: OrderedDict[str, 'Field']
         if fields is None:
-            fields = OrderedDict()
+            fields_dict = OrderedDict()
         else:
-            fields = OrderedDict(((field.name, field) for field in fields))
-        self.fields = fields
+            fields_dict = OrderedDict(((field.name, field) for field in fields))  # type: ignore[misc]
+        self.fields = fields_dict
+        
+        virtual_fields_dict: OrderedDict[str, 'VirtualField']
         if virtual_fields is None:
-            virtual_fields = OrderedDict()
+            virtual_fields_dict = OrderedDict()
         else:
-            virtual_fields = OrderedDict(((field.name, field) for field in virtual_fields))
-        self.virtual_fields = virtual_fields
+            virtual_fields_dict = OrderedDict(((field.name, field) for field in virtual_fields))  # type: ignore[misc]
+        self.virtual_fields = virtual_fields_dict
 
         # Set utility columns from the given data
-        self.columns = OrderedDict()
-        self.columns_unique = OrderedDict()
+        self.columns: OrderedDict[str, None] = OrderedDict()
+        self.columns_unique: OrderedDict[str, None] = OrderedDict()
 
-        for field_name, field in fields.items():
+        for field_name, field in fields_dict.items():
             self.columns[field_name] = None
             if field.unique:
                 self.columns_unique[field_name] = None
@@ -427,11 +432,11 @@ class File:
         self.columns_data = OrderedDict(self.columns)
         self.columns_zip = OrderedDict(self.columns)
 
-        if virtual_fields:
-            delete = set()
-            delete_zip = set()
+        if virtual_fields_dict:
+            delete: set[str] = set()
+            delete_zip: set[str] = set()
 
-            for field_name, virtual_field in virtual_fields.items():
+            for field_name, virtual_field in virtual_fields_dict.items():
                 self.columns[field_name] = None
                 self.columns_all[field_name] = None
                 self.columns_zip[field_name] = None
@@ -528,17 +533,17 @@ class Field(_Common, ReprMixin):
 
     def __init__(self,
                  type: str,
-                 key: str = None,
-                 key_id: str = None,
+                 key: str | None = None,
+                 key_id: str | None = None,
                  key_offset: int = 0,
-                 enum: str = None,
+                 enum: str | None = None,
                  unique: bool = False,
                  file_path: bool = False,
-                 file_ext: str = None,
-                 display: str = None,
-                 display_type: str = None,
-                 description: str = None,
-                 name: str = None):
+                 file_ext: str | None = None,
+                 display: str | None = None,
+                 display_type: str | None = None,
+                 description: str | None = None,
+                 name: str | None = None):
         """
         All parameters except type are optional.
 
