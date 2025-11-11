@@ -36,10 +36,35 @@ import struct
 from tempfile import TemporaryDirectory
 
 # 3rd Party
-from PySide6.QtCore import *
-from PySide6.QtGui import *
-from PySide6.QtOpenGLWidgets import *
-from PySide6.QtWidgets import *
+from PySide6.QtCore import Qt, QRectF, QSize, QModelIndex, QByteArray
+from PySide6.QtGui import (
+    QPainter,
+    QFontMetrics,
+    QImage,
+    QPixmap,
+)
+from PySide6.QtOpenGLWidgets import QOpenGLWidget as QGLWidget
+# Note: QGLPixelBuffer is not available in PySide6, this is legacy Qt5 code
+# The DDS handler may not work properly in Qt6
+try:
+    from PySide6.QtOpenGL import QOpenGLPixelBuffer as QGLPixelBuffer
+except ImportError:
+    QGLPixelBuffer = None  # Legacy DDS support unavailable in Qt6
+from PySide6.QtWidgets import (
+    QStyledItemDelegate,
+    QStyleOptionViewItem,
+    QFrame,
+    QVBoxLayout,
+    QGroupBox,
+    QGridLayout,
+    QLabel,
+    QCheckBox,
+    QHBoxLayout,
+    QTableView,
+    QHeaderView,
+    QScrollArea,
+    QTextEdit,
+)
 try:
     from OpenGL import GL
 except ImportError:
