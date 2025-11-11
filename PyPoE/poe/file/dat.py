@@ -1054,12 +1054,12 @@ class RelationalReader(AbstractFileCache):
         elif key:
             try:
                 obj = other.index[key][obj]
-            except KeyError:
+            except KeyError as e:
                 msg = f'Did not find proper value for foreign key "{key}" with value "{obj}"'
                 if self.raise_error_on_missing_relation:
                     raise SpecificationError(
                         SpecificationError.ERRORS.RUNTIME_MISSING_FOREIGN_KEY, msg
-                    )
+                    ) from e
                 else:
                     warnings.warn(msg, SpecificationWarning, stacklevel=2)
                     obj = None
@@ -1067,12 +1067,12 @@ class RelationalReader(AbstractFileCache):
             # offset is default 0
             try:
                 obj = other[obj - offset]
-            except IndexError:
+            except IndexError as e:
                 msg = f"Did not find proper value at index {obj - offset} in {other.file_name}"
                 if self.raise_error_on_missing_relation:
                     raise SpecificationError(
                         SpecificationError.ERRORS.RUNTIME_MISSING_FOREIGN_KEY, msg
-                    )
+                    ) from e
                 else:
                     warnings.warn(msg, SpecificationWarning, stacklevel=2)
                     obj = None
@@ -1167,7 +1167,7 @@ class RelationalReader(AbstractFileCache):
                         raise SpecificationError(
                             e.code,
                             f"{file_name}:{key}->{spec_row.key}:{e.msg}",
-                        )
+                        ) from e
 
         return df
 

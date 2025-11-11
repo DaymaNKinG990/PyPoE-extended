@@ -478,8 +478,8 @@ class Index(Bundle):
         """
         try:
             return self.directories[self.get_hash(path, type=PATH_TYPES.DIR)]
-        except KeyError:
-            raise FileNotFoundError()
+        except KeyError as e:
+            raise FileNotFoundError() from e
 
     def get_file_record(self, path: str | bytes) -> FileRecord:
         """
@@ -502,8 +502,8 @@ class Index(Bundle):
         """
         try:
             return self.files[self.get_hash(path, type=PATH_TYPES.FILE)]
-        except KeyError:
-            raise FileNotFoundError()
+        except KeyError as e:
+            raise FileNotFoundError() from e
 
     def get_hash(self, path: str | bytes, type: PATH_TYPES = None) -> int:  # type: ignore[assignment]
         """

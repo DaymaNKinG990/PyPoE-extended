@@ -183,10 +183,10 @@ class FileSystem:
         try:
             with open(os.path.join(self.root_path, path), "rb") as f:
                 return f.read()
-        except FileNotFoundError:
+        except FileNotFoundError as e:
             raise FileNotFoundError(
                 "Specified file can not be found in the Index, content.ggpk or disk"
-            )
+            ) from e
 
     def extract_dds(self, data: bytes) -> bytes:
         """

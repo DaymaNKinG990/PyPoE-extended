@@ -966,12 +966,12 @@ class PatchFileList:
                     test_directory = self.directory[folder].record  # type: ignore[attr-defined]
                     if not isinstance(test_directory, DirectoryRecord):
                         raise ValueError("Must only query folders.")
-                except FileNotFoundError:
+                except FileNotFoundError as e:
                     raise ValueError(
                         "Queried folder unknown."
                         + " Must traverse patchserver"
                         + " top (root) to bottom"
-                    )
+                    ) from e
 
                 query_folder_length = struct.pack("B", len(folder))
                 query_folder_name = folder.encode("utf-16le")

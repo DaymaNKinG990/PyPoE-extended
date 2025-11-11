@@ -117,8 +117,8 @@ class IntEnumValidator:
         """
         try:
             return self._enum(value)
-        except ValueError:
-            raise ValidateError(f"{self._enum.__name__} The value is not accepted by the enum.")
+        except ValueError as e:
+            raise ValidateError(f"{self._enum.__name__} The value is not accepted by the enum.") from e
 
     def __call__(self, value):
         """
@@ -147,13 +147,13 @@ class IntEnumValidator:
                 # This will get rid of the class portion for casting if present
                 if value.startswith(self._enum.__name__ + "."):
                     value = value[len(self._enum.__name__) + 1 :]
-                try:
-                    value = getattr(self._enum, value)
-                except AttributeError:
-                    raise ValidateError(
-                        f"The value is neither an integer or a valid {self._enum.__name__} "
-                        "attribute"
-                    )
+                    try:
+                        value = getattr(self._enum, value)
+                    except AttributeError as e:
+                        raise ValidateError(
+                            f"The value is neither an integer or a valid {self._enum.__name__} "
+                            "attribute"
+                        ) from e
             else:
                 value = self._get_enum_from_val(value)
         elif isinstance(value, int):

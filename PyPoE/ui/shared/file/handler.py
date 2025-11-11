@@ -388,11 +388,11 @@ class DDSDataHandler(FileDataHandler):
         try:
             file_data = io.BytesIO(file_system.extract_dds(file_bytes))
         except NotImplementedError as e:
-            raise DDSDataHandler.DDSException(*e.args)
-        except ValueError:
+            raise DDSDataHandler.DDSException(*e.args) from e
+        except ValueError as e:
             raise DDSDataHandler.DDSException(
                 'This file is a reference to "{}"'.format(file_bytes[1:].decode("utf-8"))
-            )
+            ) from e
 
         with TemporaryDirectory() as tmp_dir:
             tmp_file_path = os.path.join(tmp_dir, "file.dds")
