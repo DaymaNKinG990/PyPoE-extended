@@ -5,7 +5,7 @@ Overview
 ===============================================================================
 
 +----------+------------------------------------------------------------------+
-| Path     | PyPoE/poe/file/translations/__init__.py                          |
+| Path     | PyPoE/poe/file/translations/__init__.py                         |
 +----------+------------------------------------------------------------------+
 | Version  | 1.0.0a0                                                          |
 +----------+------------------------------------------------------------------+
@@ -17,19 +17,11 @@ Description
 
 Utilities for parsing and using GGG translations.
 
-The translations GGG provides are generally suffixed by _descriptions.txt and
+The translation GGG provides are generally suffixed by _descriptions.txt and
 can be found in the MetaData/StatDescriptions/ folder.
 
-This module has been refactored into a package structure for future
-modularization. Currently, all functionality is re-exported from core.py
-for backward compatibility.
-
-Future structure (planned):
-- warnings.py: Warning classes
-- models.py: Translation models
-- quantifiers.py: Quantifier handlers
-- results.py: Result classes
-- file.py: File and cache classes
+This module provides backward compatibility by re-exporting all public APIs
+from the new modular structure.
 
 Agreement
 ===============================================================================
@@ -38,18 +30,31 @@ See PyPoE/LICENSE
 """
 
 # =============================================================================
-# Re-export everything from core for backward compatibility
+# Imports
 # =============================================================================
 
-from PyPoE.poe.file.translations.core import (
-    # Warning classes
+# Import all public APIs from submodules for backward compatibility
+from PyPoE.poe.file.translations.exceptions import (
     TranslationWarning,
     MissingIdentifierWarning,
     UnknownIdentifierWarning,
     DuplicateIdentifierWarning,
-    # Mixin
+)
+
+from PyPoE.poe.file.translations.constants import (
+    CUSTOM_TRANSLATION_FILE,
+    regex_translation_string,
+    regex_ids,
+    regex_id_strings,
+    regex_strings,
+    regex_int,
+    regex_isnumber,
+    regex_lang,
+    regex_tokens,
+)
+
+from PyPoE.poe.file.translations.models import (
     TranslationReprMixin,
-    # Core classes
     Translation,
     TranslationLanguage,
     TranslationString,
@@ -57,29 +62,46 @@ from PyPoE.poe.file.translations.core import (
     TranslationQuantifierHandler,
     TranslationQuantifier,
     TQReminderString,
+)
+
+from PyPoE.poe.file.translations.results import (
     TranslationResult,
     TranslationReverseResult,
-    TranslationFile,
-    TranslationFileCache,
-    # Helper functions
+)
+
+from PyPoE.poe.file.translations.file import TranslationFile
+
+from PyPoE.poe.file.translations.cache import TranslationFileCache
+
+from PyPoE.poe.file.translations.utils import (
     get_custom_translation_file,
     set_custom_translation_file,
+    custom_translation_file,
     install_data_dependant_quantifiers,
 )
 
 # =============================================================================
-# Public API
+# Globals
 # =============================================================================
 
 __all__ = [
-    # Warning classes
+    # Exceptions
     'TranslationWarning',
     'MissingIdentifierWarning',
     'UnknownIdentifierWarning',
     'DuplicateIdentifierWarning',
-    # Mixin
+    # Constants
+    'CUSTOM_TRANSLATION_FILE',
+    'regex_translation_string',
+    'regex_ids',
+    'regex_id_strings',
+    'regex_strings',
+    'regex_int',
+    'regex_isnumber',
+    'regex_lang',
+    'regex_tokens',
+    # Models
     'TranslationReprMixin',
-    # Core classes
     'Translation',
     'TranslationLanguage',
     'TranslationString',
@@ -87,13 +109,15 @@ __all__ = [
     'TranslationQuantifierHandler',
     'TranslationQuantifier',
     'TQReminderString',
+    # Results
     'TranslationResult',
     'TranslationReverseResult',
+    # File handlers
     'TranslationFile',
     'TranslationFileCache',
-    # Helper functions
+    # Utilities
     'get_custom_translation_file',
     'set_custom_translation_file',
+    'custom_translation_file',
     'install_data_dependant_quantifiers',
 ]
-
