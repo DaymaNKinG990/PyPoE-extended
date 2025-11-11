@@ -47,6 +47,7 @@ from typing import Any
 
 from PyPoE.poe.file.file_system import FileSystem
 from PyPoE.poe.file.shared import AbstractFileReadOnly
+from PyPoE.poe.file.shared.protocols import IReadable
 
 # 3rd-party
 # self
@@ -141,8 +142,8 @@ class AbstractFileCache(ReprMixin):
 
         Returns
         -------
-        AbstractFileReadOnly
-            instance
+        IReadable
+            instance (implements IReadable Protocol)
         """
         return self.get_file(item)
 
@@ -210,7 +211,7 @@ class AbstractFileCache(ReprMixin):
         f.read(**self._get_read_args(file_name=file_name, *args, **kwargs))  # type: ignore[misc]
         return f  # type: ignore[no-any-return]
 
-    def get_file(self, file_name: str, *args, **kwargs) -> AbstractFileReadOnly:
+    def get_file(self, file_name: str, *args, **kwargs) -> IReadable:
         """
         Returns the the specified file from the cache.
 
@@ -225,8 +226,13 @@ class AbstractFileCache(ReprMixin):
 
         Returns
         -------
-        AbstractFileReadOnly
-            read file instance
+        IReadable
+            read file instance (implements IReadable Protocol)
+
+        Note:
+            Returns IReadable Protocol instead of AbstractFileReadOnly
+            for better Interface Segregation Principle (ISP) compliance.
+            All returned instances are also AbstractFileReadOnly subclasses.
         """
         if file_name not in self.files:
             f = self._create_instance(file_name=file_name)
