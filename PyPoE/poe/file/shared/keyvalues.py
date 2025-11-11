@@ -125,17 +125,18 @@ class OverriddenKeyWarning(ParserWarning):
 
 
 class AbstractKeyValueSection(dict):
-    APPEND_KEYS = set()
-    ORDERED_HASH_KEYS = set()
+    APPEND_KEYS: set[str] = set()
+    ORDERED_HASH_KEYS: set[str] = set()
     NAME = ''
 
     def __init__(self, parent, name=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.parent: 'AbstractKeyValueFile' = parent
+        self.name: str
         if name:
-            self.name: str = name
+            self.name = name
         elif self.NAME:
-            self.name: str = self.NAME
+            self.name = self.NAME
         else:
             raise ParserError('Missing name for section')
 
@@ -214,10 +215,10 @@ class AbstractKeyValueFile(AbstractFile, defaultdict):
     extends : None or str
         Whether the file extends another file
     """
-    version = None
-    extends = None
+    version: int | None = None
+    extends: str | None = None
 
-    SECTIONS = {}
+    SECTIONS: dict[str, type[AbstractKeyValueSection]] = {}
 
     EXTENSION = ''
 
@@ -257,8 +258,8 @@ class AbstractKeyValueFile(AbstractFile, defaultdict):
         AbstractFile.__init__(self)
         defaultdict.__init__(self, keys)
 
-        self.version: Union[int, None] = version
-        self.extends: Union[str, None] = extends
+        self.version = version
+        self.extends = extends
 
         self._parent_file: Union[AbstractKeyValueFile, None] = None
         self._parent_file_system: Union[FileSystem, None] = None
@@ -275,7 +276,7 @@ class AbstractKeyValueFile(AbstractFile, defaultdict):
     #
     @property
     def parent_or_file_system(self) -> Union['AbstractKeyValueFile', FileSystem]:
-        return self._parent_file or self._parent_file_system
+        return self._parent_file or self._parent_file_system  # type: ignore[return-value]
 
     #
     # Special
@@ -286,7 +287,7 @@ class AbstractKeyValueFile(AbstractFile, defaultdict):
         except KeyError:
             self[key] = AbstractKeyValueSection(parent=self, name=key)
 
-        return self[key]
+        return self[key]  # type: ignore[no-any-return]
 
     def __delitem__(self, key):
         raise NotImplementedError()
@@ -348,10 +349,10 @@ class AbstractKeyValueFile(AbstractFile, defaultdict):
         elif extend:
             if self._parent_file:
                 self.merge(self._parent_file)
-                if self._parent_file.name != extend:
+                if self._parent_file.name != extend:  # type: ignore[attr-defined]
                     warnings.warn(
                         'Parent file name "%s" doesn\'t match extended file '
-                        'name "%s"' % (self._parent_file.name, extend),
+                        'name "%s"' % (self._parent_file.name, extend),  # type: ignore[attr-defined]
                         ParserWarning,
                     )
             elif self._parent_file_system:
@@ -434,7 +435,7 @@ class AbstractKeyValueFile(AbstractFile, defaultdict):
 
 
 class AbstractKeyValueFileCache(AbstractFileCache):
-    FILE_TYPE = AbstractKeyValueFile
+    FILE_TYPE = AbstractKeyValueFile  # type: ignore[assignment]
 
     @doc(doc=AbstractFileCache._get_file_instance_args)
     def _get_file_instance_args(self, file_name):
