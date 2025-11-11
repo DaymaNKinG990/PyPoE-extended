@@ -87,10 +87,10 @@ def load(path=None, version=VERSION.DEFAULT, reload=False, validate=None):
 
         if version in (VERSION.STABLE, VERSION.BETA, VERSION.ALPHA):
             module = importlib.import_module(
-                "PyPoE.poe.file.specification.data.%s" % version.name.lower()
+                f"PyPoE.poe.file.specification.data.{version.name.lower()}"
             )
         else:
-            raise ValueError("Unknown version or version currently not supported: %s" % version)
+            raise ValueError(f"Unknown version or version currently not supported: {version}")
     else:
         if validate is None:
             validate = True

@@ -76,7 +76,7 @@ class UtilsMixin:
 
     def _apply_flask_buffs(self, infobox, base_item_type, flasks):
         for i, value in enumerate(flasks["BuffStatValues"], start=1):
-            infobox["buff_value%s" % i] = value
+            infobox[f"buff_value{i}"] = value
 
         if flasks["BuffDefinitionsKey"]:
             stats = [s["Id"] for s in flasks["BuffDefinitionsKey"]["StatsKeys"]]
@@ -116,7 +116,7 @@ class UtilsMixin:
             if rarity.id >= 5:  # type: ignore[attr-defined]
                 break
             for i, (item, cost) in enumerate(source[rarity.name_upper + "Purchase"], start=1):  # type: ignore[attr-defined]
-                prefix = "purchase_cost_%s%s" % (rarity.name_lower, i)  # type: ignore[attr-defined]
+                prefix = f"purchase_cost_{rarity.name_lower}{i}"  # type: ignore[attr-defined]
                 infobox[prefix + "_name"] = item["Name"]
                 infobox[prefix + "_amount"] = cost
 
@@ -235,19 +235,19 @@ class UtilsMixin:
                 name = resolver(self, infobox, base_item_type, rr, language)
                 if name is None:
                     console(
-                        'Unresolved ambiguous item "%s" with name "%s". '
-                        "Skipping" % (m_id, infobox["name"]),
+                        'Unresolved ambiguous item "{}" with name "{}". '
+                        "Skipping".format(m_id, infobox["name"]),
                         msg=Msg.error,
                     )
                     return
             else:
                 console(
-                    'Unresolved ambiguous item "%s" with name "%s". '
-                    "Skipping" % (m_id, infobox["name"]),
+                    'Unresolved ambiguous item "{}" with name "{}". '
+                    "Skipping".format(m_id, infobox["name"]),
                     msg=Msg.error,
                 )
                 console(
-                    'No name conflict handler defined for item class id "%s"' % cls_id,
+                    f'No name conflict handler defined for item class id "{cls_id}"',
                     msg=Msg.error,
                 )
                 return
@@ -260,13 +260,13 @@ class UtilsMixin:
             items = [item for item in items if item["ItemClassesKey"]["Name"] in classes]
 
         self._parsed_args = parsed_args
-        console("Found %s items. Removing disabled items..." % len(items))
+        console(f"Found {len(items)} items. Removing disabled items...")
         items = [
             base_item_type
             for base_item_type in items
             if base_item_type["Id"] not in self._SKIP_ITEMS_BY_ID
         ]
-        console("%s items left for processing." % len(items))
+        console(f"{len(items)} items left for processing.")
 
         console("Loading additional files - this may take a while...")
         self._image_init(parsed_args)
@@ -298,8 +298,8 @@ class UtilsMixin:
                     if not f(self, infobox, base_item_type):
                         fail = True
                         console(
-                            'Required extra info for item "%s" with class id '
-                            '"%s" not found. Skipping.' % (name, cls_id),
+                            f'Required extra info for item "{name}" with class id '
+                            f'"{cls_id}" not found. Skipping.',
                             msg=Msg.error,
                         )
                         break
@@ -314,10 +314,7 @@ class UtilsMixin:
                 continue
             if self._language != "English" and parsed_args.english_file_link:
                 icon = self._process_name_conflicts(infobox, base_item_type, "English")
-                if cls_id == "DivinationCard":
-                    key = "card_art"
-                else:
-                    key = "inventory_icon"
+                key = "card_art" if cls_id == "DivinationCard" else "inventory_icon"
 
                 if icon:
                     infobox[key] = icon
@@ -339,7 +336,7 @@ class UtilsMixin:
 
             r.add_result(
                 text=cond,
-                out_file="item_%s.txt" % page,
+                out_file=f"item_{page}.txt",
                 wiki_page=[
                     {
                         "page": page,
@@ -352,7 +349,7 @@ class UtilsMixin:
             if parsed_args.store_images:
                 if not base_item_type["ItemVisualIdentityKey"]["DDSFile"]:
                     warnings.warn(
-                        'Missing 2d art inventory icon for item "%s"' % base_item_type["Name"]
+                        'Missing 2d art inventory icon for item "{}"'.format(base_item_type["Name"]), stacklevel=2
                     )
                     continue
 
@@ -373,13 +370,13 @@ class UtilsMixin:
         if language is None:
             language = self._language
         if "Harbinger" in base_item_type["Id"]:
-            return "%s (%s) (%s)" % (
+            return "{} ({}) ({})".format(
                 base_item_type["Name"],
                 self._LANG[language][re.sub(r"^.*Harbinger", "", base_item_type["Id"])],
                 map_series["Name"],
             )
         else:
-            return "%s (%s)" % (base_item_type["Name"], map_series["Name"])
+            return "{} ({})".format(base_item_type["Name"], map_series["Name"])
 
     def _get_map_series(self, parsed_args):
         self.rr["MapSeries.dat"].build_index("Id")
@@ -399,7 +396,7 @@ class UtilsMixin:
         else:
             map_series = self.rr["MapSeries.dat"][-1]
             console(
-                'No map series specified. Using latest series "%s".' % (map_series["Name"],),
+                'No map series specified. Using latest series "{}".'.format(map_series["Name"]),
                 msg=Msg.warning,
             )
 

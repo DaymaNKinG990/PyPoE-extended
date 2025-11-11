@@ -202,7 +202,7 @@ def gem_stat_requirement(level, gtype=GemTypes.support, multi=100):
         elif multi == 40:
             a = 0.924
         else:
-            raise ValueError("Unsupported multi '%s'" % multi)
+            raise ValueError(f"Unsupported multi '{multi}'")
     elif gtype == GemTypes.support:
         b = 6 * multi / 100
         if multi == 100:
@@ -212,9 +212,9 @@ def gem_stat_requirement(level, gtype=GemTypes.support, multi=100):
         elif multi == 40:
             a = 0.6575  # 1.64375 * 0.6
         else:
-            raise ValueError("Unsupported multi '%s'" % multi)
+            raise ValueError(f"Unsupported multi '{multi}'")
     else:
-        raise ValueError("Invalid gtype '%s'. Valid types are:\n%s" % (gtype, GemTypes))
+        raise ValueError(f"Invalid gtype '{gtype}'. Valid types are:\n{GemTypes}")
 
     result = round(level * a + b)
     # Gems seem to have no requirements lower then 14

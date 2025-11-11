@@ -216,7 +216,7 @@ class GGPKRecord(BaseRecord):
         # Should be 2, TODO?
         records = struct.unpack("<i", ggpkfile.read(4))[0]
         self.offsets = []
-        for i in range(0, records):
+        for _i in range(0, records):
             self.offsets.append(struct.unpack("<q", ggpkfile.read(8))[0])
 
     @doc(doc=BaseRecord.write)
@@ -292,7 +292,7 @@ class DirectoryRecord(MixinRecord, BaseRecord):
         # Null Termination
         ggpkfile.seek(2, os.SEEK_CUR)
         self.entries = []
-        for i in range(0, self.entries_length):
+        for _i in range(0, self.entries_length):
             self.entries.append(
                 DirectoryRecordEntry(
                     hash=struct.unpack("<I", ggpkfile.read(4))[0],
@@ -304,7 +304,7 @@ class DirectoryRecord(MixinRecord, BaseRecord):
     def write(self, ggpkfile):
         # Error Checking & variable preparation
         if len(self.hash) != 32:
-            raise ValueError("Hash must be 32 bytes, was %s bytes" % len(self.hash))
+            raise ValueError(f"Hash must be 32 bytes, was {len(self.hash)} bytes")
         if len(self.entries) != self.entries_length:
             raise ValueError("Numbers of entries must match with length")
         name_str = self._name.encode("UTF-16")
@@ -419,7 +419,7 @@ class FileRecord(MixinRecord, BaseRecord):
     def write(self, ggpkfile):
         # Error checking & variable preparation first
         if len(self.hash) != 32:
-            raise ValueError("Hash must be 32 bytes, was %s bytes" % len(self.hash))
+            raise ValueError(f"Hash must be 32 bytes, was {len(self.hash)} bytes")
 
         name_str = self._name.encode("UTF-16")
         # Write length & tag
@@ -651,10 +651,10 @@ class GGPKFile(AbstractFileReadOnly, metaclass=InheritedDocStringsMeta):
 
             gdict["set"] = set(gdict["files"].keys())
 
-        new_files = sorted(list(data[0]["set"].difference(data[1]["set"])))
-        deleted_files = sorted(list(data[1]["set"].difference(data[0]["set"])))
+        new_files = sorted(data[0]["set"].difference(data[1]["set"]))
+        deleted_files = sorted(data[1]["set"].difference(data[0]["set"]))
         changed_files = []
-        for fn in sorted(list(data[0]["set"].union(data[1]["set"]))):
+        for fn in sorted(data[0]["set"].union(data[1]["set"])):
             try:
                 if data[0]["files"][fn] != data[1]["files"][fn]:
                     changed_files.append(fn)
@@ -724,9 +724,8 @@ class GGPKFile(AbstractFileReadOnly, metaclass=InheritedDocStringsMeta):
                     break
             if not isinstance(record, DirectoryRecord):
                 raise ParserError(
-                    "GGPKRecord does not contain a DirectoryRecord,\
-                    got %s"
-                    % type(record)
+                    f"GGPKRecord does not contain a DirectoryRecord,\
+                    got {type(record)}"
                 )
 
             root = DirectoryNode(

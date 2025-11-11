@@ -229,10 +229,7 @@ class DatValue:
             If performed on DatValue instances without data
         """
         if self.is_list:
-            if self.children:
-                size = self.children[0].size * self.value[0]
-            else:
-                size = 0
+            size = self.children[0].size * self.value[0] if self.children else 0
         elif self.is_pointer:
             size = self.child.size  # type: ignore[union-attr]
         else:
@@ -409,15 +406,15 @@ class DatRecord(list):
                 field = self.parent.specification["virtual_fields"][item]
                 value = [self[fn] for fn in field["fields"]]
                 if field["zip"]:
-                    value = zip(*value)
+                    value = zip(*value, strict=False)
                 return value
             else:
                 raise KeyError(item)
         return list.__getitem__(self, item)
 
     def __repr__(self):
-        stuff = ["{%s: %s}" % (k, self[i]) for i, k in enumerate(self.parent.table_columns)]
-        return "[%s]" % ", ".join(stuff)
+        stuff = [f"{{{k}: {self[i]}}}" for i, k in enumerate(self.parent.table_columns)]
+        return "[{}]".format(", ".join(stuff))
 
     """def find_all(self, key, value):
         row_index = self._get_column_index(key)
@@ -564,10 +561,7 @@ class DatReader(ReprMixin):
         self.file_name: str = file_name
 
         # Fix for the look up
-        if x64:
-            _file_name = file_name.replace(".dat64", ".dat")
-        else:
-            _file_name = file_name
+        _file_name = file_name.replace(".dat64", ".dat") if x64 else file_name
 
         self.use_dat_value = use_dat_value
 
@@ -686,7 +680,7 @@ class DatReader(ReprMixin):
         list
             Values per column
         """
-        for ci, column in enumerate(self.table_columns):
+        for ci, _column in enumerate(self.table_columns):
             yield [item[ci] for item in self]
 
     def _get_cast_type(self, caststr):
@@ -848,7 +842,7 @@ class DatReader(ReprMixin):
         elif isinstance(raw, BytesIO):
             self._file_raw = raw.read()
         else:
-            raise TypeError("Raw must be bytes or BytesIO instance, got %s" % type)
+            raise TypeError(f"Raw must be bytes or BytesIO instance, got {type}")
 
         # Jump to last byte to get length
         self.file_length = len(self._file_raw)
@@ -857,10 +851,7 @@ class DatReader(ReprMixin):
 
         if self.data_offset == -1:
             raise ValueError(
-                'Did not find data magic number in "%(file)s"'
-                % {
-                    "file": self.file_name,
-                }
+                f'Did not find data magic number in "{self.file_name}"'
             )
 
         self.table_rows = struct.unpack("<I", self._file_raw[0:4])[0]
@@ -879,18 +870,13 @@ class DatReader(ReprMixin):
         if self.cast_size != self.table_record_length:
             raise SpecificationError(
                 SpecificationError.ERRORS.RUNTIME_ROWSIZE_MISMATCH,
-                '"%(name)s": Specification row size %(spec_size)s vs real size %(cast_size)s'
-                % {
-                    "name": self.file_name,
-                    "spec_size": self.cast_size,
-                    "cast_size": self.table_record_length,
-                },
+                f'"{self.file_name}": Specification row size {self.cast_size} vs real size {self.table_record_length}',
             )
 
         self.table_data = []
 
         # Prepare data section
-        self.data_parsed = list()
+        self.data_parsed = []
 
         for i in range(0, self.table_rows):
             self.table_data.append(self._process_row(i))
@@ -905,10 +891,10 @@ class DatReader(ReprMixin):
         For debugging. Prints out data.
         """
         for row in self.table_data:
-            print("Row: %s" % row.rowid)
-            for k in row.keys():
+            print(f"Row: {row.rowid}")
+            for k in row:
                 v = row[k]
-                print("|- %s: %s" % (k, v))
+                print(f"|- {k}: {v}")
 
     @deprecated
     def export_to_html(self, export_table=True, export_data=False):
@@ -986,7 +972,7 @@ class DatFile(AbstractFileReadOnly):
         self.reader: DatReader | None = None
 
     def __repr__(self) -> str:
-        return 'DatFile<%s>(file_name="%s")' % (hex(id(self)), self._file_name)
+        return f'DatFile<{hex(id(self))}>(file_name="{self._file_name}")'
 
     def _read(self, buffer: BinaryIO, *args: Any, **kwargs: Any) -> DatReader:
         self.reader = DatReader(self._file_name, **kwargs)
@@ -1069,29 +1055,26 @@ class RelationalReader(AbstractFileCache):
             try:
                 obj = other.index[key][obj]
             except KeyError:
-                msg = 'Did not find proper value for foreign key "%s" with value "%s"' % (key, obj)
+                msg = f'Did not find proper value for foreign key "{key}" with value "{obj}"'
                 if self.raise_error_on_missing_relation:
                     raise SpecificationError(
                         SpecificationError.ERRORS.RUNTIME_MISSING_FOREIGN_KEY, msg
                     )
                 else:
-                    warnings.warn(msg, SpecificationWarning)
+                    warnings.warn(msg, SpecificationWarning, stacklevel=2)
                     obj = None
         else:
             # offset is default 0
             try:
                 obj = other[obj - offset]
             except IndexError:
-                msg = "Did not find proper value at index %s in %s" % (
-                    obj - offset,
-                    other.file_name,
-                )
+                msg = f"Did not find proper value at index {obj - offset} in {other.file_name}"
                 if self.raise_error_on_missing_relation:
                     raise SpecificationError(
                         SpecificationError.ERRORS.RUNTIME_MISSING_FOREIGN_KEY, msg
                     )
                 else:
-                    warnings.warn(msg, SpecificationWarning)
+                    warnings.warn(msg, SpecificationWarning, stacklevel=2)
                     obj = None
         return obj
 
@@ -1183,13 +1166,7 @@ class RelationalReader(AbstractFileCache):
                     except SpecificationError as e:
                         raise SpecificationError(
                             e.code,
-                            "%(fn)s:%(rn)s->%(on)s:%(msg)s"
-                            % {
-                                "fn": file_name,
-                                "rn": key,
-                                "on": spec_row.key,
-                                "msg": e.msg,
-                            },
+                            f"{file_name}:{key}->{spec_row.key}:{e.msg}",
                         )
 
         return df

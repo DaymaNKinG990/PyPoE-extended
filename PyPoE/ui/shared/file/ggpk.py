@@ -88,10 +88,7 @@ class GGPKOpenAction(QAction):
         ).get_installation_paths()
 
         # Use the first found path
-        if paths:
-            dir = os.path.join(paths[0].path, "content.ggpk")
-        else:
-            dir = "."
+        dir = os.path.join(paths[0].path, "content.ggpk") if paths else "."
 
         p = self.parent()
 
@@ -127,7 +124,7 @@ class GGPKThread(QThread):
         """
         Hook for GGPKFile._read_record
         """
-        fm = self.parent()
+        self.parent()
 
         @wraps(func)
         def temp(*args, **kwargs):

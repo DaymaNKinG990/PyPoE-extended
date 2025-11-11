@@ -119,7 +119,7 @@ class SpecificationError(ValueError):
         self.msg = msg
 
     def __str__(self):
-        return "%s: %s" % (repr(self.code), self.msg)
+        return f"{repr(self.code)}: {self.msg}"
 
 
 class SpecificationWarning(UserWarning):

@@ -40,6 +40,7 @@ TODO
 # =============================================================================
 
 # Python
+import contextlib
 import re
 from collections import OrderedDict, defaultdict
 
@@ -98,7 +99,7 @@ class RegexFilter(AbstractFilter):
         self.regex = re.compile(value, flags)
 
     def __repr__(self):
-        return "%s(value=%s, flags=%s)" % (self.__class__.__name__, self.value, self.flags)
+        return f"{self.__class__.__name__}(value={self.value}, flags={self.flags})"
 
     def apply(self, value):
         return self.regex.match(str(value)) is not None
@@ -220,19 +221,14 @@ class TypedFilter(AbstractFilter):
         self.value = self.type(value)
 
         if operation not in self.operations:
-            raise ValueError('"%s" is not a valid operation.' % operation)
+            raise ValueError(f'"{operation}" is not a valid operation.')
 
         self.operation = operation
         # will raise an exception accordingly
         self._operation_func = getattr(self.type, "__" + operation + "__")
 
     def __repr__(self):
-        return "%s(value=%s, operation=%s, type=%s)" % (
-            self.__class__.__name__,
-            self.value,
-            self.operation,
-            self.type,
-        )
+        return f"{self.__class__.__name__}(value={self.value}, operation={self.operation}, type={self.type})"
 
     def apply(self, value):
         try:
@@ -259,7 +255,7 @@ class TypedFilter(AbstractFilter):
                 box.setItemData(i, info["tooltip"], Qt.ToolTipRole)
             qwizardpage.layout.addWidget(box)
 
-            setattr(qwizardpage, "%s_box" % k, box)
+            setattr(qwizardpage, f"{k}_box", box)
 
         qwizardpage.layout.addWidget(QLabel(qwizardpage.tr("Enter value:"), parent=qwizardpage))
         qwizardpage.value_edit = QLineEdit(parent=qwizardpage)
@@ -446,10 +442,8 @@ class FilterWizardCreateFilterPage(FilterWizardPageShared):
         self.main_layout.addWidget(self.filter_type_list)
 
     def cleanupPage(self):
-        try:
+        with contextlib.suppress(IndexError):
             self.get_filters()[self.field("COLUMN_LIST")].pop(-1)
-        except IndexError:
-            pass
 
     def validatePage(self):
         self.get_filters()[self.field("COLUMN_LIST")].append(
@@ -476,7 +470,7 @@ class FilterMenu(QMenu):
         header.customContextMenuRequested.connect(self.popup)
 
         if not isinstance(proxy_model, FilterProxyModel):
-            raise TypeError("proxy_model has invalid type %s" % type(proxy_model))
+            raise TypeError(f"proxy_model has invalid type {type(proxy_model)}")
         self.proxy_model = proxy_model
 
         self.action_add_filter = self.addAction(

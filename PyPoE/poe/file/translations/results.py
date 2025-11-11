@@ -150,7 +150,7 @@ class TranslationResult(TranslationReprMixin):
         -------
         zip
         """
-        return zip(self.missing_ids, self.missing_values)
+        return zip(self.missing_ids, self.missing_values, strict=False)
 
 
 class TranslationReverseResult(TranslationReprMixin):

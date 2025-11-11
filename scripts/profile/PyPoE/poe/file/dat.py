@@ -61,8 +61,10 @@ def read_dat(file_name="GrantedEffects.dat"):
     return d
 
 
-def rr(files=["BaseItemTypes.dat"]):
-    rr = dat.RelationalReader(path_or_file_system=dir, files=files)
+def rr(files=None):
+    if files is None:
+        files = ["BaseItemTypes.dat"]
+    dat.RelationalReader(path_or_file_system=dir, files=files)
 
 
 # =============================================================================

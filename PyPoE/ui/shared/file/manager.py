@@ -244,7 +244,7 @@ class FileDataManager:
 
     def register(self, obj, extension=EXTENSION_ANY, filenames=FILE_ANY):
         if not isinstance(obj, FileDataHandler):
-            raise TypeError("obj must be a instance of FileDataHandler, got %s" % type(obj))
+            raise TypeError(f"obj must be a instance of FileDataHandler, got {type(obj)}")
 
         # TODO convert into negative and remove the empty pass
         if (

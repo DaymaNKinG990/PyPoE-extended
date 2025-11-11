@@ -91,8 +91,7 @@ class TranslationFileCache(AbstractFileCache):
             self._custom_file = merge_with_custom_file
         else:
             raise TypeError(
-                "Argument merge_with_custom_file is of wrong type. %(type)s"
-                % {"type": type(merge_with_custom_file)}
+                f"Argument merge_with_custom_file is of wrong type. {type(merge_with_custom_file)}"
             )
 
         # Call order matters here
@@ -173,12 +172,12 @@ def _diff_list(self, other, diff=True):
     len_self = len(self)
     len_other = len(other)
     if len_self != len_other:
-        print("Different length, %s vs %s" % (len_self, len_other))
+        print(f"Different length, {len_self} vs {len_other}")
 
         set_self = set(self)
         set_other = set(other)
-        print("Extra items in self: %s" % set_self.difference(set_other))
-        print("Extra item in other: %s" % set_other.difference(set_self))
+        print(f"Extra items in self: {set_self.difference(set_other)}")
+        print(f"Extra item in other: {set_other.difference(set_self)}")
         return
 
     if diff:
@@ -187,8 +186,8 @@ def _diff_list(self, other, diff=True):
 
 
 def _diff_dict(self, other):
-    key_self = set(tuple(self.keys()))
-    key_other = set(tuple(other.keys()))
+    key_self = set(self.keys())
+    key_other = set(other.keys())
 
     kdiff_self = key_self.difference(key_other)
     kdiff_other = key_other.difference(key_self)
@@ -196,12 +195,12 @@ def _diff_dict(self, other):
     if kdiff_self:
         print("Extra keys in self:")
         for key in kdiff_self:
-            print('Key "%s": Value "%s"' % (key, self[key]))
+            print(f'Key "{key}": Value "{self[key]}"')
 
     if kdiff_other:
         print("Extra keys in other:")
         for key in kdiff_other:
-            print('Key "%s": Value "%s"' % (key, other[key]))
+            print(f'Key "{key}": Value "{other[key]}"')
 
 
 def get_custom_translation_file() -> TranslationFile:

@@ -61,30 +61,30 @@ __all__ = [
 
 
 def _diff_list(self, other, diff=True):
-    print("List len: %s vs %s" % (len(self), len(other)))
+    print(f"List len: {len(self)} vs {len(other)}")
     for item in self:
         try:
             other.remove(item)
         except ValueError:
-            print("Not in other: %s" % item)
+            print(f"Not in other: {item}")
             if diff:
                 pass
 
     if other:
-        print("Not in self: %s" % other)
+        print(f"Not in self: {other}")
 
 
 def _diff_dict(self, other):
     for key in self.keys():
         if key in other:
             if self[key] != other[key]:
-                print("Value mismatch @ %s: %s vs %s" % (key, self[key], other[key]))
+                print(f"Value mismatch @ {key}: {self[key]} vs {other[key]}")
             del other[key]
         else:
-            print("Not in other: %s" % key)
+            print(f"Not in other: {key}")
 
     if other:
-        print("Not in self: %s" % list(other.keys()))
+        print(f"Not in self: {list(other.keys())}")
 
 
 # =============================================================================
@@ -105,7 +105,7 @@ class TranslationReprMixin(ReprMixin):
 
     @property
     def _parent_repr(self):
-        return "%s<%s>" % (self.parent.__class__.__name__, hex(id(self.parent)))
+        return f"{self.parent.__class__.__name__}<{hex(id(self.parent))}>"
 
 
 class Translation(TranslationReprMixin):
@@ -142,10 +142,7 @@ class Translation(TranslationReprMixin):
         if self.ids != other.ids:
             return False
 
-        if self.languages != other.languages:
-            return False
-
-        return True
+        return self.languages == other.languages
 
     def __hash__(self):
         return hash((tuple(self.languages), tuple(self.ids)))
@@ -219,10 +216,7 @@ class TranslationLanguage(TranslationReprMixin):
         if self.language != other.language:
             return False
 
-        if self.strings != other.strings:
-            return False
-
-        return True
+        return self.strings == other.strings
 
     def __hash__(self):
         return hash((self.language, tuple(self.strings)))
@@ -232,7 +226,7 @@ class TranslationLanguage(TranslationReprMixin):
             raise TypeError()
 
         if self.language != other.language:
-            print("Self: %s, other: %s" % (self.language, other.language))
+            print(f"Self: {self.language}, other: {other.language}")
 
         if self.strings != other.strings:
             _diff_list(self.strings, other.strings)
@@ -422,10 +416,7 @@ class TranslationString(TranslationReprMixin):
         if self.range != other.range:
             return False
 
-        if self.string != other.string:
-            return False
-
-        return True
+        return self.string == other.string
 
     def __hash__(self) -> int:
         return hash((self.string, tuple(self.range), self.quantifier))
@@ -463,9 +454,9 @@ class TranslationString(TranslationReprMixin):
         for i, tag in enumerate(self.tags):
             s.append(self.strings[i])
             if self.tags_types[i]:
-                s.append("{%s:%s}" % (tag, self.tags_types[i]))
+                s.append(f"{{{tag}:{self.tags_types[i]}}}")
             else:
-                s.append("{%s}" % tag)
+                s.append(f"{{{tag}}}")
         s.append(self.strings[-1])
         return "".join(s)
 
@@ -482,7 +473,7 @@ class TranslationString(TranslationReprMixin):
         s = []
         for i, tag in enumerate(self.tags):
             s.append(self.strings[i])
-            s.append("{%s}" % tag)
+            s.append(f"{{{tag}}}")
         s.append(self.strings[-1])
         return "".join(s)
 
@@ -497,7 +488,7 @@ class TranslationString(TranslationReprMixin):
             _diff_list(self.range, other.range)
 
         if self.string != other.string:
-            print("String mismatch: %s vs %s" % (self.string, other.string))
+            print(f"String mismatch: {self.string} vs {other.string}")
 
     def format_string(
         self,
@@ -566,10 +557,7 @@ class TranslationString(TranslationReprMixin):
                     string.append("+")
 
                 if not use_placeholder:
-                    if "d" in self.tags_types[i]:
-                        fmt = "{0:n}"
-                    else:
-                        fmt = "{0}"
+                    fmt = "{0:n}" if "d" in self.tags_types[i] else "{0}"
 
                     if is_range[tagid]:  # type: ignore[call-overload]
                         # Move the minus outside if both values are negative
@@ -703,9 +691,9 @@ class TranslationString(TranslationReprMixin):
 
                 if warn:
                     warnings.warn(
-                        'Can not safely find a value at index "%s", using '
-                        'range value "%s" instead' % (i, val),
-                        TranslationWarning,
+                        f'Can not safely find a value at index "{i}", using '
+                        f'range value "{val}" instead',
+                        TranslationWarning, stacklevel=2,
                     )
 
                 values[i] = val  # type: ignore[call-overload]
@@ -755,10 +743,7 @@ class TranslationRange(TranslationReprMixin):
         if self.max != other.max:
             return False
 
-        if self.negated != other.negated:
-            return False
-
-        return True
+        return self.negated == other.negated
 
     def __hash__(self) -> int:
         return hash((self.min, self.max))
@@ -856,10 +841,7 @@ class TranslationQuantifierHandler(TranslationReprMixin):
         if not isinstance(other, TranslationQuantifierHandler):
             return False
 
-        if self.index_handlers != other.index_handlers:
-            return False
-
-        return True
+        return self.index_handlers == other.index_handlers
 
     def __hash__(self) -> int:
         # return hash((tuple(self.registered_handlers.keys()), tuple(self.registered_handlers.values())))
@@ -892,7 +874,7 @@ class TranslationQuantifierHandler(TranslationReprMixin):
 
     @classmethod
     def init(cls):
-        cls.regex = re.compile(r"(%s)(?!\_)" % "|".join(cls.handlers.keys()), re.UNICODE)
+        cls.regex = re.compile(r"({})(?!\_)".format("|".join(cls.handlers.keys())), re.UNICODE)
 
     def diff(self, other: Any):
         if not isinstance(other, TranslationQuantifierHandler):
@@ -935,8 +917,8 @@ class TranslationQuantifierHandler(TranslationReprMixin):
                         self.index_handlers[handler.id].append(int(args[0]))
                     except ValueError as e:
                         warnings.warn(
-                            'Broken quantifier "%s" - Error: %s' % (string, e.args[0]),
-                            TranslationWarning,
+                            f'Broken quantifier "{string}" - Error: {e.args[0]}',
+                            TranslationWarning, stacklevel=2,
                         )
                 elif handler.type == TranslationQuantifier.QuantifierTypes.STRING:
                     self.string_handlers[handler.id] = args

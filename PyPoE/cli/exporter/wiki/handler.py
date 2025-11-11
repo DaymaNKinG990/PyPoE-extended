@@ -106,17 +106,17 @@ class WikiHandler:
                 self.handle_page(*args, **kwargs)
                 fail = 0
             except mwclient.APIError:
-                console("APIError occurred. Retrying - total attempts: %s" % fail, msg=Msg.error)
+                console(f"APIError occurred. Retrying - total attempts: {fail}", msg=Msg.error)
                 fail += 1
             except HTTPError as e:
                 if "429" in e.args[0]:
                     console(e.args[0], Msg.error)
-                    console("Retrying in 30s- total attempts: %s" % fail)
+                    console(f"Retrying in 30s- total attempts: {fail}")
                     time.sleep(30)
                     fail += 1
                 else:
                     console(
-                        "HTTPError occurred. Retrying - total attempts: %s" % fail, msg=Msg.error
+                        f"HTTPError occurred. Retrying - total attempts: {fail}", msg=Msg.error
                     )
                     fail += 1
 
@@ -127,7 +127,7 @@ class WikiHandler:
             ]
         else:
             pages = row["wiki_page"]
-        console('Scanning for wiki page candidates "%s"' % ", ".join([p["page"] for p in pages]))  # type: ignore[misc]
+        console('Scanning for wiki page candidates "{}"'.format(", ".join([p["page"] for p in pages])))  # type: ignore[misc]
         page_found = False
         new = False
         for pdata in pages:
@@ -137,8 +137,8 @@ class WikiHandler:
                 success = True
                 if condition is None:
                     console(
-                        'No conditions given - page content on "%s" will be '
-                        "overriden" % pdata["page"],
+                        'No conditions given - page content on "{}" will be '
+                        "overriden".format(pdata["page"]),
                         msg=Msg.warning,
                     )
                     success = True
@@ -150,25 +150,25 @@ class WikiHandler:
                         if not success:
                             break
                 else:
-                    raise ValueError('Invalid condition type "%s"' % type(condition))
+                    raise ValueError(f'Invalid condition type "{type(condition)}"')
                 if success:
-                    console('All conditions met on page "%s". Editing.' % pdata["page"])
+                    console('All conditions met on page "{}". Editing.'.format(pdata["page"]))
                     page_found = True
                     break
                 else:
                     console(
-                        'One or more conditions failed on page "%s". Skipping.' % pdata["page"],
+                        'One or more conditions failed on page "{}". Skipping.'.format(pdata["page"]),
                         msg=Msg.warning,
                     )
             elif self.cmdargs.only_existing:
                 console(
-                    'Page "%s" does not exist. Bot is set to only write to '
-                    "existing pages, skipping." % pdata["page"],
+                    'Page "{}" does not exist. Bot is set to only write to '
+                    "existing pages, skipping.".format(pdata["page"]),
                     msg=Msg.warning,
                 )
                 return
             else:
-                console('Page "%s" does not exist. It will be created.' % pdata["page"])
+                console('Page "{}" does not exist. It will be created.'.format(pdata["page"]))
                 page_found = True
                 new = True
                 break
@@ -190,12 +190,11 @@ class WikiHandler:
             else:
                 response = page.save(
                     text=text,
-                    summary="PyPoE/ExporterBot/%s: %s"
-                    % (__version__, self.cmdargs.wiki_message or row["wiki_message"]),
+                    summary="PyPoE/ExporterBot/{}: {}".format(__version__, self.cmdargs.wiki_message or row["wiki_message"]),
                 )
                 if response["result"] == "Success":
                     console(
-                        "Page was edited successfully (time: %s)" % response.get("newtimestamp")
+                        "Page was edited successfully (time: {})".format(response.get("newtimestamp"))
                     )
                 else:
                     # TODO: what happens if it fails?
@@ -211,7 +210,7 @@ class WikiHandler:
         # First row is handled separately to prompt the user for his password
         url = WIKIS.get(config.get_option("language"))
         if url is None:
-            console('There is no wiki defined for language "%s"' % cmdargs.language, msg=Msg.error)
+            console(f'There is no wiki defined for language "{cmdargs.language}"', msg=Msg.error)
             return
         self.site = mwclient.Site(url, path="/", scheme="https")
 
@@ -260,7 +259,7 @@ class ExporterHandler(BaseHandler):
 
             for item in (out_dir, temp_dir):
                 if not os.path.exists(item):
-                    console('Path "%s" does not exist' % item, msg=Msg.error)
+                    console(f'Path "{item}" does not exist', msg=Msg.error)
                     return -1
 
             console("Reading .dat files...")
@@ -273,16 +272,13 @@ class ExporterHandler(BaseHandler):
                 result = func(parser, pargs, *args, **kwargs)
 
                 for item in result:
-                    if callable(item["text"]):
-                        text = item["text"]()
-                    else:
-                        text = item["text"]
+                    text = item["text"]() if callable(item["text"]) else item["text"]
                     if pargs.print:
                         console(text)
 
                     if pargs.write:
                         out_path = os.path.join(out_dir, fix_path(item["out_file"]))
-                        console('Writing data to "%s"...' % out_path)
+                        console(f'Writing data to "{out_path}"...')
                         with open(out_path, "w", encoding="utf-8") as f:
                             f.write(text)
 

@@ -79,7 +79,7 @@ class DatExportHandler:
         ver = config.get_option("version")
 
         if ver != VERSION.DEFAULT:
-            console("Loading specification for %s" % ver)
+            console(f"Loading specification for {ver}")
             dat.set_default_spec(version=ver)  # type: ignore[attr-defined]
 
         spec = dat._default_spec  # type: ignore[attr-defined]
@@ -95,7 +95,7 @@ class DatExportHandler:
                     file_name += ".dat"
                     if file_name not in spec:
                         console(
-                            '.dat file "%s" is not in specification. Removing.' % file_name,
+                            f'.dat file "{file_name}" is not in specification. Removing.',
                             msg=Msg.error,
                         )
                     else:
@@ -121,14 +121,14 @@ class DatExportHandler:
         dir_path = "Data/"
         if lang != "English":
             # ggpk_data = index.get_dir_record("Data/%s" % lang)
-            dir_path = "Data/%s/" % lang
+            dir_path = f"Data/{lang}/"
         remove = []
         for name in args.files:
             file_path = dir_path + name
             try:
                 data = file_system.get_file(file_path)
             except FileNotFoundError:
-                console('Skipping "%s" (missing)' % file_path, msg=Msg.warning)
+                console(f'Skipping "{file_path}" (missing)', msg=Msg.warning)
                 remove.append(name)
                 continue
 

@@ -109,9 +109,9 @@ class WarbandsParser(BaseParser):
                 out.append(mob['Name'])"""
 
             for i in range(1, 5):
-                out.append("Tier %s: %s\n" % (i, warband["Tier%sName" % i]))
-                for mv in warband["Tier%s_MonsterVarietiesKeys" % i]:
-                    out.append("%s %s\n" % (mv["Name"], mv.rowid))
+                out.append("Tier {}: {}\n".format(i, warband[f"Tier{i}Name"]))
+                for mv in warband[f"Tier{i}_MonsterVarietiesKeys"]:
+                    out.append("{} {}\n".format(mv["Name"], mv.rowid))
                     # out.append(mob)
                     # break
                 out.append("\n")
@@ -140,7 +140,7 @@ class WarbandsParser(BaseParser):
                 dot.edge(str(row.rowid), str(node))
 
         out_path = os.path.join(kwargs["out_dir"], out_file)
-        console('Writing graph to "%s"...' % out_path)
+        console(f'Writing graph to "{out_path}"...')
         dot.render(out_path, view=parsed_args.print)
 
         console("Done.")

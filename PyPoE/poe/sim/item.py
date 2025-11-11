@@ -63,7 +63,7 @@ __all__ = ["ItemParser"]
 
 def _regex_build_single_re(k, v):
     if "re" in v:
-        return r"%s: (?P<%s>.*)$" % (v["re"], k)
+        return r"{}: (?P<{}>.*)$".format(v["re"], k)
     elif "re2" in v:
         return v["re2"]
 
@@ -110,7 +110,7 @@ class ItemSocket:
         self.colour = colour
 
     def __repr__(self):
-        return "ItemSocket(%s, %s)" % (self.index, repr(self.colour))
+        return f"ItemSocket({self.index}, {repr(self.colour)})"
 
     def __eq__(self, other):
         if not isinstance(other, ItemSocket):
@@ -493,7 +493,7 @@ class ItemParser:
         elif len(header) in (1, 2):
             self.name = header[-1]
         else:
-            raise ValueError("Header section is of unsupported length: %s" % len(header))
+            raise ValueError(f"Header section is of unsupported length: {len(header)}")
 
         self.name = self.name
 
@@ -515,7 +515,7 @@ class ItemParser:
                 elif rarity == "Currency":
                     self._type = ITEM_TYPES.CURRENCY
                 else:
-                    raise ValueError('Unsupported value for "Rarity": %s' % rarity)
+                    raise ValueError(f'Unsupported value for "Rarity": {rarity}')
             elif self.rarity == RARITY.MAGIC:
                 self.prefix = None
                 self.suffix = None
@@ -576,7 +576,7 @@ class ItemParser:
                             break
 
                     if not found:
-                        raise ValueError("Unsupported socket colour: %s" % char)
+                        raise ValueError(f"Unsupported socket colour: {char}")
 
                     self.sockets.append(ItemSocket(i // 2, socket_colour))
 
@@ -595,7 +595,7 @@ class ItemParser:
                             )
                         last_linked = True
                     else:
-                        raise ValueError("Unsupported link character: %s" % char)
+                        raise ValueError(f"Unsupported link character: {char}")
             increment_sec()
         else:
             self.sockets = None  # type: ignore[assignment]
@@ -661,19 +661,19 @@ class ItemParser:
                     self.implicit_stats = []
                     self.stats = self._re_split_newline.split(section())
             else:
-                raise ValueError("Too many sections (%s) left for item stat parsing." % remaining)
+                raise ValueError(f"Too many sections ({remaining}) left for item stat parsing.")
         elif self._type == ITEM_TYPES.GEM:
             if remaining == 0:
                 self.stats = []
             elif remaining == 1:
                 self.stats = self._re_split_newline.split(section())
             else:
-                raise ValueError("Too many sections (%s) left for gem stat parsing." % remaining)
+                raise ValueError(f"Too many sections ({remaining}) left for gem stat parsing.")
         elif self._type == ITEM_TYPES.CURRENCY and remaining:
             if remaining == 1:
                 self.description = section()
             else:
-                raise ValueError("All sections (%s) should be parsed now." % remaining)
+                raise ValueError(f"All sections ({remaining}) should be parsed now.")
 
         # Do a final pass on the prefix for magic items
         if (

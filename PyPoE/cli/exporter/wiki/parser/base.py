@@ -132,10 +132,7 @@ class BaseParser:
         rows: list[Any] = []
         missing = []
 
-        if column_id in self.rr[dat_file_name].columns_unique:
-            func = rows.append
-        else:
-            func = rows.extend
+        func = rows.append if column_id in self.rr[dat_file_name].columns_unique else rows.extend
 
         for argument in arg_list:
             if argument in self.rr[dat_file_name].index[column_id]:
@@ -168,21 +165,20 @@ class BaseParser:
         with open(out_path, "wb") as f:
             f.write(self.file_system.extract_dds(data))
 
-            console('Wrote "%s"' % out_path)
+            console(f'Wrote "{out_path}"')
 
         if not parsed_args.convert_images:
             return
 
         os.system(
-            'magick convert "%s" "%s"'
-            % (
+            'magick convert "{}" "{}"'.format(
                 out_path,
                 out_path.replace(".dds", ".png"),
             )
         )
         os.remove(out_path)
 
-        console('Converted "%s" to png' % out_path)
+        console(f'Converted "{out_path}" to png')
 
     def _image_init(self, parsed_args):
         if parsed_args.store_images:
@@ -205,12 +201,12 @@ class BaseParser:
                 stats = []
                 values = []
                 for i in MOD_STATS_RANGE:
-                    k = mod["StatsKey%s" % i]
+                    k = mod[f"StatsKey{i}"]
                     if k is None:
                         continue
 
                     stat = k["Id"]
-                    value = mod["Stat%sMin" % i], mod["Stat%sMax" % i]
+                    value = mod[f"Stat{i}Min"], mod[f"Stat{i}Max"]
 
                     if value[0] == 0 and value[1] == 0:
                         continue
@@ -293,9 +289,8 @@ class BaseParser:
 
         if custom_result.missing_ids:  # type: ignore[union-attr]
             warnings.warn(
-                "Missing translation for ids %s and values %s"
-                % (custom_result.missing_ids, custom_result.missing_values),  # type: ignore[union-attr]
-                MissingIdentifierWarning,
+                f"Missing translation for ids {custom_result.missing_ids} and values {custom_result.missing_values}",  # type: ignore[union-attr]
+                MissingIdentifierWarning, stacklevel=2,
             )
 
         for line in custom_result.lines:  # type: ignore[union-attr]

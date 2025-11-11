@@ -199,17 +199,17 @@ class UniqueCopy(BaseParser):
                 )
 
         if len(results) == 0:
-            console("No matching text found for %s." % key)
+            console(f"No matching text found for {key}.")
             text = input("Enter translated text.\n")
             if text == "":
-                console('No text specified - skipping search for "%s".' % text)
+                console(f'No text specified - skipping search for "{text}".')
                 return
             return text
         elif len(results) >= 2:
-            console("Multiple matching values found for %s\n" % key)
+            console(f"Multiple matching values found for {key}\n")
             for i, row in enumerate(results):
                 row["i"] = i
-                console("%(i)s: %(ratio)s\n%(text)s\n----------------" % row)
+                console("{i}: {ratio}\n{text}\n----------------".format(**row))
 
             try:
                 correct = results[int(input("Enter index of correct translation:\n"))]
@@ -221,10 +221,10 @@ class UniqueCopy(BaseParser):
             return self.rr[file_name][results[0]["id"]][key]
 
     def copy(self, parsed_args, pn):
-        console("Processing %s" % pn)
+        console(f"Processing {pn}")
         page = self.site_english.pages[pn]
         if not page.exists:
-            raise Exception("Page %s not found" % pn)
+            raise Exception(f"Page {pn} not found")
 
         mwtext = mwparserfromhell.parse(page.text())
         for mwtemplate in mwtext.filter_templates():
@@ -252,16 +252,16 @@ class UniqueCopy(BaseParser):
             ]["Text"]
 
         if ftext:
-            mwtemplate.get("flavour_text").value = " %s\n" % ftext.replace("\r", "").replace(
+            mwtemplate.get("flavour_text").value = " {}\n".format(ftext.replace("\r", "").replace(
                 "\n", "<br>"
-            )
+            ))
 
         # Need this for multiple things
         name = mwtemplate.get("name").value.strip()
 
         # Add inventory icon so it shows up correctly
         if not mwtemplate.has("inventory_icon"):
-            mwtemplate.add("{0: <40}".format("inventory_icon"), name)
+            mwtemplate.add("{: <40}".format("inventory_icon"), name)
 
         # Find translated item name
         console("Finding item name...")
@@ -270,7 +270,7 @@ class UniqueCopy(BaseParser):
             console("Didn't get an english name for this item, skipping.")
             return
 
-        mwtemplate.get("name").value = " %s\n" % new
+        mwtemplate.get("name").value = f" {new}\n"
 
         # Find the correct name of the base item
         console("Finding base item...")
@@ -288,7 +288,7 @@ class UniqueCopy(BaseParser):
                 console("Base item is required for unique items. Skipping.")
                 return
 
-            mwtemplate.get("base_item").value = " %s\n" % base
+            mwtemplate.get("base_item").value = f" {base}\n"
 
         if self.parsed_args.copy_upgraded_from:
             # TODO
@@ -302,26 +302,25 @@ class UniqueCopy(BaseParser):
 
         if mwtemplate.has("drop_text") and not parsed_args.ignore_drop_text:
             console(
-                "Drop text might need a translation. Current text:\n\n%s"
-                % mwtemplate.get("drop_text").value.strip()
+                "Drop text might need a translation. Current text:\n\n{}".format(mwtemplate.get("drop_text").value.strip())
             )
             text = input("\nNew text (leave empty to copy old):\n")
             if text:
-                mwtemplate.get("drop_text").value = " %s\n" % text
+                mwtemplate.get("drop_text").value = f" {text}\n"
 
         if pn == name:
             page = self.site_other.pages[new]
         else:
-            console("Name of page doesn't equal item name. \nOld: %s\nItem:%s" % (pn, new))
+            console(f"Name of page doesn't equal item name. \nOld: {pn}\nItem:{new}")
             cont = True
             while cont:
-                t = "%s (%s)" % (new, input("Enter phrase for parenthesis:\n"))
-                console("Is this correct?:\n%s" % t)
+                t = "{} ({})".format(new, input("Enter phrase for parenthesis:\n"))
+                console(f"Is this correct?:\n{t}")
                 cont = input("y/n?\n") != "y"
             page = self.site_other.pages[t]
 
-        console('Saving to "%s" on other wiki...' % page.name)
-        page.save("%s\n\n[[en:%s]]" % (str(mwtemplate), pn))
+        console(f'Saving to "{page.name}" on other wiki...')
+        page.save(f"{str(mwtemplate)}\n\n[[en:{pn}]]")
         console("Done.")
 
     def run(self, parsed_args, **kwargs):
@@ -342,7 +341,7 @@ class BaseItemCacheInstance(list):
 def run():
     # TODO: This function appears to be incomplete/experimental
     # Missing rr_english context and BaseItemCacheInstance definition
-    cache = defaultdict(lambda: None)  # type: ignore[var-annotated]
+    defaultdict(lambda: None)  # type: ignore[var-annotated]
     # for row in self.rr_english['BaseItemTypes.dat']:
     #     cache[row['ItemClassesKey']['Id']].append(row)
     #     cache[row['ItemClassesKey']['Id']].index['Name'][row['Name']].append(row)

@@ -148,7 +148,7 @@ class JSONExportHandler(DatExportHandler):
 
                 out.append(out_obj)
 
-            console('Dumping data to "%s"...' % args.target)
+            console(f'Dumping data to "{args.target}"...')
 
             dump(out, f, ensure_ascii=args.ascii, indent=4)
 

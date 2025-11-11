@@ -221,7 +221,7 @@ def parse_description_tags(text: str) -> Tag:
     out = Tag(id=None)
     last = out
 
-    for tid, match, text in scanner.scan(text)[0]:
+    for tid, _match, text in scanner.scan(text)[0]:
         if tid == "lt":
             depth += 1
             in_tag.append(True)

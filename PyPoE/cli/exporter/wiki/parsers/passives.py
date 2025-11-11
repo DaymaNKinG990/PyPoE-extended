@@ -306,7 +306,7 @@ class PassiveSkillParser(parser.BaseParser):
 
         self._image_init(parsed_args)
 
-        console("Found %s, parsing..." % len(passives))
+        console(f"Found {len(passives)}, parsing...")
 
         for passive in passives:
             data = OrderedDict()
@@ -333,7 +333,7 @@ class PassiveSkillParser(parser.BaseParser):
                     if icon[-2] == "passives":
                         data["icon"] = icon[-1]
                     else:
-                        data["icon"] = "%s (%s)" % (icon[-1], icon[-2])
+                        data["icon"] = f"{icon[-1]} ({icon[-2]})"
                 else:
                     data["icon"] = icon[-1]
 
@@ -350,9 +350,9 @@ class PassiveSkillParser(parser.BaseParser):
                     break
                 j = i + 1
                 stat_ids.append(stat["Id"])
-                data["stat%s_id" % j] = stat["Id"]
-                values.append(passive["Stat%sValue" % j])
-                data["stat%s_value" % j] = passive["Stat%sValue" % j]
+                data[f"stat{j}_id"] = stat["Id"]
+                values.append(passive[f"Stat{j}Value"])
+                data[f"stat{j}_value"] = passive[f"Stat{j}Value"]
 
             data["stat_text"] = "<br>".join(
                 self._get_stats(
@@ -368,10 +368,10 @@ class PassiveSkillParser(parser.BaseParser):
                 #    index = stat_ids.index('damage_taken_+%_from_hits')
                 #    del stat_ids[index]
                 #    del values[index]
-                for i, (sid, val) in enumerate(zip(stat_ids, values)):
+                for i, (sid, val) in enumerate(zip(stat_ids, values, strict=False)):
                     j += 1
-                    data["stat%s_id" % j] = sid
-                    data["stat%s_value" % j] = val
+                    data[f"stat{j}_id"] = sid
+                    data[f"stat{j}_value"] = val
 
                 text = "<br>".join(
                     self._get_stats(
@@ -414,7 +414,7 @@ class PassiveSkillParser(parser.BaseParser):
 
             r.add_result(
                 text=cond,
-                out_file="passive_skill_%s.txt" % data["id"],
+                out_file="passive_skill_{}.txt".format(data["id"]),
                 wiki_page=[
                     {
                         "page": "Passive Skill:" + self._format_wiki_title(data["id"]),

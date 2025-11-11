@@ -89,7 +89,7 @@ class {class_name}:
         f"PyPoE/cli/exporter/wiki/parsers/item/mixins/{filename}", "w", encoding="utf-8"
     ) as f:
         f.write(header)
-        for name, start, end, method_lines in methods_data:
+        for _name, _start, _end, method_lines in methods_data:
             f.writelines(method_lines)
 
     return len(methods_data), sum(end - start for _, start, end, _ in methods_data)

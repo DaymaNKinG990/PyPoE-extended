@@ -212,7 +212,7 @@ class IncursionRoomParser(parser.BaseParser):
                 msg=Msg.warning,
             )
             return r
-        console("Found %s rooms..." % len(incursion_rooms))
+        console(f"Found {len(incursion_rooms)} rooms...")
 
         console("Additional files may be loaded. Processing information - this may take a while...")
         self._image_init(parsed_args)
@@ -225,11 +225,11 @@ class IncursionRoomParser(parser.BaseParser):
         console("Parsing data into templates...")
         for incursion_room in incursion_rooms:
             if "TEMPLATE" in incursion_room["Id"]:
-                console('Skipping template room "%s"' % incursion_room["Id"], msg=Msg.warning)
+                console('Skipping template room "{}"'.format(incursion_room["Id"]), msg=Msg.warning)
                 continue
             elif not incursion_room["Name"]:
                 console(
-                    'Skipping incursion room "%s" without a name' % incursion_room["Id"],
+                    'Skipping incursion room "{}" without a name'.format(incursion_room["Id"]),
                     msg=Msg.warning,
                 )
                 continue
@@ -265,7 +265,7 @@ class IncursionRoomParser(parser.BaseParser):
                 idl_record = idl_lookup[incursion_room["UIIcon"]]
                 src = os.path.join(self._img_path, os.path.split(idl_record.source)[-1])  # type: ignore[arg-type]
                 if src not in idl_sources:
-                    console('Writing source file "%s" to images' % src)
+                    console(f'Writing source file "{src}" to images')
                     with open(src, "wb") as f:
                         img_data = self.file_system.extract_dds(
                             self.file_system.get_file(idl_record.source)
@@ -279,21 +279,20 @@ class IncursionRoomParser(parser.BaseParser):
                     idl_sources.add(src)
 
                 os.system(
-                    'magick "%(src)s" -crop %(w)sx%(h)s+%(x)s+%(y)s '
-                    '"%(dst)s incursion room icon.png"'
-                    % {
-                        "src": src,
-                        "dst": os.path.join(self._img_path, data["icon"]),  # type: ignore[arg-type]
-                        "h": idl_record.h,
-                        "w": idl_record.w,
-                        "x": idl_record.x1,
-                        "y": idl_record.y1,
-                    }
+                    'magick "{src}" -crop {w}x{h}+{x}+{y} '
+                    '"{dst} incursion room icon.png"'.format(
+                        src=src,
+                        dst=os.path.join(self._img_path, data["icon"]),
+                        h=idl_record.h,
+                        w=idl_record.w,
+                        x=idl_record.x1,
+                        y=idl_record.y1,
+                    )
                 )
 
             r.add_result(
                 text=cond,
-                out_file="incursion_room_%s.txt" % data["name"],
+                out_file="incursion_room_{}.txt".format(data["name"]),
                 wiki_page=[
                     {
                         "page": data["name"],
@@ -301,7 +300,7 @@ class IncursionRoomParser(parser.BaseParser):
                     },
                     {
                         "page": data["name"]
-                        + " (%s)" % (self._incursion_room_page_name[config.get_option("language")]),
+                        + " ({})".format(self._incursion_room_page_name[config.get_option("language")]),
                         "condition": cond,
                     },
                 ],

@@ -117,7 +117,7 @@ class ContextToolbar(QToolBar):
         try:
             data = ggpk.extract_dds(data, path_or_file_system=node.record._container)
         except FileNotFoundError as e:
-            self.parent()._write_log("Broken symbolic link.\n%s" % e)
+            self.parent()._write_log(f"Broken symbolic link.\n{e}")
 
         with open(path, "wb") as f:
             f.write(data)
@@ -133,14 +133,14 @@ class ContextToolbar(QToolBar):
         )
         if not target_dir:
             return
-        p._write_log(self.tr('Extracting file(s) to "%s"...' % target_dir))
+        p._write_log(self.tr(f'Extracting file(s) to "{target_dir}"...'))
         node.extract_to(target_dir)
 
         # TODO Fix double writing
         if self.parent().s_general.uncompress_dds:
             if isinstance(node.record, ggpk.DirectoryRecord):
                 p._write_log(self.tr("Uncompressing DDS Files..."))
-                for root, dirs, files in os.walk(os.path.join(target_dir, node.name)):
+                for root, _dirs, files in os.walk(os.path.join(target_dir, node.name)):
                     for file_name in files:
                         if file_name.endswith(".dds"):
                             self._toolbar_extract_dds(os.path.join(root, file_name), node)

@@ -110,8 +110,8 @@ class OTFile(AbstractKeyValueFile):
     Representation of a .ot file.
     """
 
-    SECTIONS = dict(
-        (s.NAME, s)
+    SECTIONS = {
+        s.NAME: s
         for s in [
             ActionKeyValueSection,
             AnimatedKeyValueSection,
@@ -122,7 +122,7 @@ class OTFile(AbstractKeyValueFile):
             SocketsKeyValueSection,
             StatsKeyValueSection,
         ]
-    )
+    }
 
     EXTENSION = ".ot"
 

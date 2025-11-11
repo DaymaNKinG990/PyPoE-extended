@@ -439,15 +439,14 @@ class AreaParser(parser.BaseParser):
 
         out = []
         for row in self.rr["WorldAreas.dat"]:
-            if re_id:
-                if not re_id.match(row["Id"]):
-                    continue
+            if re_id and not re_id.match(row["Id"]):
+                continue
             out.append(row)
 
         return self.export(parsed_args, out)
 
     def export(self, parsed_args, areas):
-        console("Found %s areas, parsing..." % len(areas))
+        console(f"Found {len(areas)} areas, parsing...")
 
         r = ExporterResult()
 
@@ -467,7 +466,7 @@ class AreaParser(parser.BaseParser):
             self.rr["Maps.dat"].build_index("Regular_WorldAreasKey")
             self.rr["UniqueMaps.dat"].build_index("WorldAreasKey")
 
-        console("Found %s areas. Processing..." % len(areas))
+        console(f"Found {len(areas)} areas. Processing...")
 
         lang = self._LANG[config.get_option("language")]
 
@@ -494,10 +493,10 @@ class AreaParser(parser.BaseParser):
                 data[copy_data["template"]] = value  # type: ignore[index]
 
             for i, (tag, value) in enumerate(
-                zip(area["SpawnWeight_TagsKeys"], area["SpawnWeight_Values"]), start=1
+                zip(area["SpawnWeight_TagsKeys"], area["SpawnWeight_Values"], strict=False), start=1
             ):
-                data["spawn_weight%s_tag" % i] = tag["Id"]
-                data["spawn_weight%s_value" % i] = value
+                data[f"spawn_weight{i}_tag"] = tag["Id"]
+                data[f"spawn_weight{i}_value"] = value
 
             map_pin = self.rr["MapPins.dat"].index["WorldAreasKeys"].get(area)
             if map_pin:
@@ -517,7 +516,7 @@ class AreaParser(parser.BaseParser):
                     if map["MapSeriesKey"]["Id"] == "MapWorlds":
                         data["main_page"] = map["BaseItemTypesKey"]["Name"]
                     else:
-                        data["main_page"] = "%s (%s)" % (
+                        data["main_page"] = "{} ({})".format(
                             map["BaseItemTypesKey"]["Name"],
                             map["MapSeriesKey"]["Name"],
                         )
@@ -540,17 +539,17 @@ class AreaParser(parser.BaseParser):
                             if map_version is None:
                                 data["main_page"] = area["Name"]
                             else:
-                                data["main_page"] = "%s (%s)" % (area["Name"], map_version)
+                                data["main_page"] = "{} ({})".format(area["Name"], map_version)
                         elif "Harbinger" in area["Id"]:
                             tier = re.sub("^.*Harbinger", "", area["Id"])
                             if tier:
                                 if map_version is None:
-                                    data["main_page"] = "%s (%s)" % (
+                                    data["main_page"] = "{} ({})".format(
                                         area["Name"],
                                         lang[tier],
                                     )
                                 else:
-                                    data["main_page"] = "%s (%s) (%s)" % (
+                                    data["main_page"] = "{} ({}) ({})".format(
                                         area["Name"],
                                         lang[tier],
                                         map_version,
@@ -559,7 +558,7 @@ class AreaParser(parser.BaseParser):
                                 if map_version is None:
                                     data["main_page"] = area["Name"]
                                 else:
-                                    data["main_page"] = "%s (%s)" % (
+                                    data["main_page"] = "{} ({})".format(
                                         area["Name"],
                                         map_version,
                                     )
@@ -571,7 +570,7 @@ class AreaParser(parser.BaseParser):
 
             r.add_result(
                 text=cond,
-                out_file="area_%s.txt" % data["id"],
+                out_file="area_{}.txt".format(data["id"]),
                 wiki_page=[
                     {
                         "page": "Area:" + self._format_wiki_title(data["id"]),

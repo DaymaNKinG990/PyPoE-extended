@@ -97,7 +97,7 @@ class Monster:
         self._level = value
 
     def damage(self, map_tier=None):
-        base = self.parent.rr["DefaultMonsterStats.dat"][self.level]
+        self.parent.rr["DefaultMonsterStats.dat"][self.level]
 
 
 class MonsterFactory:

@@ -391,7 +391,7 @@ class DDSDataHandler(FileDataHandler):
             raise DDSDataHandler.DDSException(*e.args)
         except ValueError:
             raise DDSDataHandler.DDSException(
-                'This file is a reference to "%s"' % file_bytes[1:].decode("utf-8")
+                'This file is a reference to "{}"'.format(file_bytes[1:].decode("utf-8"))
             )
 
         with TemporaryDirectory() as tmp_dir:

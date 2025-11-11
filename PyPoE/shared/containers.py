@@ -52,29 +52,21 @@ class Record:
     def __repr__(self):
         out = []
         for attr in self.__slots__:
-            out.append("%s=%s" % (attr, repr(getattr(self, attr))))
+            out.append(f"{attr}={repr(getattr(self, attr))}")
 
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(out))
+        return "{}({})".format(self.__class__.__name__, ", ".join(out))
 
     def __eq__(self, other):
         if not isinstance(other, self.__class__):
             return object.__eq__(self, other)
 
-        for attr in self.__slots__:
-            if not getattr(self, attr) == getattr(other, attr):
-                return False
-
-        return True
+        return all(getattr(self, attr) == getattr(other, attr) for attr in self.__slots__)
 
     def __ne__(self, other):
         if not isinstance(other, self.__class__):
             return object.__eq__(self, other)
 
-        for attr in self.__slots__:
-            if not getattr(self, attr) != getattr(other, attr):
-                return False
-
-        return True
+        return all(getattr(self, attr) != getattr(other, attr) for attr in self.__slots__)
 
 
 class TypedContainerMeta(type):
@@ -103,18 +95,13 @@ class TypedContainerMixin:
     def _is_cls(self, obj):
         if not isinstance(obj, self.__class__):
             raise TypeError(
-                '"%s" instance can only be added to another "%s" instance.'
-                % (
-                    self.__class__.__name__,
-                    self.__class__.__name__,
-                )
+                f'"{self.__class__.__name__}" instance can only be added to another "{self.__class__.__name__}" instance.'
             )
 
     def _is_acceptable(self, obj):
         if not isinstance(obj, self.ACCEPTED_TYPES):  # type: ignore[arg-type]
             raise TypeError(
-                '"%s" instance only accepts "%s" instances.'
-                % (
+                '"{}" instance only accepts "{}" instances.'.format(
                     self.__class__.__name__,
                     ", ".join([t.__name__ for t in self.ACCEPTED_TYPES]),  # type: ignore[attr-defined]
                 )

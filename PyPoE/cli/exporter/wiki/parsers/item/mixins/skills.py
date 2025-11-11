@@ -65,8 +65,8 @@ class SkillsMixin:
 
         if not exp_level:
             console(
-                'No experience progression found for "%s" - assuming max '
-                "level 1" % base_item_type["Name"],
+                'No experience progression found for "{}" - assuming max '
+                "level 1".format(base_item_type["Name"]),
                 msg=Msg.error,
             )
             exp_total = [0]
@@ -123,11 +123,11 @@ class SkillsMixin:
 
             # Stat merging...
             def get_stat(i, prefix, data):
-                return (data["%s_stat%s_id" % (prefix, i)], data["%s_stat%s_value" % (prefix, i)])
+                return (data[f"{prefix}_stat{i}_id"], data[f"{prefix}_stat{i}_value"])
 
             def set_stat(i, prefix, sid, sv):
-                infobox["%s_stat%s_id" % (prefix, i)] = sid
-                infobox["%s_stat%s_value" % (prefix, i)] = sv
+                infobox[f"{prefix}_stat{i}_id"] = sid
+                infobox[f"{prefix}_stat{i}_value"] = sv
 
             def cp_stats(prefix):
                 i = 1
@@ -151,7 +151,7 @@ class SkillsMixin:
             cp_stats("static")
             lv = 1
             while True:
-                prefix = "level%s" % lv
+                prefix = f"level{lv}"
                 try:
                     primary[prefix]
                 except KeyError:
@@ -192,7 +192,7 @@ class SkillsMixin:
         # +1 for being able to corrupt gems to +1 level
         # +1 for python counting only up to, but not including the number
         for i in range(1, max_level + 3):
-            prefix = "level%s_" % i
+            prefix = f"level{i}_"
             for attr in ("Str", "Dex", "Int"):
                 if skill_gem[attr]:
                     try:
@@ -202,7 +202,7 @@ class SkillsMixin:
                             multi=skill_gem[attr],
                         )
                     except ValueError as e:
-                        warnings.warn(str(e))
+                        warnings.warn(str(e), stacklevel=2)
                     except KeyError:
                         print(base_item_type["Id"], base_item_type["Name"])
                         raise

@@ -39,6 +39,8 @@ from typing import TYPE_CHECKING, Any
 if TYPE_CHECKING:
     from PyPoE.poe.file.translations.cache import TranslationFileCache
 
+import contextlib
+
 from PyPoE.poe.file.shared import AbstractFileReadOnly, ParserError
 from PyPoE.poe.file.translations.constants import (
     regex_id_strings,
@@ -178,7 +180,7 @@ class TranslationFile(AbstractFileReadOnly):
                 id_count_match = regex_int.search(data, offset, offset_max)
                 if id_count_match is None:
                     raise ValueError(
-                        "Couldn't find id count between offset %s and %s" % (offset, offset_max)
+                        f"Couldn't find id count between offset {offset} and {offset_max}"
                     )
                 offset = id_count_match.end()
                 id_count = int(id_count_match.group())
@@ -186,7 +188,7 @@ class TranslationFile(AbstractFileReadOnly):
                 id_string = regex_ids.search(data, offset, offset_max)
                 if id_string is None:
                     raise ValueError(
-                        "Couldn't find id count between offset %s and %s" % (offset, offset_max)
+                        f"Couldn't find id count between offset {offset} and {offset_max}"
                     )
 
                 # Actually extract the individual ids
@@ -195,9 +197,8 @@ class TranslationFile(AbstractFileReadOnly):
                 if len(translation.ids) != id_count:
                     print(data[offset:offset_max])
                     raise ValueError(
-                        "Mismatched number of id strings found (%s found vs %s "
-                        "expected) between offset %s and %s"
-                        % (len(translation.ids), id_count, offset, offset_max)
+                        f"Mismatched number of id strings found ({len(translation.ids)} found vs {id_count} "
+                        f"expected) between offset {offset} and {offset_max}"
                     )
 
                 offset = id_string.end()
@@ -209,8 +210,7 @@ class TranslationFile(AbstractFileReadOnly):
                     tcount_match = regex_int.search(data, offset, offset_max)
                     if tcount_match is None:
                         raise ValueError(
-                            "Couldn't find translation count between offset %s and %s"
-                            % (offset, offset_max)
+                            f"Couldn't find translation count between offset {offset} and {offset_max}"
                         )
                     offset = tcount_match.end()
                     tcount = int(tcount_match.group())
@@ -223,12 +223,11 @@ class TranslationFile(AbstractFileReadOnly):
                         offset_next_lang = language_match.start()
                         language = language_match.group("language")
 
-                    for i in range(0, tcount):
+                    for _i in range(0, tcount):
                         ts_match = regex_translation_string.search(data, offset, offset_next_lang)
                         if not ts_match:
                             raise ParserError(
-                                "Malformed translation string near line %s @ ids %s: %s"
-                                % (
+                                "Malformed translation string near line {} @ ids {}: {}".format(
                                     data.count("\n", 0, offset),
                                     translation.ids,
                                     data[offset : offset_next_lang + 1],
@@ -262,9 +261,8 @@ class TranslationFile(AbstractFileReadOnly):
                             else:
                                 TranslationRange(None, None, parent=ts, negated=negated)
                                 warnings.warn(
-                                    'Malformed quantifier string "%s" near index %s (parent %s). Assuming # instead.'
-                                    % (matchstr, ts_match.start("minmax"), translation.ids),
-                                    TranslationWarning,
+                                    'Malformed quantifier string "{}" near index {} (parent {}). Assuming # instead.'.format(matchstr, ts_match.start("minmax"), translation.ids),
+                                    TranslationWarning, stacklevel=2,
                                 )
 
                         ts._set_string(ts_match.group("description"))
@@ -291,7 +289,7 @@ class TranslationFile(AbstractFileReadOnly):
                     warnings.warn(
                         "Translation file includes other file, but no base_dir "
                         "or parent specified. Skipping.",
-                        TranslationWarning,
+                        TranslationWarning, stacklevel=2,
                     )
             elif match.group("header"):
                 pass
@@ -322,10 +320,8 @@ class TranslationFile(AbstractFileReadOnly):
                         translation,
                     ]
                     # Attempt to remove the old one if it exists
-                    try:
+                    with contextlib.suppress(ValueError):
                         self.translations.remove(old_translation)
-                    except ValueError:
-                        pass
 
                     return
 
@@ -333,7 +329,7 @@ class TranslationFile(AbstractFileReadOnly):
                 translation.diff(other)
                 print('')"""
 
-                warnings.warn('Duplicate id "%s"' % translation_id, DuplicateIdentifierWarning)
+                warnings.warn(f'Duplicate id "{translation_id}"', DuplicateIdentifierWarning, stacklevel=2)
                 self.translations_hash[translation_id].append(translation)
         else:
             self.translations_hash[translation_id] = [
@@ -373,7 +369,7 @@ class TranslationFile(AbstractFileReadOnly):
         """
 
         if not isinstance(other, TranslationFile):
-            TypeError("Wrong type: %s" % type(other))
+            TypeError(f"Wrong type: {type(other)}")
         self.translations += other.translations
         for trans_id in other.translations_hash:
             for trans in other.translations_hash[trans_id]:
@@ -483,8 +479,8 @@ class TranslationFile(AbstractFileReadOnly):
 
         if partial:
             warnings.warn(
-                "Partial tag match for %s" % ", ".join([str(p) for p in partial]),
-                TranslationWarning,
+                "Partial tag match for {}".format(", ".join([str(p) for p in partial])),
+                TranslationWarning, stacklevel=2,
             )
 
         trans_lines = []

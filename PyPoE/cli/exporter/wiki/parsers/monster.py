@@ -303,9 +303,8 @@ class MonsterParser(parser.BaseParser):
 
         out = []
         for row in self.rr["MonsterVarieties.dat"]:
-            if re_id:
-                if not re_id.match(row["Id"]):
-                    continue
+            if re_id and not re_id.match(row["Id"]):
+                continue
             out.append(row)
 
         return self.export(parsed_args, out)
@@ -320,7 +319,7 @@ class MonsterParser(parser.BaseParser):
             )
             return r
 
-        console("Found %s monsters, parsing..." % len(monsters))
+        console(f"Found {len(monsters)} monsters, parsing...")
 
         console("Accessing additional data...")
 
@@ -348,7 +347,7 @@ class MonsterParser(parser.BaseParser):
 
             r.add_result(
                 text=cond,
-                out_file="monster_%s.txt" % data["metadata_id"].replace("/", "_"),
+                out_file="monster_{}.txt".format(data["metadata_id"].replace("/", "_")),
                 wiki_page=[
                     {
                         "page": "Monster:" + self._format_wiki_title(data["metadata_id"]),

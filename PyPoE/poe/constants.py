@@ -216,11 +216,11 @@ MOD_SELL_PRICES = {
 
 
 class IntEnumMetaOverride(EnumMeta):
-    def __getitem__(self, item):
+    def __getitem__(cls, item):
         if isinstance(item, int):
-            return self(item)
+            return cls(item)
         else:
-            return IntEnum.__getitem__(self, item)  # type: ignore[call-arg, index]
+            return IntEnum.__getitem__(cls, item)  # type: ignore[call-arg, index]
 
 
 class IntEnumOverride(IntEnum, metaclass=IntEnumMetaOverride):

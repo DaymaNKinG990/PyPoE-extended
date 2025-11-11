@@ -69,10 +69,10 @@ class ExtrasMixin:
     def _map_fragment_extra(self, infobox, base_item_type, map_fragment_mods):
         if map_fragment_mods["ModsKeys"]:
             i = 1
-            while infobox.get("implicit%s" % i) is not None:
+            while infobox.get(f"implicit{i}") is not None:
                 i += 1
             for mod in map_fragment_mods["ModsKeys"]:
-                infobox["implicit%s" % i] = mod["Id"]
+                infobox[f"implicit{i}"] = mod["Id"]
                 i += 1
 
     def _essence_extra(self, infobox, base_item_type, essence):
@@ -81,9 +81,10 @@ class ExtrasMixin:
         #
         # Essence description
         #
-        get_str = lambda k: self.rr["ClientStrings.dat"].index["Id"]["EssenceCategory%s" % k][
-            "Text"
-        ]
+        def get_str(k):
+            return self.rr["ClientStrings.dat"].index["Id"][f"EssenceCategory{k}"][
+                    "Text"
+                ]
 
         essence_categories = OrderedDict(
             (
@@ -121,19 +122,16 @@ class ExtrasMixin:
 
         def add_line(text, mod):
             nonlocal out
-            out.append("%s: %s" % (text, "".join(self._get_stats(mod=mod))))
+            out.append("{}: {}".format(text, "".join(self._get_stats(mod=mod))))
 
         item_mod = essence["Display_Items_ModsKey"]
 
         for category, rows in essence_categories.items():
-            if category is None:
-                category_mod = None
-            else:
-                category_mod = essence["Display_%s_ModsKey" % category]
+            category_mod = None if category is None else essence[f"Display_{category}_ModsKey"]
 
             cur = len(out)
             for row_key in rows:
-                mod = essence["Display_%s_ModsKey" % row_key]
+                mod = essence[f"Display_{row_key}_ModsKey"]
                 if mod is None:
                     continue
                 if mod == category_mod:

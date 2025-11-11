@@ -118,7 +118,7 @@ class IntEnumValidator:
         try:
             return self._enum(value)
         except ValueError:
-            raise ValidateError("%s The value is not accepted by the enum." % self._enum.__name__)
+            raise ValidateError(f"{self._enum.__name__} The value is not accepted by the enum.")
 
     def __call__(self, value):
         """
@@ -151,8 +151,8 @@ class IntEnumValidator:
                     value = getattr(self._enum, value)
                 except AttributeError:
                     raise ValidateError(
-                        "The value is neither an integer or a valid %s "
-                        "attribute" % self._enum.__name__
+                        f"The value is neither an integer or a valid {self._enum.__name__} "
+                        "attribute"
                     )
             else:
                 value = self._get_enum_from_val(value)
@@ -176,7 +176,7 @@ def _exists(value, exists):
         # Raises VdtTypeError on fail
         exists = is_boolean(exists)
     if exists and not os.path.exists(value):
-        raise ValidateError('Path "%s" does not exist.' % value)
+        raise ValidateError(f'Path "{value}" does not exist.')
 
 
 def is_file(value, *args, exists=True, allow_empty=False, **kwargs):
@@ -208,7 +208,7 @@ def is_file(value, *args, exists=True, allow_empty=False, **kwargs):
     else:
         _exists(value, exists)
         if not os.path.isfile(value):
-            raise ValidateError('"%s" is not a file.' % value)
+            raise ValidateError(f'"{value}" is not a file.')
         return value
 
 
@@ -241,7 +241,7 @@ def is_directory(value, *args, exists=True, allow_empty=False, **kwargs):
     else:
         _exists(value, exists)
         if not os.path.isdir(value):
-            raise ValidateError('"%s" is not a directory.' % value)
+            raise ValidateError(f'"{value}" is not a directory.')
         return value
 
 

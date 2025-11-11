@@ -375,7 +375,7 @@ class AbstractFileSystemNode(ReprMixin):
                     obj = child
                     break
             else:
-                raise FileNotFoundError("%s/%s not found" % (self.get_path(), item))
+                raise FileNotFoundError(f"{self.get_path()}/{item} not found")
 
     @property
     def data(self) -> bytes:

@@ -147,10 +147,7 @@ class DocStringDecorator:
             return ""
 
     def __call__(self, object):
-        if self.doc is None:
-            docs = self._get_str(object)
-        else:
-            docs = self._get_str(self.doc)
+        docs = self._get_str(object) if self.doc is None else self._get_str(self.doc)
 
         docs = self.prepend + docs + self.append
 

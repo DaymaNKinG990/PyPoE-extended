@@ -95,7 +95,7 @@ def migrate_version(version: VERSION, output_db: Path):
         files_migrated += 1
 
         # Insert fields
-        for order, (field_name, field) in enumerate(file_spec.fields.items()):
+        for order, (_field_name, field) in enumerate(file_spec.fields.items()):
             cursor.execute(
                 """
                 INSERT INTO fields
@@ -125,7 +125,7 @@ def migrate_version(version: VERSION, output_db: Path):
 
         # Insert virtual fields
         if hasattr(file_spec, "virtual_fields") and file_spec.virtual_fields:
-            for vf_name, vf in file_spec.virtual_fields.items():
+            for _vf_name, vf in file_spec.virtual_fields.items():
                 cursor.execute(
                     """
                     INSERT INTO virtual_fields (file_id, name, fields, zip, description)

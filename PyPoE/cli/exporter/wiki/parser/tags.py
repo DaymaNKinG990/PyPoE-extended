@@ -78,7 +78,7 @@ class TagHandler:
             if items[0]["ItemClassesKey"]["Name"] == "Maps":
                 string = self._IL_FORMAT % string
             elif len(items) > 1:
-                return "[[%s]]" % string
+                return f"[[{string}]]"
             else:
                 string = self._IL_FORMAT % string
         return string
@@ -90,17 +90,14 @@ class TagHandler:
         return self._C_FORMAT % (tid, self._check_link(hstr))
 
     def _link_handler(self, hstr, parameter, tid):
-        return self._C_FORMAT % (tid, "[[%s]]" % hstr)
+        return self._C_FORMAT % (tid, f"[[{hstr}]]")
 
     def _unique_handler(self, hstr, parameter):
         words = self.rr["Words.dat"].index["Text"][hstr]
         if words and words[0]["WordlistsKey"] == WORDLISTS.UNIQUE_ITEM:
             # Check whether unique item name clashes with base item name
             items = self.rr["BaseItemTypes.dat"].index["Name"][hstr]
-            if len(items) > 0:
-                hstr = "[[%s]]" % hstr
-            else:
-                hstr = self._IL_FORMAT % hstr
+            hstr = f"[[{hstr}]]" if len(items) > 0 else self._IL_FORMAT % hstr
         else:
             hstr = self._check_link(hstr)
         return self._C_FORMAT % ("unique", hstr)
@@ -108,7 +105,7 @@ class TagHandler:
     def _currency_handler(self, hstr, parameter):
         if "x " in hstr:
             s = hstr.split("x ", maxsplit=1)
-            return self._C_FORMAT % ("currency", "%sx %s" % (s[0], self._check_link(s[1])))
+            return self._C_FORMAT % ("currency", f"{s[0]}x {self._check_link(s[1])}")
         else:
             return self._default_handler(hstr, parameter, "currency")
 

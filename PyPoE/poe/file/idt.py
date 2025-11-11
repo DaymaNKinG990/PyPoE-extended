@@ -299,13 +299,13 @@ class IDTFile(AbstractFile):
     def _write(self, buffer):
         out = []
 
-        out.append("version %s\n" % self.version)
-        out.append('image "%s"\n' % self._image)
-        out.append("%s\n" % len(self._records))
+        out.append(f"version {self.version}\n")
+        out.append(f'image "{self._image}"\n')
+        out.append(f"{len(self._records)}\n")
         for tex_record in self._records:
-            out.append("%s %s" % (tex_record.name, len(tex_record.records)))
+            out.append(f"{tex_record.name} {len(tex_record.records)}")
             for coord_record in tex_record.records:
-                out.append(" %s %s" % (coord_record.x, coord_record.y))
+                out.append(f" {coord_record.x} {coord_record.y}")
             out.append("\n")
 
         "".join(out).encode("utf-16_le")
@@ -330,16 +330,14 @@ class IDTFile(AbstractFile):
 
             if len(coordinates) != int(tex_match.group("count")):
                 raise ParserError(
-                    "Amount of found coordinates (%s) does not match the amount of specified coordinates (%s)"
-                    % (len(coordinates), tex_match.group("count"))
+                    "Amount of found coordinates ({}) does not match the amount of specified coordinates ({})".format(len(coordinates), tex_match.group("count"))
                 )
 
             textures.append(TextureRecord(tex_match.group("name"), coordinates))
 
         if len(textures) != int(match.group("texture_count")):
             raise ParserError(
-                "Amount of found textures (%s) does not match the amount of specified textures (%s)"
-                % (len(textures), match.group("texture_count"))
+                "Amount of found textures ({}) does not match the amount of specified textures ({})".format(len(textures), match.group("texture_count"))
             )
 
         self._records = textures

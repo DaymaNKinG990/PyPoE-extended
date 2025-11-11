@@ -73,11 +73,10 @@ def _make_inter_wiki_re():
                 re.compile(
                     r"(?![^\[]*\]\])"
                     r"(?: |^)"
-                    r"(?P<text>%s)"
-                    r"(?= |$)"
-                    % "|".join(
-                        ["(%s)" % item[0] for item in _inter_wiki_mapping[id : id + _MAX_RE]]
-                    ),
+                    r"(?P<text>{})"
+                    r"(?= |$)".format("|".join(
+                        [f"({item[0]})" for item in _inter_wiki_mapping[id : id + _MAX_RE]]
+                    )),
                     re.UNICODE | re.IGNORECASE,
                 )
             )
@@ -112,10 +111,10 @@ def format_result_rows(parsed_args, ordered_dict, template_name, indent=DEFAULT_
         formatted string
     """
     if parsed_args.format == "template":
-        out = ["{{%s\n" % template_name]
+        out = [f"{{{{{template_name}\n"]
         for k, v in ordered_dict.items():
             if v is not None:
-                out.append(("|{0: <%s}= {1}\n" % indent).format(k, v))
+                out.append((f"|{{0: <{indent}}}= {{1}}\n").format(k, v))
         out.append("}}")
     elif parsed_args.format == "module":
         ordered_dict["debug_id"] = 1
@@ -162,9 +161,9 @@ def make_inter_wiki_links(string):
 
             out.append(string[last_index : match.start("text")])
             if text == data["link"]:
-                out.append("[[%s]]" % data["link"])
+                out.append("[[{}]]".format(data["link"]))
             else:
-                out.append("[[%s|%s]]" % (data["link"], text))
+                out.append("[[{}|{}]]".format(data["link"], text))
 
             last_index = match.end("text")
 
@@ -208,7 +207,7 @@ def find_template(wikitext, template_name):
         [  # type: ignore[attr-defined]
             # Need to have this look ahead to avoid matching templates that start
             # with the same name.
-            (r"{{%s(?=[^\w}\|]*\||}})" % template_name, partial(f, tid="template")),
+            (rf"{{{{{template_name}(?=[^\w}}\|]*\||}}}})", partial(f, tid="template")),
             (r"{{", partial(f, tid="l_brace")),
             (r"}}", partial(f, tid="r_brace")),
             (r"\[\[", partial(f, tid="l_brackets")),
@@ -236,7 +235,7 @@ def find_template(wikitext, template_name):
     bracket_count = 0
     template_argument = ["", ""]
 
-    for tid, match, text in scanner.scan(wikitext)[0]:
+    for tid, _match, text in scanner.scan(wikitext)[0]:
         if tid == "template":
             in_template = True
         elif in_template:

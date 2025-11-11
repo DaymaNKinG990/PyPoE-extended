@@ -70,16 +70,16 @@ def spec_unknown(size, i=0):
     out = []
     while size >= 4:
         out.append(spec)
-        out.append("    name='Unknown%s'," % i)
+        out.append(f"    name='Unknown{i}',")
         out.append("    type='int',")
         out.append("),")
         size -= 4
         i += 1
 
     mod = size % 4
-    for j in range(0, mod):
+    for _j in range(0, mod):
         out.append(spec)
-        out.append("    name='Unknown%s'," % i)
+        out.append(f"    name='Unknown{i}',")
         out.append("    type='byte',")
         out.append("),")
         i += 1
@@ -126,12 +126,11 @@ def run():
             record_length = length // n_rows
 
         out.append(
-            """    '%s': File(
+            f"""    '{fn}': File(
         fields=(
-%s
+{spec_unknown(record_length)}
         ),
     ),"""
-            % (fn, spec_unknown(record_length))
         )
 
     print("\n".join(out))

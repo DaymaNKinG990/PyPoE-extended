@@ -259,13 +259,13 @@ class PSGFile(AbstractFileReadOnly):
         offset = 0
 
         # version?
-        version = struct.unpack_from("<B", data, offset=offset)[0]
+        struct.unpack_from("<B", data, offset=offset)[0]
         offset += 1
 
         unknown_length = struct.unpack_from("<B", data, offset=offset)[0]
         offset += 1
 
-        unknown = struct.unpack_from("<" + "B" * unknown_length, data, offset=offset)
+        struct.unpack_from("<" + "B" * unknown_length, data, offset=offset)
         offset += 1 * unknown_length
 
         root_length = struct.unpack_from("<I", data, offset=offset)[0]
@@ -284,7 +284,7 @@ class PSGFile(AbstractFileReadOnly):
 
             group = GraphGroup(x=x, y=y, id=len(self.groups), flag=flag)
 
-            for j in range(0, passive_length):
+            for _j in range(0, passive_length):
                 rowid, radius, position, connections_length = struct.unpack_from(
                     "<IIII", data, offset=offset
                 )

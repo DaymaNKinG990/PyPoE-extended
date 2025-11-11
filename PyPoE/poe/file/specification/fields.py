@@ -251,50 +251,30 @@ class Specification(dict):
                     if field.key not in self:
                         raise SpecificationError(
                             SpecificationError.ERRORS.INVALID_FOREIGN_KEY_FILE,
-                            "%(dat_file)s->%(field)s->key: %(other)s is not in "
-                            "specification"
-                            % {
-                                "dat_file": file_name,
-                                "field": field_name,
-                                "other": field.key,
-                            },
+                            f"{file_name}->{field_name}->key: {field.key} is not in "
+                            "specification",
                         )
 
                     other_key = field["key_id"]
                     if other_key and other_key not in self[field.key]["fields"]:
                         raise SpecificationError(
                             SpecificationError.ERRORS.INVALID_FOREIGN_KEY_ID,
-                            "%(dat_file)s->%(field)s->key_id: %(other)s->"
-                            "%(other_key)s not in specification"
-                            % {
-                                "dat_file": file_name,
-                                "field": field_name,
-                                "other": field.key,
-                                "other_key": other_key,
-                            },
+                            f"{file_name}->{field_name}->key_id: {field.key}->"
+                            f"{other_key} not in specification",
                         )
 
                 if field.enum:
                     if field.key:
                         raise SpecificationError(
                             SpecificationError.ERRORS.INVALID_ARGUMENT_COMBINATION,
-                            "%(dat_file)s->%(field)s->enum: Either key or enum can "
-                            "be specified but never both."
-                            % {
-                                "dat_file": file_name,
-                                "field": field_name,
-                            },
+                            f"{file_name}->{field_name}->enum: Either key or enum can "
+                            "be specified but never both.",
                         )
                     if not hasattr(constants, field.enum):
                         raise SpecificationError(
                             SpecificationError.ERRORS.INVALID_ENUM_NAME,
-                            "%(dat_file)s->%(field)s->enum: Invalid constant enum "
-                            '""%(enum)s" specified'
-                            % {
-                                "dat_file": file_name,
-                                "field": field_name,
-                                "enum": field.enum,
-                            },
+                            f"{file_name}->{field_name}->enum: Invalid constant enum "
+                            f'""{field.enum}" specified',
                         )
 
             for field_name, virtual_field in file.virtual_fields.items():
@@ -302,35 +282,22 @@ class Specification(dict):
                 if field_name in file.fields:
                     raise SpecificationError(
                         SpecificationError.ERRORS.VIRTUAL_KEY_DUPLICATE,
-                        "%(dat_file)s->virtual_fields->%(field)s use the same name "
-                        "as a key specified in %(dat_file)s->fields"
-                        % {
-                            "dat_file": file_name,
-                            "field": field_name,
-                        },
+                        f"{file_name}->virtual_fields->{field_name} use the same name "
+                        f"as a key specified in {file_name}->fields",
                     )
 
                 if not virtual_field.fields:
                     raise SpecificationError(
                         SpecificationError.ERRORS.VIRTUAL_KEY_EMPTY,
-                        "%(dat_file)s->virtual_fields->%(field)s->fields is empty"
-                        % {
-                            "dat_file": file_name,
-                            "field": field_name,
-                        },
+                        f"{file_name}->virtual_fields->{field_name}->fields is empty",
                     )
 
                 for other_field in virtual_field.fields:
                     if other_field not in file.fields and other_field not in file.virtual_fields:
                         raise SpecificationError(
                             SpecificationError.ERRORS.VIRTUAL_KEY_INVALID_KEY,
-                            "%(dat_file)s->virtual_fields->%(field)s->fields: "
-                            'Field "%(other_field)s" does not exist'
-                            % {
-                                "dat_file": file_name,
-                                "field": field_name,
-                                "other_field": other_field,
-                            },
+                            f"{file_name}->virtual_fields->{field_name}->fields: "
+                            f'Field "{other_field}" does not exist',
                         )
                     if (
                         virtual_field.zip
@@ -339,13 +306,8 @@ class Specification(dict):
                     ):
                         raise SpecificationError(
                             SpecificationError.ERRORS.VIRTUAL_KEY_INVALID_DATA_TYPE,
-                            "%(dat_file)s->virtual_fields->%(field)s->zip: The zip "
-                            'option requires "%(other_field)s" to be a list'
-                            % {
-                                "dat_file": file_name,
-                                "field": field_name,
-                                "other_field": other_field,
-                            },
+                            f"{file_name}->virtual_fields->{field_name}->zip: The zip "
+                            f'option requires "{other_field}" to be a list',
                         )
 
     def as_dict(self) -> dict:

@@ -32,6 +32,7 @@ See PyPoE/LICENSE
 # =============================================================================
 
 # Python
+import contextlib
 import os
 import traceback
 import warnings
@@ -315,7 +316,7 @@ class SkillParserShared(parser.BaseParser):
 
     def _write_stats(self, infobox, stats_and_values, global_prefix):
         for i, val in enumerate(stats_and_values):
-            prefix = "%sstat%s_" % (global_prefix, (i + 1))
+            prefix = f"{global_prefix}stat{i + 1}_"
             infobox[prefix + "id"] = val[0]
             infobox[prefix + "value"] = val[1]
 
@@ -329,7 +330,7 @@ class SkillParserShared(parser.BaseParser):
                 gepl.append(row)
 
         if not gepl:
-            console('No level progression found for "%s". Skipping.' % msg_name, msg=Msg.error)
+            console(f'No level progression found for "{msg_name}". Skipping.', msg=Msg.error)
             return False
 
         gepl.sort(key=lambda x: x["Level"])
@@ -341,7 +342,7 @@ class SkillParserShared(parser.BaseParser):
             try:
                 tf = self.tc[self.skill_stat_filter.skills[ae["Id"]].translation_file_path]
             except KeyError as e:
-                warnings.warn("Missing active skill in stat filers: %s" % e.args[0])
+                warnings.warn(f"Missing active skill in stat filers: {e.args[0]}", stacklevel=2)
                 tf = self.tc["skill_stat_descriptions.txt"]
 
             if parsed_args.store_images and ae["Icon_DDSFile"]:
@@ -349,7 +350,7 @@ class SkillParserShared(parser.BaseParser):
                     data=self.file_system.get_file(ae["Icon_DDSFile"]),
                     out_path=os.path.join(
                         self._img_path,  # type: ignore[arg-type]
-                        "%s skill icon.dds" % msg_name,
+                        f"{msg_name} skill icon.dds",
                     ),
                     parsed_args=parsed_args,
                 )
@@ -376,7 +377,7 @@ class SkillParserShared(parser.BaseParser):
             )
 
             # Remove 0 (unused) stats
-            remove_ids = [stat for stat, value in zip(stats, values) if value == 0]
+            remove_ids = [stat for stat, value in zip(stats, values, strict=False) if value == 0]
             for stat_id in remove_ids:
                 index = stats.index(stat_id)
                 if values[index] == 0:
@@ -405,20 +406,14 @@ class SkillParserShared(parser.BaseParser):
                     except ValueError:
                         break
 
-                    try:
+                    with contextlib.suppress(IndexError):
                         del values[index]
-                    except IndexError:
-                        pass
 
-                    try:
+                    with contextlib.suppress(IndexError):
                         del values_parsed[index]
-                    except IndexError:
-                        pass
 
-                    try:
+                    with contextlib.suppress(IndexError):
                         del stats[index]
-                    except IndexError:
-                        pass
                 if tr.values[j] == 0:
                     continue
                 k = "__".join(stats)
@@ -430,7 +425,7 @@ class SkillParserShared(parser.BaseParser):
                     "values_parsed": values_parsed,
                 }
             for stat, value in tr.missing:
-                warnings.warn("Missing translation for %s" % stat)
+                warnings.warn(f"Missing translation for {stat}", stacklevel=2)
                 stat_key_order["stats"][stat] = None
                 data["stats"][stat] = {
                     "line": "",
@@ -558,7 +553,7 @@ class SkillParserShared(parser.BaseParser):
 
             self._write_stats(
                 infobox,
-                zip(stat_ids, row["StatsValuesPermille"]),
+                zip(stat_ids, row["StatsValuesPermille"], strict=False),
                 prefix,
             )
 
@@ -633,7 +628,7 @@ class SkillParserShared(parser.BaseParser):
             if line:
                 lines.append(line)
 
-        self._write_stats(infobox, zip(stats, values), "static_")
+        self._write_stats(infobox, zip(stats, values, strict=False), "static_")
 
         # Add the attack damage stat from the game data
         if ae:
@@ -706,7 +701,7 @@ class SkillParserShared(parser.BaseParser):
                 values.extend(stat_dict["values"])
             if lines:
                 infobox[prefix + "stat_text"] = self._format_lines(lines)
-            self._write_stats(infobox, zip(stats, values), prefix)
+            self._write_stats(infobox, zip(stats, values, strict=False), prefix)
 
         return True
 
@@ -730,7 +725,7 @@ class SkillParser(SkillParserShared):
 
     def export(self, parsed_args, skills):
         self._image_init(parsed_args=parsed_args)
-        console("Found %s skills, parsing..." % len(skills))
+        console(f"Found {len(skills)} skills, parsing...")
         self.rr["SkillGems.dat"].build_index("GrantedEffectsKey")
         r = ExporterResult()
         for skill in skills:
@@ -738,14 +733,14 @@ class SkillParser(SkillParserShared):
                 not parsed_args.allow_skill_gems
                 and skill in self.rr["SkillGems.dat"].index["GrantedEffectsKey"]
             ):
-                console('Skipping skill gem skill "%s"' % skill["Id"], msg=Msg.warning)
+                console('Skipping skill gem skill "{}"'.format(skill["Id"]), msg=Msg.warning)
                 continue
             data: OrderedDict[str, Any] = OrderedDict()
 
             try:
                 self._skill(ge=skill, infobox=data, parsed_args=parsed_args)
             except Exception:
-                console('Error when parsing skill "%s":' % skill["Id"], msg=Msg.error)
+                console('Error when parsing skill "{}":'.format(skill["Id"]), msg=Msg.error)
                 console(traceback.format_exc(), msg=Msg.error)
 
             cond = WikiCondition(
@@ -755,7 +750,7 @@ class SkillParser(SkillParserShared):
 
             r.add_result(
                 text=cond,
-                out_file="skill_%s.txt" % data["skill_id"],
+                out_file="skill_{}.txt".format(data["skill_id"]),
                 wiki_page=[
                     {
                         "page": "Skill:" + self._format_wiki_title(data["skill_id"]),

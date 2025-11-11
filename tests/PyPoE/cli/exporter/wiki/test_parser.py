@@ -218,11 +218,11 @@ class TestBaseParser:
         stats = []
         values = []
         for i in MOD_STATS_RANGE:
-            k = mod["StatsKey%s" % i]
+            k = mod[f"StatsKey{i}"]
             if k is None:
                 continue
             stat = k["Id"]
-            value = mod["Stat%sMin" % i], mod["Stat%sMax" % i]
+            value = mod[f"Stat{i}Min"], mod[f"Stat{i}Max"]
 
             if value[0] == 0 and value[1] == 0:
                 continue
@@ -238,7 +238,7 @@ class TestTagHandler:
         missing_handlers = set()
         for tag in divination_card_texts:
             try:
-                text = tag.handle_tags(tag_handler_obj.tag_handlers)
+                tag.handle_tags(tag_handler_obj.tag_handlers)
             except KeyError as e:
                 missing_handlers.add(e.args[0])
 

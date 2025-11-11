@@ -78,4 +78,4 @@ if __name__ == "__main__":
         f.write(".. autosummary::\n")
         f.write("    :toctree: _autosummary\n    \n")
         for path in outpaths:
-            f.write("    %s\n" % path)
+            f.write(f"    {path}\n")

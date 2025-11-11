@@ -149,12 +149,12 @@ class ModParser(BaseParser):
         mylist.append(heading)
 
         for line in result.lines:
-            mylist.append("* %s" % line)
+            mylist.append(f"* {line}")
         for i, stat_id in enumerate(result.missing_ids):
             value = result.missing_values[i]
             if hasattr(value, "__iter__"):
-                value = "(%s to %s)" % tuple(value)
-            mylist.append("* %s %s" % (stat_id, value))
+                value = "({} to {})".format(*tuple(value))
+            mylist.append(f"* {stat_id} {value}")
 
     def by_rowid(self, parsed_args):
         return self._export(
@@ -205,7 +205,7 @@ class ModParser(BaseParser):
         r = ExporterResult()
 
         if mods:
-            console("Found %s mods. Processing..." % len(mods))
+            console(f"Found {len(mods)} mods. Processing...")
         else:
             console("No mods found for the specified parameters. Quitting.", msg=Msg.warning)
             return r
@@ -248,12 +248,12 @@ class ModParser(BaseParser):
             stats = []
             values = []
             for i in MOD_STATS_RANGE:
-                k = mod["StatsKey%s" % i]
+                k = mod[f"StatsKey{i}"]
                 if k is None:
                     continue
 
                 stat = k["Id"]
-                value = mod["Stat%sMin" % i], mod["Stat%sMax" % i]
+                value = mod[f"Stat{i}Min"], mod[f"Stat{i}Max"]
 
                 if value[0] == 0 and value[1] == 0:
                     continue
@@ -263,20 +263,20 @@ class ModParser(BaseParser):
 
             data["stat_text"] = "<br>".join(self._get_stats(stats, values, mod))
 
-            for i, (sid, (vmin, vmax)) in enumerate(zip(stats, values), start=1):
-                data["stat%s_id" % i] = sid
-                data["stat%s_min" % i] = vmin
-                data["stat%s_max" % i] = vmax
+            for i, (sid, (vmin, vmax)) in enumerate(zip(stats, values, strict=False), start=1):
+                data[f"stat{i}_id"] = sid
+                data[f"stat{i}_min"] = vmin
+                data[f"stat{i}_max"] = vmax
 
             for i, tag in enumerate(mod["SpawnWeight_TagsKeys"]):
                 j = i + 1
-                data["spawn_weight%s_tag" % j] = tag["Id"]
-                data["spawn_weight%s_value" % j] = mod["SpawnWeight_Values"][i]
+                data[f"spawn_weight{j}_tag"] = tag["Id"]
+                data[f"spawn_weight{j}_value"] = mod["SpawnWeight_Values"][i]
 
             for i, tag in enumerate(mod["GenerationWeight_TagsKeys"]):
                 j = i + 1
-                data["generation_weight%s_tag" % j] = tag["Id"]
-                data["generation_weight%s_value" % j] = mod["GenerationWeight_Values"][i]
+                data[f"generation_weight{j}_tag"] = tag["Id"]
+                data[f"generation_weight{j}_value"] = mod["GenerationWeight_Values"][i]
 
             tags = ", ".join(
                 [t["Id"] for t in mod["ModTypeKey"]["TagsKeys"]]
@@ -291,17 +291,17 @@ class ModParser(BaseParser):
                     for i, (item_id, amount) in enumerate(
                         MOD_SELL_PRICES[msp["Id"]].items(), start=1
                     ):
-                        data["sell_price%s_name" % i] = self.rr["BaseItemTypes.dat"].index["Id"][
+                        data[f"sell_price{i}_name"] = self.rr["BaseItemTypes.dat"].index["Id"][
                             item_id
                         ]["Name"]
-                        data["sell_price%s_amount" % i] = amount
+                        data[f"sell_price{i}_amount"] = amount
 
                 # Make sure this is always the same order
                 sell_price = sorted(sell_price.items(), key=lambda x: x[0])  # type: ignore[assignment]
 
                 for i, (item_name, amount) in enumerate(sell_price, start=1):
-                    data["sell_price%s_name" % i] = item_name
-                    data["sell_price%s_amount" % i] = amount
+                    data[f"sell_price{i}_name"] = item_name
+                    data[f"sell_price{i}_amount"] = amount
 
             # 3+ tildes not allowed
             page_name = "Modifier:" + self._format_wiki_title(mod["Id"])
@@ -309,7 +309,7 @@ class ModParser(BaseParser):
 
             r.add_result(
                 text=cond,
-                out_file="mod_%s.txt" % data["id"],
+                out_file="mod_{}.txt".format(data["id"]),
                 wiki_page=[
                     {"page": page_name, "condition": cond},
                 ],
@@ -333,7 +333,7 @@ class ModParser(BaseParser):
 
             stats = []
             for i in MOD_STATS_RANGE:
-                stat = mod["StatsKey%s" % i]
+                stat = mod[f"StatsKey{i}"]
                 if stat:
                     stats.append(stat)
 
@@ -346,7 +346,7 @@ class ModParser(BaseParser):
 
             for i, stat in enumerate(stats):
                 j = i + 1
-                values = [mod["Stat%sMin" % j], mod["Stat%sMax" % j]]
+                values = [mod[f"Stat{j}Min"], mod[f"Stat{j}Max"]]
                 if values[0] == values[1]:
                     values = values[0]
                 stat_values.append(values)
@@ -392,8 +392,8 @@ class ModParser(BaseParser):
         out = []
         for info in data:
             out.append("|-\n")
-            out.append("| %s\n" % info["name"])
-            out.append("| %s\n" % info["effect"])
+            out.append("| {}\n".format(info["name"]))
+            out.append("| {}\n".format(info["effect"]))
             out.append("| \n")
 
         r = ExporterResult()

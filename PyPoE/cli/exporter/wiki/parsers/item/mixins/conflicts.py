@@ -43,14 +43,14 @@ class ConflictsMixin:
                 qid = qid.replace(ver[0], "")
 
             try:
-                return base_item_type["Name"] + " (%s)" % rr["Quest.dat"].index["Id"][qid]["Name"]
+                return base_item_type["Name"] + " ({})".format(rr["Quest.dat"].index["Id"][qid]["Name"])
             except KeyError:
-                console("Quest %s not found" % qid, msg=Msg.error)
+                console(f"Quest {qid} not found", msg=Msg.error)
         else:
             # Descent skill books
             match = re.match(r"SkillBooks/Descent2_(?P<id>[0-9]+)", qid)
             if match:
-                return base_item_type["Name"] + " (%s %s)" % (
+                return base_item_type["Name"] + " ({} {})".format(
                     self._LANG[language]["descent"],
                     match.group("id"),
                 )
@@ -58,14 +58,14 @@ class ConflictsMixin:
                 # Bandit respec
                 match = re.match(r"SkillBooks/BanditRespec(?P<id>.+)", qid)
                 if match:
-                    return base_item_type["Name"] + " (%s)" % match.group("id")
+                    return base_item_type["Name"] + " ({})".format(match.group("id"))
                 else:
                     match = re.match(
                         r"Metadata/Items/QuestItems/Act7/Firefly(?P<id>[0-9]+)$",
                         base_item_type["Id"],
                     )
                     if match:
-                        pageid = "%s (%s)" % (
+                        pageid = "{} ({})".format(
                             base_item_type["Name"],
                             self._LANG[language]["of"] % (match.group("id"), 7),
                         )
@@ -123,7 +123,7 @@ class ConflictsMixin:
         return base_item_type["Name"]
 
     def _conflict_divination_card(self, infobox, base_item_type, rr, language):
-        return "%s (%s)" % (
+        return "{} ({})".format(
             base_item_type["Name"],
             base_item_type["ItemClassesKey"]["Name"].lower(),
         )

@@ -114,7 +114,7 @@ class OutputHook:
             "lineno": lineno,
             "line": line,
         }
-        f = "%(filename)s:%(lineno)s:\n%(category)s: %(message)s\n" % kwargs
+        f = "{filename}:{lineno}:\n{category}: {message}\n".format(**kwargs)
         return console(f, msg=Msg.warning, rtr=True)
 
     #
@@ -186,10 +186,7 @@ def console(message, msg=Msg.default, rtr=False, raw=False):
         f = message
     else:
         timestamp = strftime("%X ")
-        if msg.value:
-            f = f"[{msg.value}]{timestamp}{message}[/]"
-        else:
-            f = f"{timestamp}{message}"
+        f = f"[{msg.value}]{timestamp}{message}[/]" if msg.value else f"{timestamp}{message}"
     if rtr:
         return f
     else:

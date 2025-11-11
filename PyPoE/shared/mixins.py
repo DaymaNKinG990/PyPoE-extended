@@ -126,12 +126,12 @@ class ReprMixin:
             if s is None:
                 continue
 
-            args.append("%s=%s" % (parameter.name, s))
+            args.append(f"{parameter.name}={s}")
 
         for k, v in self._REPR_EXTRA_ATTRIBUTES.items():
-            args.append("%s=%s" % (k, self.__get_repr_obj(v or k, False)))
+            args.append(f"{k}={self.__get_repr_obj(v or k, False)}")
 
-        return "%s<%s>(%s)" % (
+        return "{}<{}>({})".format(
             self.__class__.__name__,
             hex(id(self)),
             ", ".join(args),

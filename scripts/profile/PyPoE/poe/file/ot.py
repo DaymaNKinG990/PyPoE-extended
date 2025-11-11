@@ -66,14 +66,14 @@ if __name__ == "__main__":
     def run():
         f = "C:/Temp/"
         sections = set()
-        for path, dirnames, filenames in os.walk(f):
+        for path, _dirnames, filenames in os.walk(f):
             for filename in filenames:
                 if not filename.endswith(".ot"):
                     continue
 
                 ot = OTFile(parent_or_base_dir_or_ggpk=f)
                 ot.read(os.path.join(path, filename))
-                for k in ot.keys():
+                for k in ot:
                     sections.add(k)
 
         sections = list(sections)

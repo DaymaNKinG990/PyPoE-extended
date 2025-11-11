@@ -82,6 +82,7 @@ Exceptions & Warnings
 # =============================================================================
 
 # Python
+import contextlib
 import re
 import warnings
 from collections import OrderedDict, defaultdict
@@ -147,22 +148,21 @@ class AbstractKeyValueSection(dict):
                     return
                 else:
                     value = OrderedDict(((value, True),))
-        elif key in self.APPEND_KEYS:
-            if not isinstance(value, list):
-                if key in self:
-                    self[key].append(value)
-                    return
-                else:
-                    value = [
-                        value,
-                    ]
+        elif key in self.APPEND_KEYS and not isinstance(value, list):
+            if key in self:
+                self[key].append(value)
+                return
+            else:
+                value = [
+                    value,
+                ]
         super().__setitem__(key, value)
 
     def merge(self, other: "AbstractKeyValueSection"):
         if not isinstance(other, AbstractKeyValueSection):
             raise TypeError(
-                'Other must be a AbstractKeyValuesSection instance, got "%s" '
-                "instead." % other.__class__.__name__
+                f'Other must be a AbstractKeyValuesSection instance, got "{other.__class__.__name__}" '
+                "instead."
             )
 
         for k, v in other.items():
@@ -296,12 +296,7 @@ class AbstractKeyValueFile(AbstractFile, defaultdict):
         raise NotImplementedError()
 
     def __repr__(self) -> str:
-        return '%(name)s(extends="%(extends)s", version="%(version)s", keys=%(keys)s' % {
-            "name": self.__class__.__name__,
-            "extends": self.extends,
-            "version": self.version,
-            "keys": defaultdict.__repr__(self),
-        }
+        return f'{self.__class__.__name__}(extends="{self.extends}", version="{self.version}", keys={defaultdict.__repr__(self)}'
 
     @doc(doc=AbstractFile._read)
     def _read(self, buffer, *args, **kwargs):
@@ -309,7 +304,7 @@ class AbstractKeyValueFile(AbstractFile, defaultdict):
 
         match = self._re_header.match(data)
         if match is None:
-            raise ParserError("File is not a valid %s file." % self.__class__.__name__)
+            raise ParserError(f"File is not a valid {self.__class__.__name__} file.")
 
         self.version = int(match.group("version"))
 
@@ -333,10 +328,8 @@ class AbstractKeyValueFile(AbstractFile, defaultdict):
                     try:
                         value = int(value)
                     except ValueError:
-                        try:
+                        with contextlib.suppress(ValueError):
                             value = float(value)
-                        except ValueError:
-                            pass
 
                 section[kv_match.group("key")] = value
 
@@ -349,9 +342,9 @@ class AbstractKeyValueFile(AbstractFile, defaultdict):
                 self.merge(self._parent_file)
                 if self._parent_file.name != extend:  # type: ignore[attr-defined]
                     warnings.warn(
-                        'Parent file name "%s" doesn\'t match extended file '
-                        'name "%s"' % (self._parent_file.name, extend),  # type: ignore[attr-defined]
-                        ParserWarning,
+                        f'Parent file name "{self._parent_file.name}" doesn\'t match extended file '
+                        f'name "{extend}"',  # type: ignore[attr-defined]
+                        ParserWarning, stacklevel=2,
                     )
             elif self._parent_file_system:
                 obj = self.__class__(parent_or_file_system=self._parent_file_system)
@@ -361,15 +354,15 @@ class AbstractKeyValueFile(AbstractFile, defaultdict):
                 self.merge(obj)
             else:
                 raise ParserError(
-                    'File extends "%s", but parent_or_file_system has not '
-                    "been specified on class creation." % extend
+                    f'File extends "{extend}", but parent_or_file_system has not '
+                    "been specified on class creation."
                 )
             self.extends = extend
 
     @doc(doc=AbstractFile._write)
     def _write(self, buffer, *args, **kwargs):
         lines = [
-            "version %s" % self.version,
+            f"version {self.version}",
             'extends "%s"' % (self.extends if self.extends else "nothing"),
         ]
 
@@ -398,7 +391,7 @@ class AbstractKeyValueFile(AbstractFile, defaultdict):
         return super().write(*args, **kwargs)
 
     def _get_write_line(self, key, value):
-        return '\t%s = "%s"' % (key, value)
+        return f'\t{key} = "{value}"'
 
     def merge(self, other: "AbstractKeyValueFile"):
         """
@@ -418,7 +411,7 @@ class AbstractKeyValueFile(AbstractFile, defaultdict):
         if not isinstance(other, self.__class__):
             raise ValueError(
                 "Can't merge only with classes with the same base class, got "
-                '"%s" instead' % other.__class__.__name__
+                f'"{other.__class__.__name__}" instead'
             )
 
         for k, v in other.items():

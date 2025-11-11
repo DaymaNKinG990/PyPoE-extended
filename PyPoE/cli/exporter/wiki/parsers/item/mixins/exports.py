@@ -74,7 +74,7 @@ class ExportsMixin:
         for atlas_node in self.rr["AtlasNode.dat"]:
             if not atlas_node["ItemVisualIdentityKey"]["DDSFile"]:
                 warnings.warn(
-                    "Missing 2d art inventory icon at index %s" % atlas_node.index,
+                    f"Missing 2d art inventory icon at index {atlas_node.index}", stacklevel=2,
                 )
                 continue
 
@@ -93,8 +93,7 @@ class ExportsMixin:
                 for name, color in self._MAP_COLORS.items():
                     # -tint
                     os.system(
-                        '''magick convert "%s" -fill rgb(%s) -tint 100 "%s"'''
-                        % (ico, color, ico.replace(".png", " %s.png" % name))
+                        '''magick convert "{}" -fill rgb({}) -tint 100 "{}"'''.format(ico, color, ico.replace(".png", f" {name}.png"))
                     )
 
         return r
@@ -160,7 +159,7 @@ class ExportsMixin:
             maps = row["MapsKey"]
             base_item_type = maps["BaseItemTypesKey"]
             name = self._format_map_name(base_item_type, map_series)
-            tier = row["%sTier" % map_series["Id"]]
+            tier = row["{}Tier".format(map_series["Id"])]
 
             # Base info
             infobox: OrderedDict[str, Any] = OrderedDict()
@@ -195,15 +194,14 @@ class ExportsMixin:
                     minimum = 0
                     connections: defaultdict = defaultdict(lambda: ["False" for i in range(0, 5)])
                     for i in range(0, 5):
-                        tier = atlas_node["Tier%s" % i]
-                        infobox["atlas_x%s" % i] = atlas_node["X%s" % i]
-                        infobox["atlas_y%s" % i] = atlas_node["Y%s" % i]
-                        infobox["atlas_map_tier%s" % i] = tier
-                        if tier:
-                            if minimum == 0:
-                                minimum = i
+                        tier = atlas_node[f"Tier{i}"]
+                        infobox[f"atlas_x{i}"] = atlas_node[f"X{i}"]
+                        infobox[f"atlas_y{i}"] = atlas_node[f"Y{i}"]
+                        infobox[f"atlas_map_tier{i}"] = tier
+                        if tier and minimum == 0:
+                            minimum = i
 
-                        for atlas_node2 in atlas_node["AtlasNodeKeys%s" % i]:
+                        for atlas_node2 in atlas_node[f"AtlasNodeKeys{i}"]:
                             ivi = atlas_node2["ItemVisualIdentityKey"]
                             if ivi["IsAtlasOfWorldsMapIcon"]:
                                 key = self._format_map_name(
@@ -211,7 +209,7 @@ class ExportsMixin:
                                     map_series,
                                 )
                             else:
-                                key = "%s (%s)" % (
+                                key = "{} ({})".format(
                                     self.rr["UniqueMaps.dat"].index["ItemVisualIdentityKey"][ivi][
                                         "WordsKey"
                                     ]["Text"],
@@ -221,8 +219,8 @@ class ExportsMixin:
 
                     infobox["atlas_region_minimum"] = minimum
                     for i, (k, v) in enumerate(connections.items(), start=1):
-                        infobox["atlas_connection%s_target" % i] = k
-                        infobox["atlas_connection%s_tier" % i] = ", ".join(v)
+                        infobox[f"atlas_connection{i}_target"] = k
+                        infobox[f"atlas_connection{i}_tier"] = ", ".join(v)
 
                 infobox["flavour_text"] = (
                     atlas_node["FlavourTextKey"]["Text"].replace("\n", "<br>").replace("\r", "")
@@ -252,7 +250,7 @@ class ExportsMixin:
 
             r.add_result(
                 text=cond,
-                out_file="map_%s.txt" % name,
+                out_file=f"map_{name}.txt",
                 wiki_page=[
                     {
                         "page": name,
@@ -265,7 +263,7 @@ class ExportsMixin:
             if parsed_args.store_images:
                 if atlas_node is None or not atlas_node["ItemVisualIdentityKey"]["DDSFile"]:
                     warnings.warn(
-                        'Missing 2d art inventory icon for item "%s"' % base_item_type["Name"]
+                        'Missing 2d art inventory icon for item "{}"'.format(base_item_type["Name"]), stacklevel=2
                     )
                     continue
 
@@ -286,11 +284,10 @@ class ExportsMixin:
                     color = self._MAP_COLORS["high tier"]
                 if color:
                     os.system(
-                        '''magick convert "%s" -fill rgb(%s) -colorize 100 "%s"'''
-                        % (ico, color, ico)
+                        f'''magick convert "{ico}" -fill rgb({color}) -colorize 100 "{ico}"'''
                     )
 
-                os.system('magick composite -gravity center "%s" "%s" "%s"' % (ico, base_ico, ico))
+                os.system(f'magick composite -gravity center "{ico}" "{base_ico}" "{ico}"')
 
         return r
 

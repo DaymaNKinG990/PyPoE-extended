@@ -52,6 +52,7 @@ Internal API
 # =============================================================================
 
 # Python
+import contextlib
 import io
 import os
 import select
@@ -400,7 +401,7 @@ def node_outdated_files(
     )
 
     download_list: dict[str, Any] = {}
-    for node, checksum, match in node_hash_list:
+    for node, _checksum, match in node_hash_list:
         # For files that did not match
         if isinstance(node.record, FileRecord) and not match:
             try:
@@ -496,10 +497,8 @@ def node_update_files(
             except FileNotFoundError:
                 pass
 
-            try:
+            with contextlib.suppress(FileNotFoundError):
                 os.remove(node_path, dir_fd=dir_fd)
-            except FileNotFoundError:
-                pass
 
             os.symlink(link_source_rel, node_path, dir_fd=dir_fd)
 
@@ -558,10 +557,8 @@ class Patch:
         """
 
         sock = socket_fd_open(self.sock_fd)
-        try:
+        with contextlib.suppress(OSError):
             sock.shutdown(socket.SHUT_RDWR)
-        except OSError:
-            pass
         try:
             sock.close()
         except OSError:
@@ -586,13 +583,13 @@ class Patch:
             sock.send(Patch._PROTO)
             data = io.BytesIO(sock.recv(1024))
 
-            unknown = struct.unpack("B", data.read(1))[0]
-            blank = struct.unpack("33s", data.read(33))[0]
+            struct.unpack("B", data.read(1))[0]
+            struct.unpack("33s", data.read(33))[0]
 
             url_length = struct.unpack("B", data.read(1))[0]
             self.patch_url = data.read(url_length * 2).decode("utf-16")
 
-            blank = struct.unpack("B", data.read(1))[0]
+            struct.unpack("B", data.read(1))[0]
 
             url2_length = struct.unpack("B", data.read(1))[0]
             self.patch_cdn_url = data.read(url2_length * 2).decode("utf-16")
@@ -671,10 +668,10 @@ class Patch:
         for index, host in enumerate(hosts):
             try:
                 with request.urlopen(
-                    url="%s%s" % (host, file_path),
+                    url=f"{host}{file_path}",
                 ) as robj:
                     if robj.getcode() != 200:
-                        raise ValueError("HTTP response code: %s" % robj.getcode())
+                        raise ValueError(f"HTTP response code: {robj.getcode()}")
                     return robj.read()
             except URLError as url_error:
                 # try alternate patch url if connection refused
@@ -1010,7 +1007,7 @@ class PatchFileList:
 
             folder_directory_nodes = []
 
-            for item in range(0, item_count):
+            for _item in range(0, item_count):
                 header = struct.unpack("2s", self.read(2))[0]
                 if header == b"\x00\x00":
                     tag = "FILE"
@@ -1146,13 +1143,12 @@ class DirectoryNodeExtended(DirectoryNode):
         else:
             record_dict["name"] = "ROOT"
 
-        if recurse is True:
-            if len(self.children) > 1:
-                children: list[dict[str, Any]] = []
-                record_dict["children"] = children  # type: ignore[assignment]
+        if recurse is True and len(self.children) > 1:
+            children: list[dict[str, Any]] = []
+            record_dict["children"] = children  # type: ignore[assignment]
 
-                for child in self.children:
-                    children.append(child.get_dict())  # type: ignore[attr-defined]
+            for child in self.children:
+                children.append(child.get_dict())  # type: ignore[attr-defined]
 
         return record_dict
 

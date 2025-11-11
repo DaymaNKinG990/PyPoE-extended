@@ -179,7 +179,7 @@ class ConfigHelper(ConfigObj):
             if the key is a duplicate
         """
         if key in self.optionspec:
-            raise KeyError("Duplicate key: %s" % key)
+            raise KeyError(f"Duplicate key: {key}")
         self.optionspec[key] = specification
 
     def get_option(self, key, safe=True):
@@ -212,16 +212,15 @@ class ConfigHelper(ConfigObj):
         SetupError
             if the setup for the key was not performed
         """
-        if safe and key in self.setup:
-            if not self.setup[key]["performed"]:
-                raise SetupError("Setup not performed.")
+        if safe and key in self.setup and not self.setup[key]["performed"]:
+            raise SetupError("Setup not performed.")
         try:
             value = self.option[key]
         except KeyError:
             console(
-                'Config variable "%s" is not configured. Consider running:' % key, msg=Msg.error
+                f'Config variable "{key}" is not configured. Consider running:', msg=Msg.error
             )
-            console('config set "%s" "<value>"' % key, msg=Msg.error)
+            console(f'config set "{key}" "<value>"', msg=Msg.error)
             console("Exiting...", msg=Msg.error)
             sys.exit(-1)
 
@@ -369,9 +368,9 @@ class ConfigHelper(ConfigObj):
 
         """
         if setup_key not in self.setupspec:
-            raise KeyError('Setup key "%s" is invalid' % setup_key)
+            raise KeyError(f'Setup key "{setup_key}" is invalid')
         if variable_key in self.setupspec[setup_key]:
-            raise KeyError("Duplicate key: %s" % variable_key)
+            raise KeyError(f"Duplicate key: {variable_key}")
         self.setupspec[setup_key][variable_key] = specification
 
     def get_setup_variable(self, setup_key, variable_key):
@@ -474,5 +473,5 @@ class ConfigHelper(ConfigObj):
             if setup is not performed
         """
         if not self.is_setup(variable):
-            raise SetupError("Setup for %s not performed" % variable)
+            raise SetupError(f"Setup for {variable} not performed")
         return True

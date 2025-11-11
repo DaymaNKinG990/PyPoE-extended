@@ -71,17 +71,17 @@ def convert_spec(inpath, outpath):
         file = spec[file_key]
 
         add_comments(spec.comments[file_key], 4)
-        out.append(" " * 4 + "'%s': File(" % file_key)
+        out.append(" " * 4 + f"'{file_key}': File(")
         for subsection_key in file:
             subsection = file[subsection_key]
             add_comments(file.comments[subsection_key], 8)
-            out.append(" " * 8 + "%s=OrderedDict((" % subsection_key)
+            out.append(" " * 8 + f"{subsection_key}=OrderedDict((")
             for field_key in subsection:
                 field = subsection[field_key]
                 add_comments(subsection.comments[field_key], 12)
 
                 class_name = classes[subsection_key]
-                out.append(" " * 12 + "('%s', %s(" % (field_key, class_name))
+                out.append(" " * 12 + f"('{field_key}', {class_name}(")
                 for key, value in field.items():
                     add_comments(field.comments[key], 16)
                     if key in (
@@ -97,13 +97,12 @@ def convert_spec(inpath, outpath):
                         if isinstance(value, list):
                             value = ", ".join(value)
                         value = value.replace("\n", "").replace("'", '"')
-                        value = "'%s'" % value
+                        value = f"'{value}'"
                     elif key == "fields":
                         value = "('" + "', '".join(value) + "')"
                     out.append(
                         " " * 16
-                        + "%s=%s,%s"
-                        % (
+                        + "{}={},{}".format(
                             key,
                             value,
                             field.inline_comments[key] if field.inline_comments[key] else "",

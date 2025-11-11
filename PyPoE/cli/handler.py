@@ -76,7 +76,7 @@ class BaseHandler:
         return 0
 
     def _show_error(self, e):
-        console("%s: %s" % (e.__class__.__name__, "".join(e.args)), msg=Msg.error)
+        console("{}: {}".format(e.__class__.__name__, "".join(e.args)), msg=Msg.error)
         return -1
 
     def print_sep(self, char="-"):
@@ -187,20 +187,20 @@ class ConfigHandler(BaseHandler):
         configured = spec.difference(missing)
 
         console("Current stored config variables:")
-        for key in sorted(list(configured)):
-            console("%s: %s" % (key, self.config.option[key]))
+        for key in sorted(configured):
+            console(f"{key}: {self.config.option[key]}")
 
         if missing:
             console("", raw=True)
             console("Missing config variables (require config set):", msg=Msg.error)
-            for key in sorted(list(missing)):
-                console("%s" % (key,), Msg.error)
+            for key in sorted(missing):
+                console(f"{key}", Msg.error)
 
         if extra:
             console("", raw=True)
             console("Extra variables (unused):", msg=Msg.warning)
-            for key in sorted(list(extra)):
-                console("%s: %s" % (key, self.config.option[key]), msg=Msg.warning)
+            for key in sorted(extra):
+                console(f"{key}: {self.config.option[key]}", msg=Msg.warning)
 
         return 0
 
@@ -219,8 +219,7 @@ class ConfigHandler(BaseHandler):
             success code
         """
         console(
-            'Config setting "%s" is currently set to:\n%s'
-            % (args.variable, self.config.option[args.variable])
+            f'Config setting "{args.variable}" is currently set to:\n{self.config.option[args.variable]}'
         )
         return 0
 
@@ -244,7 +243,7 @@ class ConfigHandler(BaseHandler):
             return self._show_error(e)
         self.config.write()
 
-        console('Config setting "%s" has been set to:\n%s' % (args.variable, args.value))
+        console(f'Config setting "{args.variable}" has been set to:\n{args.value}')
 
         if self.config.needs_setup(args.variable) and not self.config.is_setup(args.variable):
             console("", raw=True)
@@ -301,7 +300,7 @@ class SetupHandler(BaseHandler):
             section = self.config["Setup"][key]
             if section["performed"]:
                 continue
-            console("Performing setup for: %s" % key)
+            console(f"Performing setup for: {key}")
             try:
                 for func in section.functions:
                     func(args)

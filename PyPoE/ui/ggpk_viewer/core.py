@@ -219,11 +219,7 @@ class GGPKViewerMainWindow(SharedMainWindow):
             qwidget = obj.get_widget(node.record.extract(), file_name=node.record.name, parent=self)
         except Exception as e:
             msg = self.tr(
-                "%(error)s occurred when trying to open %(file)s"
-                % {
-                    "file": node.record.name,
-                    "error": e.__class__.__name__,
-                }
+                f"{e.__class__.__name__} occurred when trying to open {node.record.name}"
             )
             fullmsg = msg + ": \n\n" + format_exc()
 

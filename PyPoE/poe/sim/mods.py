@@ -202,7 +202,7 @@ class SpawnChanceCalculator:
         elif isinstance(mod_or_id, DatRecord):
             mod = mod_or_id
         else:
-            raise TypeError('mod_or_id is of invalid type "%s"' % type(mod_or_id))
+            raise TypeError(f'mod_or_id is of invalid type "{type(mod_or_id)}"')
 
         weight = self.get_spawn_weight(mod)
         chance = weight / self.total_spawn_weight
@@ -274,7 +274,7 @@ def get_translation(mod, translation_cache, translation_file=None, **kwargs):
     """
     stats = []
     for i in MOD_STATS_RANGE:
-        stat = mod["StatsKey%s" % i]
+        stat = mod[f"StatsKey{i}"]
         if stat:
             stats.append(stat)
 
@@ -282,7 +282,7 @@ def get_translation(mod, translation_cache, translation_file=None, **kwargs):
     values = []
     for i, stat in enumerate(stats):
         j = i + 1
-        values.append([mod["Stat%sMin" % j], mod["Stat%sMax" % j]])
+        values.append([mod[f"Stat{j}Min"], mod[f"Stat{j}Max"]])
         ids.append(stat["Id"])
 
     if translation_file is None:
@@ -348,9 +348,7 @@ def generate_spawnable_mod_list(
     domain,
     generation_type,
     level=1,
-    tags=[
-        "default",
-    ],
+    tags=None,
 ):
     """
     Generates a list of modifiers that can be spawned for the specified
@@ -385,6 +383,8 @@ def generate_spawnable_mod_list(
         if domain is not a valid MOD_DOMAIN constant
         if generation_type is not a valid MOD_GENERATION_TYPE constant
     """
+    if tags is None:
+        tags = ["default"]
     if not isinstance(domain, MOD_DOMAIN):
         raise TypeError("domain must be a MOD_DOMAIN instance.")
 

@@ -81,10 +81,11 @@ class CustomOpenAction(GGPKOpenAction):
         self._thread.start()
 
     def _ggpk_sort(self, node, depth, **kwargs):
-        sorter = lambda obj: (
-            isinstance(getattr(obj, "record", None), FileRecord),
-            getattr(obj, "name", str(obj)),
-        )
+        def sorter(obj):
+            return (
+                    isinstance(getattr(obj, "record", None), FileRecord),
+                    getattr(obj, "name", str(obj)),
+                )
         # Check if children is a dict or list and sort accordingly
         if isinstance(node.children, dict):
             # Keep as dict after sorting
@@ -171,7 +172,7 @@ class MiscMenu(QMenu):
 
         v = p.s_general.version
 
-        p._write_log(self.tr("Reloading default specification... (%s)" % v))
+        p._write_log(self.tr(f"Reloading default specification... ({v})"))
         # MVVM: Use ViewModel to reload specification
         p.viewmodel.reload_specification(v)
         # Update reference for backward compatibility

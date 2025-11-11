@@ -125,10 +125,7 @@ class PoEPath:
         self.distributor = distributor
 
     def _get_winreg_path(self, regpath, regkey, user=True):
-        if user:
-            key = winreg.HKEY_CURRENT_USER
-        else:
-            key = winreg.HKEY_LOCAL_MACHINE
+        key = winreg.HKEY_CURRENT_USER if user else winreg.HKEY_LOCAL_MACHINE
 
         try:
             obj = winreg.OpenKey(key, regpath)
@@ -183,11 +180,10 @@ class PoEPath:
                 basepath = os.path.join(basepath, "Path of Exile")
                 paths.append(basepath, VERSION.ALL, DISTRIBUTOR.STEAM)
 
-        if self.distributor & DISTRIBUTOR.GARENA:
-            if self.version & VERSION.STABLE:
-                basepath = self._get_winreg_path(
-                    r"SOFTWARE\Wow6432Node\Garena\PoE", "Path", user=False
-                )
-                paths.append(basepath, VERSION.STABLE, DISTRIBUTOR.GARENA)
+        if self.distributor & DISTRIBUTOR.GARENA and self.version & VERSION.STABLE:
+            basepath = self._get_winreg_path(
+                r"SOFTWARE\Wow6432Node\Garena\PoE", "Path", user=False
+            )
+            paths.append(basepath, VERSION.STABLE, DISTRIBUTOR.GARENA)
 
         return paths

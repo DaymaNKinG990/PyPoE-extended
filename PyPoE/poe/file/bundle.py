@@ -94,8 +94,8 @@ __all__ = [
 
 if cffi:
     ffi = cffi.FFI()
-    ffi.cdef("""int Ooz_Decompress(uint8_t const* src_buf, int src_len, 
-            uint8_t* dst, size_t dst_size, int, int, int, uint8_t*, size_t, 
+    ffi.cdef("""int Ooz_Decompress(uint8_t const* src_buf, int src_len,
+            uint8_t* dst, size_t dst_size, int, int, int, uint8_t*, size_t,
             void*, void*, void*, size_t, int);""")
     try:
         ooz = ffi.dlopen(r"libooz.dll")
@@ -191,7 +191,7 @@ class Bundle(AbstractFileReadOnly):
         self.unknown5 = data[8]
         self.unknown6 = data[9]
 
-        self.chunks = struct.unpack_from("<%sI" % self.entry_count, raw, offset=offset)
+        self.chunks = struct.unpack_from(f"<{self.entry_count}I", raw, offset=offset)
         offset += self.entry_count * 4
 
         for i in range(0, self.entry_count):
@@ -259,9 +259,9 @@ class Bundle(AbstractFileReadOnly):
         else:
             with TemporaryDirectory() as tempdir:
                 for i in range(start, end):  # type: ignore[arg-type]
-                    fn = os.path.join(tempdir, "chunk%s" % i)
+                    fn = os.path.join(tempdir, f"chunk{i}")
 
-                    with open("%s.in" % fn, "wb") as f:
+                    with open(f"{fn}.in", "wb") as f:
                         if i != last:
                             size = 262144
                         else:
@@ -269,9 +269,9 @@ class Bundle(AbstractFileReadOnly):
                         f.write(struct.pack("<Q", size))
                         f.write(self.data[i])  # type: ignore[arg-type]
 
-                    os.system("ooz -d %(fn)s.in %(fn)s.out" % {"fn": fn})
+                    os.system(f"ooz -d {fn}.in {fn}.out")
 
-                    with open("%s.out" % fn, "rb") as f:
+                    with open(f"{fn}.out", "rb") as f:
                         self.data[i] = f.read()  # type: ignore[index]
 
         self.data = b"".join(self.data.values())  # type: ignore[union-attr]
@@ -306,7 +306,7 @@ class BundleRecord(IndexRecord):
 
         name_length = struct.unpack_from("<I", raw, offset=offset)[0]
 
-        self.name: str = struct.unpack_from("%ss" % name_length, raw, offset=offset + 4)[0].decode()
+        self.name: str = struct.unpack_from(f"{name_length}s", raw, offset=offset + 4)[0].decode()
 
         self.size: int = struct.unpack_from("<I", raw, offset=offset + 4 + name_length)[0]
 

@@ -74,7 +74,7 @@ class WikiHandler(BaseHandler):
         if value == old_value:
             return
         config.set_setup_variable("temp_dir", "performed", False)
-        console('Setup needs to be performed due to changes to "%s"' % key, msg=Msg.warning)
+        console(f'Setup needs to be performed due to changes to "{key}"', msg=Msg.warning)
 
     def _setup(self, args):
         """

@@ -28,6 +28,8 @@ See PyPoE/LICENSE
 # =============================================================================
 
 
+import contextlib
+
 from PyPoE.cli.exporter.wiki.parser.utils import find_template, format_result_rows
 
 # =============================================================================
@@ -72,10 +74,8 @@ class WikiCondition:
 
             k: str
             for k in self.COPY_KEYS:
-                try:
+                with contextlib.suppress(KeyError):
                     self.data[k] = self.template_arguments["kwargs"][k]
-                except KeyError:
-                    pass
 
             if self.COPY_MATCH:
                 for k, v in self.template_arguments["kwargs"].items():

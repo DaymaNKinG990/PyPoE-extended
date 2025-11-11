@@ -78,8 +78,8 @@ def setup_config():
         }
     )
 
-    config.add_option("version", "is_version(default=%s)" % VERSION.DEFAULT.value)
-    config.add_option("distributor", "is_distributor(default=%s)" % DISTRIBUTOR.DEFAULT.value)
+    config.add_option("version", f"is_version(default={VERSION.DEFAULT.value})")
+    config.add_option("distributor", f"is_distributor(default={DISTRIBUTOR.DEFAULT.value})")
     config.add_option("ggpk_path", 'is_directory(default="", exists=True, allow_empty=True)')
     config.add_option(
         "language",
