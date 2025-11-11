@@ -342,8 +342,8 @@ class AbstractKeyValueFile(AbstractFile, defaultdict):
                 self.merge(self._parent_file)
                 if self._parent_file.name != extend:  # type: ignore[attr-defined]
                     warnings.warn(
-                        f'Parent file name "{self._parent_file.name}" doesn\'t match extended file '
-                        f'name "{extend}"',  # type: ignore[attr-defined]
+                        f'Parent file name "{self._parent_file.name}" doesn\'t match extended file '  # type: ignore[attr-defined]
+                        f'name "{extend}"',
                         ParserWarning,
                         stacklevel=2,
                     )

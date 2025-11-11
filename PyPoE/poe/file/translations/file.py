@@ -502,8 +502,8 @@ class TranslationFile(AbstractFileReadOnly):
             if ts:
                 string_instances.append(ts)
                 result = ts.format_string(
-                    short_values,
-                    is_range,
+                    short_values,  # type: ignore[arg-type]
+                    is_range,  # type: ignore[arg-type]
                     use_placeholder,
                     only_values,  # type: ignore[arg-type]
                 )

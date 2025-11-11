@@ -796,7 +796,7 @@ class DatReader(ReprMixin):
                 if casts[0][0] == self.CastTypes.POINTER_LIST:
                     value = []  # type: ignore[assignment]
                     for i in range(0, data[0]):
-                        value.append(
+                        value.append(  # type: ignore[attr-defined]
                             self._cast_from_spec(
                                 specification, casts[1:], value, data_offset + i * casts[1:][0][1]
                             )

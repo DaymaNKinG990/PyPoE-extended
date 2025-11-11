@@ -283,7 +283,7 @@ class FileSystem:
 
                 root = self.directory[node.parent.get_path()] if node.parent else self.directory  # type: ignore[index]
 
-                root.children[node.name] = FileSystemNode(  # type: ignore[assignment]
+                root.children[node.name] = FileSystemNode(  # type: ignore[assignment, union-attr]
                     parent=root,  # type: ignore[arg-type]
                     file_system_type=FILE_SYSTEM_TYPES.GGPK,
                     is_file=node.is_file,

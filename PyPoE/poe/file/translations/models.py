@@ -331,8 +331,8 @@ class TranslationLanguage(TranslationReprMixin):
             return None  # type: ignore[return-value]
 
         return ts.format_string(
-            short_values,
-            is_range,
+            short_values,  # type: ignore[arg-type]
+            is_range,  # type: ignore[arg-type]
             use_placeholder,
             only_values,  # type: ignore[arg-type]
         )
@@ -550,10 +550,10 @@ class TranslationString(TranslationReprMixin):
                 # For adding the plus sign to the $+d and $+d%% formats
                 if "+" in self.tags_types[i] and (
                     is_range[tagid]
-                    and value[1] > 0
+                    and value[1] > 0  # type: ignore[index, operator]
                     or not is_range[tagid]  # type: ignore[call-overload, index, operator]
-                    and value > 0
-                ):  # type: ignore[operator]
+                    and value > 0  # type: ignore[operator]
+                ):
                     string.append("+")
 
                 if not use_placeholder:
