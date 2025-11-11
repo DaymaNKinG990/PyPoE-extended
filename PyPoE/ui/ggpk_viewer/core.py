@@ -34,19 +34,31 @@ from collections import OrderedDict
 from traceback import format_exc
 
 # Library Imports
-from PySide6.QtCore import *
-from PySide6.QtWidgets import *
+from PySide6.QtCore import QModelIndex, Qt
+from PySide6.QtWidgets import (
+    QFrame,
+    QGridLayout,
+    QHBoxLayout,
+    QLabel,
+    QLineEdit,
+    QMessageBox,
+    QSizePolicy,
+    QSplitter,
+    QTextEdit,
+    QTreeView,
+    QVBoxLayout,
+)
 
 # Package Imports
 from PyPoE.poe.constants import VERSION
 from PyPoE.poe.file import ggpk
+from PyPoE.ui.ggpk_viewer.menu import FileMenu, MiscMenu, ViewMenu
+from PyPoE.ui.ggpk_viewer.toolbar import ContextToolbar
+from PyPoE.ui.ggpk_viewer.viewmodel import GGPKViewModel
 from PyPoE.ui.shared import SharedMainWindow
-from PyPoE.ui.shared.settings import SettingFrame, BoolSetting, ComboBoxSetting
 from PyPoE.ui.shared.file.manager import FileDataManager
 from PyPoE.ui.shared.file.model import GGPKModel
-from PyPoE.ui.ggpk_viewer.toolbar import *
-from PyPoE.ui.ggpk_viewer.menu import *
-from PyPoE.ui.ggpk_viewer.viewmodel import GGPKViewModel
+from PyPoE.ui.shared.settings import BoolSetting, ComboBoxSetting, SettingFrame
 
 # =============================================================================
 # Classes
@@ -54,25 +66,23 @@ from PyPoE.ui.ggpk_viewer.viewmodel import GGPKViewModel
 
 
 class GGPKViewerMainWindow(SharedMainWindow):
-    NAME = 'GGPK Viewer'
+    NAME = "GGPK Viewer"
 
     def __init__(self, *args, **kwargs):
-        super().__init__(
-            *args, app_name=self.NAME, **kwargs
-        )
+        super().__init__(*args, app_name=self.NAME, **kwargs)
 
         self.s_general = GeneralSettingsFrame(parent=self)
-        
+
         # MVVM: Initialize ViewModel for business logic separation
         self.viewmodel = GGPKViewModel(version=self.s_general.version, parent=self)
-        
+
         # Connect ViewModel signals to View slots
         self.viewmodel.ggpk_loading_started.connect(self._on_ggpk_loading_started)
         self.viewmodel.ggpk_loading_progress.connect(self._on_ggpk_loading_progress)
         self.viewmodel.ggpk_loaded.connect(self._on_ggpk_loaded)
         self.viewmodel.ggpk_load_failed.connect(self._on_ggpk_load_failed)
         self.viewmodel.node_selected.connect(self._on_node_selected)
-        
+
         # Keep specification reference for FileDataManager (backward compatibility)
         self._specification = self.viewmodel.get_specification()
 
@@ -99,7 +109,7 @@ class GGPKViewerMainWindow(SharedMainWindow):
         self.ggpk_view.setColumnWidth(0, 200)
         self.ggpk_view.setColumnWidth(1, 75)
         self.ggpk_view.setColumnWidth(2, 80)
-        #self.ggpk_view.setColumnWidth(3, 80)
+        # self.ggpk_view.setColumnWidth(3, 80)
         self.ggpk_view.setMinimumSize(370, 370)
         self.ggpk_view.clicked.connect(self._view_record)
         self.ggpk_view.setContextMenuPolicy(Qt.ActionsContextMenu)
@@ -119,25 +129,19 @@ class GGPKViewerMainWindow(SharedMainWindow):
         self.file_infobar_layout = QHBoxLayout()
         self.file_infobar_layout.setAlignment(Qt.AlignLeft)
         self.file_infobar = QFrame()
-        self.file_infobar.setSizePolicy(
-            QSizePolicy.Minimum,
-            QSizePolicy.Maximum
-        )
+        self.file_infobar.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Maximum)
         self.file_infobar.setFrameStyle(QFrame.StyledPanel | QFrame.Plain)
         self.file_infobar.setLayout(self.file_infobar_layout)
 
-        self.file_infobar_layout.addWidget(QLabel(self.tr('Name Hash:')))
+        self.file_infobar_layout.addWidget(QLabel(self.tr("Name Hash:")))
         self.file_infobar_name_hash = QLineEdit(readOnly=True)
-        #self.file_infobar_name_hash.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.Maximum)
+        # self.file_infobar_name_hash.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.Maximum)
         self.file_infobar_name_hash.setFixedWidth(70)
         self.file_infobar_layout.addWidget(self.file_infobar_name_hash)
 
-        self.file_infobar_layout.addWidget(QLabel(self.tr('File Hash:')))
+        self.file_infobar_layout.addWidget(QLabel(self.tr("File Hash:")))
         self.file_infobar_file_hash = QLineEdit(readOnly=True)
-        self.file_infobar_file_hash.setSizePolicy(
-            QSizePolicy.MinimumExpanding,
-            QSizePolicy.Maximum
-        )
+        self.file_infobar_file_hash.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.Maximum)
         self.file_infobar_file_hash.setMinimumWidth(405)
         self.file_infobar_layout.addWidget(self.file_infobar_file_hash)
 
@@ -145,16 +149,12 @@ class GGPKViewerMainWindow(SharedMainWindow):
         self.file_layout.addWidget(self.file_infobar)
 
         # Create Frame
-        #self.file_frame_scroll = QScrollArea()
-        #self.file_frame_scroll.setFrameStyle(QFrame.StyledPanel | QFrame.Plain)
-        #self.file_layout.addWidget(self.file_frame_scroll)
-
+        # self.file_frame_scroll = QScrollArea()
+        # self.file_frame_scroll.setFrameStyle(QFrame.StyledPanel | QFrame.Plain)
+        # self.file_layout.addWidget(self.file_frame_scroll)
 
         self.file_frame = QFrame()
-        self.file_frame.setSizePolicy(
-            QSizePolicy.Expanding,
-            QSizePolicy.Expanding
-        )
+        self.file_frame.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         self.file_frame.setFrameStyle(QFrame.StyledPanel | QFrame.Plain)
         self.file_layout.addWidget(self.file_frame)
 
@@ -162,17 +162,14 @@ class GGPKViewerMainWindow(SharedMainWindow):
         self.file_frame_layout.setAlignment(Qt.AlignTop)
         self.file_frame.setLayout(self.file_frame_layout)
 
-        #self.file_frame_scroll.setWidget(self.file_frame)
-        #self.file_frame_scroll.setLayout(self.file_frame_layout)
-        #self.file_frame_scroll.show()
+        # self.file_frame_scroll.setWidget(self.file_frame)
+        # self.file_frame_scroll.setLayout(self.file_frame_layout)
+        # self.file_frame_scroll.show()
 
         #
         self.file_textbox = QTextEdit(self)
         self.file_textbox.setText(self.tr("No file selected."))
-        self.file_textbox.setSizePolicy(
-            QSizePolicy.MinimumExpanding,
-            QSizePolicy.MinimumExpanding
-        )
+        self.file_textbox.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.MinimumExpanding)
         self.file_frame_layout.addWidget(self.file_textbox)
 
         # Setup the main window
@@ -182,10 +179,10 @@ class GGPKViewerMainWindow(SharedMainWindow):
 
     def _reset_file_view(self, reset_hash=True):
         if reset_hash:
-            self.file_infobar_file_hash.setText('')
-            self.file_infobar_name_hash.setText('')
+            self.file_infobar_file_hash.setText("")
+            self.file_infobar_name_hash.setText("")
             self._last_node = None
-        if hasattr(self, 'file_view'):
+        if hasattr(self, "file_view"):
             self.file_frame_layout.removeWidget(self.file_view)
             self.file_view.deleteLater()
             del self.file_view
@@ -206,32 +203,29 @@ class GGPKViewerMainWindow(SharedMainWindow):
         if isinstance(node.record, ggpk.DirectoryRecord):
             self.file_textbox.setText(self.tr("No file selected."))
             self.file_textbox.setVisible(True)
-            if hasattr(self, 'file_view'):
+            if hasattr(self, "file_view"):
                 self.file_view.setVisible(False)
             return
 
         # Avoid extracting data until we actually need
         obj = self._file_data_manager.get_handler(node.record.name)
         if obj is None:
-            self.file_textbox.setText(self.tr(
-                "File view not supported for this file type."
-            ))
+            self.file_textbox.setText(self.tr("File view not supported for this file type."))
             self.file_textbox.setVisible(True)
             self._reset_file_view(reset_hash=False)
             return
 
         try:
-            qwidget = obj.get_widget(
-                node.record.extract(),
-                file_name=node.record.name,
-                parent=self
-            )
+            qwidget = obj.get_widget(node.record.extract(), file_name=node.record.name, parent=self)
         except Exception as e:
-            msg = self.tr("%(error)s occurred when trying to open %(file)s" % {
-                'file': node.record.name,
-                'error': e.__class__.__name__,
-            })
-            fullmsg = msg + ': \n\n' + format_exc()
+            msg = self.tr(
+                "%(error)s occurred when trying to open %(file)s"
+                % {
+                    "file": node.record.name,
+                    "error": e.__class__.__name__,
+                }
+            )
+            fullmsg = msg + ": \n\n" + format_exc()
 
             self.file_textbox.setText(fullmsg)
             self._write_log(fullmsg, msg)
@@ -252,17 +246,17 @@ class GGPKViewerMainWindow(SharedMainWindow):
 
     def _on_ggpk_loading_started(self, file_path: str):
         """Handle GGPK loading start."""
-        self._write_log(self.tr(f'Loading GGPK file: {file_path}...'))
+        self._write_log(self.tr(f"Loading GGPK file: {file_path}..."))
         # Disable UI interactions during loading
         self.ggpk_view.setEnabled(False)
 
     def _on_ggpk_loading_progress(self, progress: int, message: str):
         """Handle GGPK loading progress updates."""
-        self._write_log(self.tr(f'Progress: {progress}% - {message}'))
+        self._write_log(self.tr(f"Progress: {progress}% - {message}"))
 
     def _on_ggpk_loaded(self):
         """Handle successful GGPK loading."""
-        self._write_log(self.tr('GGPK file loaded successfully'))
+        self._write_log(self.tr("GGPK file loaded successfully"))
         # Re-enable UI
         self.ggpk_view.setEnabled(True)
         # Update model with new GGPK
@@ -272,32 +266,27 @@ class GGPKViewerMainWindow(SharedMainWindow):
 
     def _on_ggpk_load_failed(self, error_message: str):
         """Handle GGPK loading failure."""
-        self._write_log(error_message, msg=Msg.error)
+        self._write_log(error_message)
         # Re-enable UI
         self.ggpk_view.setEnabled(True)
-        QMessageBox.warning(
-            self,
-            self.tr('Error'),
-            error_message
-        )
+        QMessageBox.warning(self, self.tr("Error"), error_message)
 
     def _on_node_selected(self, node):
         """Handle node selection from ViewModel."""
         # Update info bar
         info = self.viewmodel.get_node_info(node)
-        self.file_infobar_name_hash.setText(info.get('name_hash', ''))
-        self.file_infobar_file_hash.setText(info.get('hash', ''))
+        self.file_infobar_name_hash.setText(info.get("name_hash", ""))
+        self.file_infobar_file_hash.setText(info.get("hash", ""))
 
 
 class GeneralSettingsFrame(SettingFrame):
-
-    KEY = 'general'
+    KEY = "general"
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.parent().settings_window.add_config_section(
-            tr=self.tr('General'),
+            tr=self.tr("General"),
             qframe=self,
             order=-100,
         )
@@ -305,21 +294,19 @@ class GeneralSettingsFrame(SettingFrame):
         self.layout = QGridLayout()
         self.setLayout(self.layout)
 
-        self._add_setting(SettingDDS(
-            parent=self,
-            settings=self.parent().settings,
-            row=1
-        ))
+        self._add_setting(SettingDDS(parent=self, settings=self.parent().settings, row=1))
 
-        self._add_setting(SettingVersion(
-            parent=self,
-            settings=self.parent().settings,
-            row=2,
-        ))
+        self._add_setting(
+            SettingVersion(
+                parent=self,
+                settings=self.parent().settings,
+                row=2,
+            )
+        )
 
 
 class SettingDDS(BoolSetting):
-    KEY = 'uncompress_dds'
+    KEY = "uncompress_dds"
     DEFAULT = False
 
     def __init__(self, parent, settings, row, *args, **kwargs):
@@ -327,27 +314,29 @@ class SettingDDS(BoolSetting):
 
         self.value = self.get()
 
-        parent.layout.addWidget(QLabel(parent.tr(
-            'Uncompress DDS files after exporting them from the GGPK'
-        )), row, 1)
+        parent.layout.addWidget(
+            QLabel(parent.tr("Uncompress DDS files after exporting them from the GGPK")), row, 1
+        )
         parent.layout.addWidget(self.checkbox, row, 2)
 
 
 class SettingVersion(ComboBoxSetting):
-    KEY = 'version'
+    KEY = "version"
     DEFAULT = VERSION.DEFAULT
 
     def __init__(self, parent, settings, row, *args, **kwargs):
         super().__init__(parent, settings, *args, **kwargs)
-        self._set_data(OrderedDict((
-            ('Stable', VERSION.STABLE),
-            ('Beta', VERSION.BETA),
-            ('Alpha', VERSION.ALPHA),
-        )))
+        self._set_data(
+            OrderedDict(
+                (
+                    ("Stable", VERSION.STABLE),
+                    ("Beta", VERSION.BETA),
+                    ("Alpha", VERSION.ALPHA),
+                )
+            )
+        )
 
-        parent.layout.addWidget(QLabel(parent.tr(
-            'Version of the game'
-        )), row, 1)
+        parent.layout.addWidget(QLabel(parent.tr("Version of the game")), row, 1)
         parent.layout.addWidget(self.combobox, row, 2)
 
     def _get_cast(self, value):
@@ -368,6 +357,7 @@ class SettingVersion(ComboBoxSetting):
         if isinstance(value, VERSION):
             return value.name
         return str(value)
+
 
 # =============================================================================
 # Functions
