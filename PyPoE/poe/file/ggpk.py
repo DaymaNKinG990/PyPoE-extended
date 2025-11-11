@@ -837,6 +837,20 @@ class GGPKFile(AbstractFileReadOnly, metaclass=InheritedDocStringsMeta):
         self._file_path_or_raw = file_path_or_raw
 
 
+# =============================================================================
+# Backward Compatibility Note
+# =============================================================================
+# This file contains the OLD GGPKFile implementation (854 lines).
+# The NEW refactored GGPKFile is available in PyPoE.poe.file.ggpk.file
+#
+# For new code, use: from PyPoE.poe.file.ggpk import GGPKFile
+# This will import the new refactored version from ggpk/file.py
+#
+# Old imports (from PyPoE.poe.file.ggpk import GGPKFile) will work
+# through the new module's __init__.py which exports the new GGPKFile.
+#
+# This old file is kept for reference and will be removed in a future version.
+
 if __name__ == "__main__":
     from line_profiler import LineProfiler  # type: ignore[import-not-found]
 

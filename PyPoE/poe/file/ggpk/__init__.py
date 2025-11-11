@@ -16,14 +16,28 @@ Internal API:
 """
 
 from PyPoE.poe.file.ggpk.file import GGPKFile
+from PyPoE.poe.file.ggpk.nodes import DirectoryNode
 from PyPoE.poe.file.ggpk.records import (
+    BaseRecord,
+    DirectoryRecord,
+    DirectoryRecordEntry,
+    FileRecord,
+    FreeRecord,
     GGPKError,
+    GGPKRecord,
     InvalidTagError,
 )
 
 __all__ = [
     "GGPKFile",
+    "DirectoryNode",
+    "BaseRecord",
+    "DirectoryRecord",
+    "DirectoryRecordEntry",
+    "FileRecord",
+    "FreeRecord",
     "GGPKError",
+    "GGPKRecord",
     "InvalidTagError",
 ]
 
