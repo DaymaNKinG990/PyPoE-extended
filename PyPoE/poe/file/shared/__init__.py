@@ -363,7 +363,7 @@ class AbstractFileSystemNode(ReprMixin):
         if not item:
             return self
 
-        path = []
+        path: list[str] = []
         partial = item
         while partial:
             partial, result = os.path.split(partial)
@@ -474,7 +474,7 @@ class AbstractFileSystemNode(ReprMixin):
                 nodes.append(node)
 
             for child in node.children:
-                q.append(child)
+                q.append(child)  # type: ignore[arg-type]
 
         return nodes
 
@@ -486,7 +486,7 @@ class AbstractFileSystemNode(ReprMixin):
         -------
             Full path
         """
-        return '/'.join([n.name for n in self.get_parent(make_list=True)])
+        return '/'.join([n.name for n in self.get_parent(make_list=True)])  # type: ignore[attr-defined]
 
     def get_parent(self,
                    n: int = -1,
@@ -514,7 +514,7 @@ class AbstractFileSystemNode(ReprMixin):
         -------
             Returns parent or root :class:`AbstractFileSystemNode` instance
         """
-        nodes = []
+        nodes: list[AbstractFileSystemNode] = []
         node = self
         while n != 0:
             if node.parent is None:
@@ -528,7 +528,7 @@ class AbstractFileSystemNode(ReprMixin):
             node = node.parent
             n -= 1
 
-        return nodes if make_list else node
+        return nodes if make_list else node  # type: ignore[return-value]
 
     def walk(self, function: Callable):
         """
@@ -554,8 +554,8 @@ class AbstractFileSystemNode(ReprMixin):
         while len(q) > 0:
             data = q.pop()
             function(**data)
-            for child in data['node'].children.values():
-                q.append({'node': child, 'depth': data['depth'] + 1})
+            for child in data['node'].children.values():  # type: ignore[attr-defined]
+                q.append({'node': child, 'depth': data['depth'] + 1})  # type: ignore[operator]
 
         """for child in self.children:
             function(child)
@@ -580,4 +580,4 @@ class AbstractFileSystemNode(ReprMixin):
                 node.extract_to(dir_path)
         else:
             with open(dir_path, 'wb') as f:
-                f.write(bytes(self))
+                f.write(bytes(self))  # type: ignore[call-overload]
