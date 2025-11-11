@@ -65,7 +65,7 @@ class IncursionRoomWikiCondition(parser.WikiCondition):
     COPY_KEYS = (
     )
 
-    NAME = 'Incursion room'
+    NAME = 'Incursion room'  # type: ignore[assignment]
     ADD_INCLUDE = False
     INDENT = 24
 
@@ -216,18 +216,18 @@ class IncursionRoomParser(parser.BaseParser):
             for row_key, copy_data in self._COPY_KEYS.items():
                 value = incursion_room[row_key]
 
-                condition = copy_data.get('condition')
+                condition = copy_data.get('condition')  # type: ignore[attr-defined]
                 if condition is not None and not condition(incursion_room):
                     continue
 
                 # Skip default values to reduce size of template
-                if value == copy_data.get('default'):
+                if value == copy_data.get('default'):  # type: ignore[attr-defined]
                     continue
 
-                fmt = copy_data.get('format')
+                fmt = copy_data.get('format')  # type: ignore[attr-defined]
                 if fmt:
                     value = fmt(value)
-                data[copy_data['template']] = value
+                data[copy_data['template']] = value  # type: ignore[index]
 
             if incursion_room['IncursionArchitectKey']:
                 mv = incursion_room['IncursionArchitectKey'][
@@ -242,7 +242,7 @@ class IncursionRoomParser(parser.BaseParser):
 
             if parsed_args.store_images and incursion_room['UIIcon']:
                 idl_record = idl_lookup[incursion_room['UIIcon']]
-                src = os.path.join(self._img_path, os.path.split(idl_record.source)[-1])
+                src = os.path.join(self._img_path, os.path.split(idl_record.source)[-1])  # type: ignore[arg-type]
                 if src not in idl_sources:
                     console(
                         'Writing source file "%s" to images' % src
@@ -264,7 +264,7 @@ class IncursionRoomParser(parser.BaseParser):
                     '"%(dst)s incursion room icon.png"' %
                     {
                         'src': src,
-                        'dst': os.path.join(self._img_path, data['icon']),
+                        'dst': os.path.join(self._img_path, data['icon']),  # type: ignore[arg-type]
                         'h': idl_record.h,
                         'w': idl_record.w,
                         'x': idl_record.x1,
@@ -295,6 +295,6 @@ class IncursionRoomParser(parser.BaseParser):
         if idl_sources:
             console('Cleaning up image files that are no longer necessary')
             for src in idl_sources:
-                os.remove(os.path.join(self._img_path, src))
+                os.remove(os.path.join(self._img_path, src))  # type: ignore[arg-type]
 
         return r

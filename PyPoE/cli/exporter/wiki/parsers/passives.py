@@ -62,11 +62,11 @@ __all__ = []
 
 
 class WikiCondition(parser.WikiCondition):
-    COPY_KEYS = (
+    COPY_KEYS = (  # type: ignore[assignment]
         'main_page',
     )
 
-    NAME = 'Passive skill'
+    NAME = 'Passive skill'  # type: ignore[assignment]
     ADD_INCLUDE = False
     INDENT = 36
 
@@ -266,18 +266,18 @@ class PassiveSkillParser(parser.BaseParser):
             for row_key, copy_data in self._COPY_KEYS.items():
                 value = passive[row_key]
 
-                condition = copy_data.get('condition')
+                condition = copy_data.get('condition')  # type: ignore[attr-defined]
                 if condition is not None and not condition(passive):
                     continue
 
                 # Skip default values to reduce size of template
-                if value == copy_data.get('default'):
+                if value == copy_data.get('default'):  # type: ignore[attr-defined]
                     continue
 
-                fmt = copy_data.get('format')
+                fmt = copy_data.get('format')  # type: ignore[attr-defined]
                 if fmt:
                     value = fmt(value)
-                data[copy_data['template']] = value
+                data[copy_data['template']] = value  # type: ignore[index]
 
             if passive['Icon_DDSFile']:
                 icon = passive['Icon_DDSFile'].split('/')
@@ -345,8 +345,8 @@ class PassiveSkillParser(parser.BaseParser):
             # extract icons if specified
             if parsed_args.store_images:
                 fn = data['icon'] + ' passive skill icon'
-                dds = os.path.join(self._img_path, fn + '.dds')
-                png = os.path.join(self._img_path, fn + '.png')
+                dds = os.path.join(self._img_path, fn + '.dds')  # type: ignore[arg-type]
+                png = os.path.join(self._img_path, fn + '.png')  # type: ignore[arg-type]
                 if not (os.path.exists(dds) or os.path.exists(png)):
                     self._write_dds(
                         data=self.file_system.get_file(passive['Icon_DDSFile']),
