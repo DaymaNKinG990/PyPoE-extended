@@ -263,15 +263,15 @@ class TranslationLanguage(TranslationReprMixin):
         test_values = []
         short_values = []
         for item in values:
-            # faster then isinstance(item, Iterable)
-            if hasattr(item, '__iter__'):
+            # Type narrowing: check if item is tuple
+            if isinstance(item, tuple):
                 # Use the greater value unless it is zero
                 test_values.append(item[1] or item[0])
                 if item[0] == item[1]:
                     short_values.append(item[0])
                     is_range.append(False)
                 else:
-                    short_values.append(item)
+                    short_values.append(item)  # type: ignore[arg-type]
                     is_range.append(True)
             else:
                 test_values.append(item)
@@ -294,7 +294,7 @@ class TranslationLanguage(TranslationReprMixin):
         if rating <= 0:
             return None, None, None
 
-        return ts, short_values, is_range
+        return ts, short_values, is_range  # type: ignore[return-value]
 
     def format_string(self,
                       values: Union[List[int], List[Tuple[int, int]]],
@@ -335,10 +335,10 @@ class TranslationLanguage(TranslationReprMixin):
         ts, short_values, is_range = self.get_string(values)
 
         if ts is None:
-            return None
+            return None  # type: ignore[return-value]
 
         return ts.format_string(
-            short_values, is_range, use_placeholder, only_values
+            short_values, is_range, use_placeholder, only_values  # type: ignore[arg-type]
         )
 
     def reverse_string(self, string: str) -> 'TranslationString':
@@ -363,9 +363,9 @@ class TranslationLanguage(TranslationReprMixin):
             if result is None:
                 continue
 
-            return result
+            return result  # type: ignore[no-any-return]
 
-        return None
+        return None  # type: ignore[return-value]
 
 
 class TranslationString(TranslationReprMixin):
@@ -413,7 +413,7 @@ class TranslationString(TranslationReprMixin):
         self.quantifier: TranslationQuantifierHandler = \
             TranslationQuantifierHandler()
         self.range: List[TranslationRange] = []
-        self.tags: List[str] = []
+        self.tags: List[int] = []
         self.tags_types: List[str] = []
         self.strings: List[str] = []
 
@@ -557,12 +557,12 @@ class TranslationString(TranslationReprMixin):
         string = []
         used = set()
         for i, tagid in enumerate(self.tags):
-            value = values[tagid]
+            value = values[tagid]  # type: ignore[call-overload]
             if not only_values:
                 string.append(self.strings[i])
                 # For adding the plus sign to the $+d and $+d%% formats
                 if '+' in self.tags_types[i] and (
-                        is_range[tagid] and value[1] > 0 or not is_range[tagid]
+                        is_range[tagid] and value[1] > 0 or not is_range[tagid]  # type: ignore[call-overload]
                         and value > 0):
                     string.append('+')
 
@@ -572,27 +572,27 @@ class TranslationString(TranslationReprMixin):
                     else:
                         fmt = '{0}'
 
-                    if is_range[tagid]:
+                    if is_range[tagid]:  # type: ignore[call-overload]
                         # Move the minus outside if both values are negative
                         try:
-                            if value[0] < 0 and value[1] < 0:
-                                value = [-v for v in value]
+                            if value[0] < 0 and value[1] < 0:  # type: ignore[index]
+                                value = [-v for v in value]  # type: ignore[assignment,union-attr,misc]
                                 range_fmt = self._NEGATIVE_RANGE_FORMAT
                             else:
                                 range_fmt = self._RANGE_FORMAT
                         #TODO: how to show ranges for text stuff?
                         except TypeError:
                             range_fmt = self._RANGE_FORMAT
-                        value = range_fmt.format(
+                        value = range_fmt.format(  # type: ignore[assignment]
                             fmt, fmt.replace('{0', '{1')
-                        ).format(*value)
+                        ).format(*value)  # type: ignore[misc]
                     else:
-                        value = fmt.format(value)
+                        value = fmt.format(value)  # type: ignore[assignment]
                 elif use_placeholder is True:
-                    value = ascii_letters[23+i]
+                    value = ascii_letters[23+i]  # type: ignore[assignment]
                 elif callable(use_placeholder):
-                    value = use_placeholder(i)
-            string.append(value)
+                    value = use_placeholder(i)  # type: ignore[assignment]
+            string.append(value)  # type: ignore[arg-type]
             used.add(tagid)
 
         unused = []
@@ -602,11 +602,11 @@ class TranslationString(TranslationReprMixin):
             unused.append(val)
 
         if only_values:
-            string = values
+            string = values  # type: ignore[assignment]
         else:
-            string = ''.join(string + [self.strings[-1]])
+            string = ''.join(string + [self.strings[-1]])  # type: ignore[assignment]
 
-        return string, unused, values, extra_strings
+        return string, unused, values, extra_strings  # type: ignore[return-value]
 
     def match_range(self, values: List[Union[int, float]]) -> int:
         """
@@ -623,7 +623,7 @@ class TranslationString(TranslationReprMixin):
         """
         rating = 0
         for i, value in enumerate(values):
-            rating += self.range[i].in_range(value)
+            rating += self.range[i].in_range(value)  # type: ignore[arg-type]
         return rating
 
     def reverse_string(self, string: str) -> Union[List[int], None]:
@@ -663,7 +663,7 @@ class TranslationString(TranslationReprMixin):
 
         # Fix for TR strings ending with value
         if self.strings[-1] == '':
-            values_indexes[-1] = None
+            values_indexes[-1] = None  # type: ignore[call-overload]
 
         values = []
         for i in range(0, len(values_indexes)-1):
@@ -675,8 +675,8 @@ class TranslationString(TranslationReprMixin):
         for i, tag in enumerate(self.tags):
             tags[tag] = values[i]
 
-        values = list(range(0, len(self.range)))
-        for i in values:
+        values = list(range(0, len(self.range)))  # type: ignore[assignment]
+        for i in values:  # type: ignore[assignment]
             if i in tags:
                 # Fix for %1$+d
                 values[i] = tags[i].strip('%')
@@ -715,8 +715,8 @@ class TranslationString(TranslationReprMixin):
                         TranslationWarning
                     )
 
-                values[i] = val
-        return self.quantifier.handle_reverse(values)
+                values[i] = val  # type: ignore[call-overload]
+        return self.quantifier.handle_reverse(values)  # type: ignore[arg-type]
 
 
 class TranslationRange(TranslationReprMixin):
