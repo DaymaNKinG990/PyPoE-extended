@@ -36,7 +36,13 @@ from PyPoE.poe.file.translations.file import TranslationFile
 from PyPoE.poe.file.translations.models import (
     TranslationQuantifier,
     TranslationQuantifierHandler,
+    TQReminderString,
 )
+from PyPoE.poe.file.translations.constants import (
+    _custom_translation_file,
+    CUSTOM_TRANSLATION_FILE,
+)
+from PyPoE.poe.constants import MOD_GENERATION_TYPE
 
 # =============================================================================
 # Globals

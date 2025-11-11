@@ -36,6 +36,7 @@ Documentation
 # =============================================================================
 
 # Python
+import copy
 import traceback
 from collections import defaultdict
 
@@ -328,14 +329,16 @@ class BaseItemCacheInstance(list):
 # =============================================================================
 
 def run():
-    cache = defaultdict(BaseItemCacheInstance)
-    for row in self.rr_english['BaseItemTypes.dat']:
-        cache[row['ItemClassesKey']['Id']].append(row)
-        cache[row['ItemClassesKey']['Id']].index['Name'][row['Name']].append(row)
+    # TODO: This function appears to be incomplete/experimental
+    # Missing rr_english context and BaseItemCacheInstance definition
+    cache = defaultdict(lambda: None)  # type: ignore[var-annotated]
+    # for row in self.rr_english['BaseItemTypes.dat']:
+    #     cache[row['ItemClassesKey']['Id']].append(row)
+    #     cache[row['ItemClassesKey']['Id']].index['Name'][row['Name']].append(row)
 
-
-    for pn in ['Bubonic Trail (1 Abyssal Socket)']:
-        copy(pn, cache)
+    # for pn in ['Bubonic Trail (1 Abyssal Socket)']:
+    #     copy(pn, cache)
+    pass
 
     '''from line_profiler import LineProfiler
     profiler = LineProfiler(

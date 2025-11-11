@@ -35,6 +35,7 @@ from functools import partial
 from PyPoE.cli.core import console, Msg
 from PyPoE.cli.exporter import config
 from PyPoE.cli.exporter.util import get_content_path, fix_path
+from PyPoE.cli.exporter.wiki.parser.utils import make_inter_wiki_links
 from PyPoE.poe.constants import MOD_DOMAIN, WORDLISTS, MOD_STATS_RANGE
 from PyPoE.poe.file.dat import RelationalReader
 from PyPoE.poe.file.factory import FileParserFactory

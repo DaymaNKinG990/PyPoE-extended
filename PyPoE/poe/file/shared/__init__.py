@@ -404,7 +404,7 @@ class AbstractFileSystemNode(ReprMixin):
         raise NotImplementedError
 
     @property
-    def files(self) -> List['FileSystemNode']:
+    def files(self) -> List['AbstractFileSystemNode']:
         """
         Returns a list of nodes which belong to files
 
@@ -416,7 +416,7 @@ class AbstractFileSystemNode(ReprMixin):
         return [child for child in self.children.values() if child.is_file]
 
     @property
-    def directories(self) -> List['FileSystemNode']:
+    def directories(self) -> List['AbstractFileSystemNode']:
         """
         Returns a list of nodes which belong to directories
 

@@ -119,7 +119,7 @@ class MonsterFactory:
             raise ValueError('relational_reader must be a RelationalReader '
                              'instance')
         if isinstance(otfile_cache, OTFileCache):
-            self.ot = otcache
+            self.ot = otfile_cache
         else:
             raise ValueError('otfile_cache must be a OTFileCache instance.')
 
