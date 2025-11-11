@@ -225,8 +225,8 @@ class GGPKRecord(BaseRecord):
         super().write(ggpkfile)
         # Should always be 2
         ggpkfile.write(struct.pack("<i", 2))
-        for i in range(0, len(offsets)):
-            ggpkfile.write(struct.unpack("<q", offsets[i]))
+        for i in range(0, len(self.offsets)):
+            ggpkfile.write(struct.unpack("<q", self.offsets[i]))
 
 
 class DirectoryRecordEntry(ReprMixin):

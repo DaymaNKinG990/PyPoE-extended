@@ -34,7 +34,7 @@ import warnings
 from enum import IntEnum
 from string import ascii_letters
 from collections import OrderedDict, defaultdict
-from typing import Union, Tuple, List, Any, Callable, Dict
+from typing import Union, Tuple, List, Any, Callable, Dict, Optional, TYPE_CHECKING
 
 from PyPoE.shared.mixins import ReprMixin
 from PyPoE.poe.file.translations.exceptions import TranslationWarning
@@ -90,6 +90,11 @@ def _diff_dict(self, other):
 # =============================================================================
 
 class TranslationReprMixin(ReprMixin):
+    """Mixin for translation classes that adds parent repr."""
+    
+    # Type hints for attributes that will be provided by subclasses
+    if TYPE_CHECKING:
+        parent: Any
 
     _REPR_ARGUMENTS_TO_ATTRIBUTES = {
         'parent': '_parent_repr',
@@ -181,7 +186,7 @@ class Translation(TranslationReprMixin):
             elif tr.language == 'English':
                 etr = tr
 
-        return etr
+        return etr  # type: ignore[return-value]
 
 
 class TranslationLanguage(TranslationReprMixin):
