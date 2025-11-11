@@ -134,7 +134,7 @@ class BaseRecord(ReprMixin):
         Starting offset in ggpk
     """
 
-    tag = None
+    tag: str | None = None
 
     __slots__ = ["_container", "length", "offset"]
 
@@ -265,8 +265,8 @@ class DirectoryRecord(MixinRecord, BaseRecord):
         Length of name
     _entries_length :  int
         Number of directory entries
-    hash :  int
-        SHA256 hash of file contents
+    hash :  bytes
+        SHA256 hash of file contents (32 bytes)
     """
 
     tag = "PDIR"
@@ -286,7 +286,7 @@ class DirectoryRecord(MixinRecord, BaseRecord):
     def read(self, ggpkfile):
         self._name_length = struct.unpack("<i", ggpkfile.read(4))[0]
         self.entries_length = struct.unpack("<i", ggpkfile.read(4))[0]
-        self.hash = int.from_bytes(ggpkfile.read(32), "big")
+        self.hash = ggpkfile.read(32)
         # UTF-16 2-byte width
         self._name = ggpkfile.read(2 * (self._name_length - 1)).decode("UTF-16_LE")
         # Null Termination
@@ -333,8 +333,8 @@ class FileRecord(MixinRecord, BaseRecord):
         Name of file
     _name_length :  int
         Length of name
-    hash :  int
-        SHA256 hash of file contents
+    hash :  bytes
+        SHA256 hash of file contents (32 bytes)
     data_start :  int
         starting offset of data
     data_length :  int
@@ -404,7 +404,7 @@ class FileRecord(MixinRecord, BaseRecord):
     @doc(doc=BaseRecord.read)
     def read(self, ggpkfile):
         self._name_length = struct.unpack("<i", ggpkfile.read(4))[0]
-        self.hash = int.from_bytes(ggpkfile.read(32), "big")
+        self.hash = ggpkfile.read(32)
         # UTF-16 2-byte width
         self._name = ggpkfile.read(2 * (self._name_length - 1)).decode("UTF-16")
         # Null Termination
@@ -479,27 +479,27 @@ class DirectoryNode(AbstractFileSystemNode):
 
     def __init__(
         self,
-        *args,
         parent: "DirectoryNode",
         is_file: bool,
         record: DirectoryRecord | FileRecord,
         hash: str,
-        **kwargs,
     ):
         super().__init__(
-            *args, parent=parent, is_file=is_file, file_system_type=FILE_SYSTEM_TYPES.GGPK, **kwargs
+            parent=parent, file_system_type=FILE_SYSTEM_TYPES.GGPK, is_file=is_file
         )
         self.record: DirectoryRecord | FileRecord = record
         self.hash: str = hash
 
     @property
     def name(self) -> str:
-        return self.record.name
+        return self.record.name  # type: ignore[no-any-return]
 
     @property
     def data(self) -> bytes:
         if self.is_file:
-            return self.record.extract()
+            if isinstance(self.record, FileRecord):
+                return self.record.extract().read()  # type: ignore[no-any-return]
+            raise TypeError("Expected FileRecord for file node")
         else:
             raise ValueError("Only files can have their data extracted")
 
@@ -552,7 +552,10 @@ class GGPKFile(AbstractFileReadOnly, metaclass=InheritedDocStringsMeta):
         if item == "ROOT":
             return self.directory
 
-        return self.directory[item]
+        result = self.directory[item]
+        if not isinstance(result, DirectoryNode):
+            raise TypeError(f"Expected DirectoryNode, got {type(result)}")
+        return result
 
     #
     # Properties
@@ -639,17 +642,19 @@ class GGPKFile(AbstractFileReadOnly, metaclass=InheritedDocStringsMeta):
         if not self.is_parsed or not other_ggpk.is_parsed:
             raise ValueError("Both ggpk files must be parsed and have their directory build.")
 
-        data = [{"ggpk": self}, {"ggpk": other_ggpk}]
+        data: list[dict[str, Any]] = [{"ggpk": self}, {"ggpk": other_ggpk}]
 
         for gdict in data:
             gdict["files"] = {}
 
-            def add_file(node, depth):
+            def add_file(node: DirectoryNode, depth: int) -> None:
                 if not isinstance(node.record, FileRecord):
                     return
                 gdict["files"][node.get_path()] = node.record.hash
 
-            gdict["ggpk"].directory.walk(add_file)
+            ggpk: GGPKFile = gdict["ggpk"]
+            if ggpk.directory is not None:
+                ggpk.directory.walk(add_file)
 
             gdict["set"] = set(gdict["files"].keys())
 
@@ -684,7 +689,7 @@ class GGPKFile(AbstractFileReadOnly, metaclass=InheritedDocStringsMeta):
 
         return new_files, deleted_files, changed_files
 
-    def build_directory(self, parent: DirectoryNode = None) -> DirectoryNode:
+    def build_directory(self, parent: Optional[DirectoryNode] = None) -> DirectoryNode:
         """
         Rebuilds the directory or the specified :class:`DirectoryNode`
         If the root directory is rebuild it will be stored in the directory
@@ -715,9 +720,14 @@ class GGPKFile(AbstractFileReadOnly, metaclass=InheritedDocStringsMeta):
         # Build Root directory
         if parent is None:
             ggpkrecord = self.records[0]
+            if not isinstance(ggpkrecord, GGPKRecord):
+                raise ParserError(f"Expected GGPKRecord at offset 0, got {type(ggpkrecord)}")
+            
+            record: DirectoryRecord | FileRecord | None = None
             for offset in ggpkrecord.offsets:
-                record = self.records[offset]
-                if isinstance(record, DirectoryRecord):
+                rec = self.records[offset]
+                if isinstance(rec, DirectoryRecord):
+                    record = rec
                     break
             if not isinstance(record, DirectoryRecord):
                 raise ParserError(
@@ -727,38 +737,42 @@ class GGPKFile(AbstractFileReadOnly, metaclass=InheritedDocStringsMeta):
                 )
 
             root = DirectoryNode(
-                parent=None,
+                parent=None,  # type: ignore[arg-type]
                 is_file=False,
                 record=record,
-                hash=None,
+                hash="",  # Root has empty hash
             )
 
             self.directory = root
         else:
             root = parent
 
-        l = []
-        for entry in root.record.entries:
-            l.append((entry.offset, entry.hash, root))
+        l: list[tuple[int, str, DirectoryNode]] = []
+        if isinstance(root.record, DirectoryRecord):
+            for entry in root.record.entries:
+                l.append((entry.offset, entry.hash, root))
 
         try:
             while True:
                 offset, hash, parent = l.pop()
                 try:
-                    record = self.records[offset]
+                    base_record = self.records[offset]
                 except KeyError:
                     pass
                 else:
+                    if not isinstance(base_record, (DirectoryRecord, FileRecord)):
+                        continue
+                    
                     node = DirectoryNode(
                         parent=parent,
-                        is_file=isinstance(record, FileRecord),
-                        record=record,
+                        is_file=isinstance(base_record, FileRecord),
+                        record=base_record,
                         hash=hash,
                     )
-                    parent.children[record.name] = node
+                    parent.children[base_record.name] = node
 
-                    if node.is_directory:
-                        for entry in record.entries:
+                    if node.is_directory and isinstance(base_record, DirectoryRecord):
+                        for entry in base_record.entries:
                             l.append((entry.offset, entry.hash, node))
         except IndexError:
             pass
@@ -771,7 +785,7 @@ class GGPKFile(AbstractFileReadOnly, metaclass=InheritedDocStringsMeta):
         """
         Reads the records from the file into object.records.
         """
-        records = {}
+        records: dict[int, BaseRecord] = {}
         offset = 0
         size = buffer.seek(0, os.SEEK_END)
 
@@ -822,7 +836,7 @@ class GGPKFile(AbstractFileReadOnly, metaclass=InheritedDocStringsMeta):
 
 
 if __name__ == "__main__":
-    from line_profiler import LineProfiler
+    from line_profiler import LineProfiler  # type: ignore[import-not-found]
 
     profiler = LineProfiler()
     """profiler.add_function(GGPKFile.read)

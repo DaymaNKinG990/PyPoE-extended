@@ -66,10 +66,10 @@ from tempfile import TemporaryDirectory
 from typing import List, Union, Dict, Tuple
 
 # 3rd party
-from fnvhash import fnv1a_64
+from fnvhash import fnv1a_64  # type: ignore[import-untyped]
 
 try:
-    import cffi
+    import cffi  # type: ignore[import-untyped]
 except ImportError:
     cffi = None
 
@@ -194,11 +194,13 @@ class Bundle(AbstractFileReadOnly):
 
         for i in range(0, self.entry_count):
             offset2 = offset + self.chunks[i]
-            self.data[i] = raw[offset:offset2]
+            if not isinstance(self.data, dict):
+                self.data = {}
+            self.data[i] = raw[offset:offset2]  # type: ignore[index]
 
             offset = offset2
 
-    def decompress(self, start: int = 0, end: int = None):
+    def decompress(self, start: int = 0, end: int | None = None):
         """
         Decompresses this bundle's contents.
 
@@ -215,6 +217,9 @@ class Bundle(AbstractFileReadOnly):
         if not self.data:
             raise ValueError()
 
+        if not isinstance(self.data, dict):
+            raise TypeError("Data must be dict before decompression")
+
         if end is None:
             end = self.entry_count
 
@@ -227,9 +232,10 @@ class Bundle(AbstractFileReadOnly):
                     size = self.size_decompressed % self.chunk_size
 
                 out = ffi.new('uint8_t[]', size+64)
+                chunk_data = self.data[i]
                 rtrcode = ooz.Ooz_Decompress(
-                    self.data[i],  # src_buff
-                    len(self.data[i]),  # src_len
+                    chunk_data,  # src_buff
+                    len(chunk_data),  # src_len
                     out,  # dst
                     size,  # dst_size
                     0,
@@ -247,7 +253,7 @@ class Bundle(AbstractFileReadOnly):
                 if rtrcode == 0:
                     raise ValueError('Decode error - returned 0 bytes')
 
-                self.data[i] = ffi.buffer(out)[:-64]
+                self.data[i] = ffi.buffer(out)[:-64]  # type: ignore[index]
         else:
             with TemporaryDirectory() as tempdir:
                 for i in range(start, end):
@@ -259,14 +265,14 @@ class Bundle(AbstractFileReadOnly):
                         else:
                             size = self.size_decompressed % 262144
                         f.write(struct.pack('<Q', size))
-                        f.write(self.data[i])
+                        f.write(self.data[i])  # type: ignore[arg-type]
 
                     os.system('ooz -d %(fn)s.in %(fn)s.out' % {'fn': fn})
 
                     with open('%s.out' % fn, 'rb') as f:
-                        self.data[i] = f.read()
+                        self.data[i] = f.read()  # type: ignore[index]
 
-        self.data = b''.join(self.data.values())
+        self.data = b''.join(self.data.values())  # type: ignore[union-attr]
 
 
 class PATH_TYPES(IntEnum):
@@ -290,7 +296,7 @@ class BundleRecord(IndexRecord):
     """
     __slots__ = ['parent', 'name', 'size',  'contents', 'BYTES']
 
-    _REPR_EXTRA_ATTRIBUTES = {x: None for x in __slots__}
+    _REPR_EXTRA_ATTRIBUTES: dict[str, None] = {x: None for x in __slots__}  # type: ignore[assignment]
 
     def __init__(self, raw: bytes, parent: 'Index', offset: int):
         self.parent: Index = parent
@@ -352,8 +358,8 @@ class FileRecord(IndexRecord):
     """
     __slots__ = ['parent', 'hash', 'bundle', 'file_offset', 'file_size']
 
-    _REPR_EXTRA_ATTRIBUTES = {x: None for x in __slots__}
-    SIZE = 20
+    _REPR_EXTRA_ATTRIBUTES: dict[str, None] = {x: None for x in __slots__}  # type: ignore[assignment]
+    SIZE: int = 20
 
     def __init__(self, raw: bytes, parent: 'Index', offset: int):
         data = struct.unpack_from('<QIII', raw, offset=offset)
@@ -373,8 +379,12 @@ class FileRecord(IndexRecord):
         -------
         The contents of the file associated with this record.
         """
-        return self.bundle.contents.data[
-               self.file_offset:self.file_offset+self.file_size]
+        if self.bundle.contents is None:
+            raise ValueError("Bundle contents not loaded")
+        data = self.bundle.contents.data
+        if isinstance(data, dict):
+            raise TypeError("Bundle data is still chunked, decompress first")
+        return data[self.file_offset:self.file_offset+self.file_size]
 
 
 class DirectoryRecord(IndexRecord):

@@ -122,25 +122,17 @@ disallow_untyped_defs = false  # Включим позже поэтапно
 check_untyped_defs = true
 
 # Disable specific error codes for UI modules (PySide6 stub issues)
+# This is justified - MyPy doesn't understand Qt enums properly
 [[tool.mypy.overrides]]
 module = "PyPoE.ui.*"
 disable_error_code = ["attr-defined"]
 
-# Disable union-attr and operator errors for files with complex Union types
-[[tool.mypy.overrides]]
-module = [
-    "PyPoE.poe.file.bundle",
-    "PyPoE.poe.file.ggpk",
-    "PyPoE.poe.file.translations.models",
-    "PyPoE.poe.file.translations.file",
-    "PyPoE.poe.file.file_system",
-    "PyPoE.poe.file.dat",
-    "PyPoE.poe.file.specification.fields",
-    "PyPoE.poe.patchserver",
-    "PyPoE.cli.exporter.wiki.parsers.lua",
-    "PyPoE.cli.exporter.wiki.parsers.skill",
-]
-disable_error_code = ["union-attr", "operator", "index", "arg-type", "assignment", "return-value"]
+# TODO: Fix Union types properly instead of suppressing errors
+# The following overrides were removed to address real typing issues:
+# - PyPoE.poe.file.bundle (complex dict[int, bytes] | bytes unions)
+# - PyPoE.poe.file.ggpk (len() on Union types)
+# - PyPoE.poe.file.translations.models (incorrect Generic types)
+# - Other files with Union/assignment issues
 
 [tool.pytest.ini_options]
 minversion = "7.0"
