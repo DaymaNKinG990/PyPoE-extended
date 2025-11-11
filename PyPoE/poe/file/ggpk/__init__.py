@@ -15,16 +15,15 @@ Internal API:
 - Nodes: DirectoryNode
 """
 
+from PyPoE.poe.file.ggpk.file import GGPKFile
 from PyPoE.poe.file.ggpk.records import (
     GGPKError,
     InvalidTagError,
 )
 
 __all__ = [
+    "GGPKFile",
     "GGPKError",
     "InvalidTagError",
 ]
-
-# Note: GGPKFile and other classes will be exported after refactoring
-# For now, keep backward compatibility by importing from parent module
 
