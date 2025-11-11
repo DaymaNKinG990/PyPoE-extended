@@ -110,8 +110,10 @@ ignore = [
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401"]  # Allow unused imports in __init__
 "tests/**/*.py" = ["S101"]  # Allow assert in tests
-"PyPoE/ui/**/*.py" = ["F403", "F405", "N802"]  # Qt UI: wildcard imports and camelCase methods are standard
+"PyPoE/ui/**/*.py" = ["F403", "F405", "N802", "B008"]  # Qt UI: wildcard imports, camelCase methods, and Qt default args are standard
 "scripts/**/*.py" = ["N999", "E722", "B008", "B023", "B020"]  # Scripts: relaxed naming and error handling
+"PyPoE/**/constants.py" = ["N801"]  # Constants use UPPERCASE naming convention
+"PyPoE/**/__init__.py" = ["N999"]  # Package name PyPoE uses CamelCase
 
 [tool.mypy]
 python_version = "3.10"
