@@ -91,7 +91,7 @@ def _simple_conflict_factory(data):
 
 
 class WikiCondition(parser.WikiCondition):
-    COPY_KEYS = (
+    COPY_KEYS = (  # type: ignore[assignment]
         # for skills
         "radius",
         "radius_description",
@@ -130,11 +130,11 @@ class WikiCondition(parser.WikiCondition):
         "prophecy_objective",
         "prophecy_reward",
     )
-    COPY_MATCH = re.compile(
+    COPY_MATCH = re.compile(  # type: ignore[assignment]
         r"^(upgraded_from_set|implicit[0-9]+_(?:text|random_list)).*", re.UNICODE
     )
 
-    NAME = "Base item"
+    NAME = "Base item"  # type: ignore[assignment]
     INDENT = 40
     ADD_INCLUDE = False
 
@@ -149,7 +149,7 @@ class MapItemWikiCondition(WikiCondition):
 
 class UniqueMapItemWikiCondition(MapItemWikiCondition):
     NAME = "Item"
-    COPY_MATCH = re.compile(
+    COPY_MATCH = re.compile(  # type: ignore[assignment]
         r"^(upgraded_from_set|(ex|im)plicit[0-9]+_(?:text|random_list)).*", re.UNICODE
     )
 

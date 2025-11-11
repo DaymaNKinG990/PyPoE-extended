@@ -52,13 +52,13 @@ __all__ = []
 
 
 class MonsterWikiCondition(parser.WikiCondition):
-    COPY_KEYS = (
+    COPY_KEYS = (  # type: ignore[assignment]
         'main_page',
         'release_version',
         'screenshot_ext',
     )
 
-    NAME = 'Monster'
+    NAME = 'Monster'  # type: ignore[assignment]
     ADD_INCLUDE = False
     INDENT = 33
 
@@ -283,16 +283,16 @@ class MonsterParser(parser.BaseParser):
             for row_key, copy_data in self._COPY_KEYS.items():
                 value = monster[row_key]
 
-                condition = copy_data.get('condition')
+                condition = copy_data.get('condition')  # type: ignore[attr-defined]
                 if condition is not None and not condition(monster):
                     continue
 
-                fmt = copy_data.get('format')
+                fmt = copy_data.get('format')  # type: ignore[attr-defined]
                 if fmt:
                     value = fmt(value)
 
                 if value:
-                    data[copy_data['template']] = value
+                    data[copy_data['template']] = value  # type: ignore[index]
 
             cond = MonsterWikiCondition(
                 data=data,

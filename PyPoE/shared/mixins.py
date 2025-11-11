@@ -41,6 +41,7 @@ Classes
 # Python
 import inspect
 from collections import OrderedDict
+from typing import Any
 
 # 3rd-party
 
@@ -89,9 +90,9 @@ class ReprMixin:
 
     _REPR_PRIVATE_ATTRIBUTES = False
     _REPR_ARGUMENTS_IGNORE_MISSING = False
-    _REPR_ARGUMENTS_TO_ATTRIBUTES = {}
-    _REPR_ARGUMENTS_IGNORE = set()
-    _REPR_EXTRA_ATTRIBUTES = OrderedDict()
+    _REPR_ARGUMENTS_TO_ATTRIBUTES: dict[str, str] = {}
+    _REPR_ARGUMENTS_IGNORE: set[str] = set()
+    _REPR_EXTRA_ATTRIBUTES: OrderedDict[str, Any] = OrderedDict()
 
     def __get_repr_obj(self, name, test_private):
         if not hasattr(self, name):
@@ -106,7 +107,7 @@ class ReprMixin:
 
     def __repr__(self):
         args = []
-        for name, parameter in inspect.signature(self.__init__).parameters.items():
+        for name, parameter in inspect.signature(self.__init__).parameters.items():  # type: ignore[misc]
             if parameter.kind == inspect.Parameter.POSITIONAL_ONLY:
                 continue
 
