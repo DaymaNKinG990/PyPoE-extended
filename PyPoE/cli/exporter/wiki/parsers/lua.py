@@ -35,6 +35,7 @@ See PyPoE/LICENSE
 import warnings
 from collections import OrderedDict, defaultdict
 from functools import partial
+from typing import Any
 
 # Self
 from PyPoE.poe.constants import RARITY
@@ -340,7 +341,7 @@ class OTStatsParser(GenericLuaParser):
     )
 
     _TC_KWARGS = {
-        'merge_with_custom_file': True,
+        'merge_with_custom_file': True,  # type: ignore[dict-item]
     }
 
     def main(self, parsed_args):
@@ -897,15 +898,15 @@ class HeistParser(GenericLuaParser):
     )
 
     def main(self, parsed_args):
-        heist_areas = []
+        heist_areas: list[dict[str, Any]] = []
         for row in self.rr['HeistAreas.dat']:
             self._copy_from_keys(row, self._COPY_KEYS_HEIST_AREAS, heist_areas)
 
-        heist_jobs = []
+        heist_jobs: list[dict[str, Any]] = []
         for row in self.rr['HeistJobs.dat']:
             self._copy_from_keys(row, self._COPY_KEYS_HEIST_JOBS, heist_jobs)
 
-        heist_npcs = []
+        heist_npcs: list[dict[str, Any]] = []
         heist_npc_skills = []
         heist_npc_stats = []
         for row in self.rr['HeistNPCs.dat']:
@@ -983,7 +984,7 @@ class PantheonParser(GenericLuaParser):
     def main(self, parsed_args):
         self.rr['PantheonSouls.dat'].build_index('PantheonPanelLayoutKey')
 
-        pantheon = []
+        pantheon: list[dict[str, Any]] = []
         pantheon_souls = []
         pantheon_stats = []
 
@@ -1124,15 +1125,15 @@ class SynthesisParser(GenericLuaParser):
         },
     )
 
-    _files = [row['file'] for row in _DATA]
+    _files = [row['file'] for row in _DATA]  # type: ignore[misc]
 
     def main(self, parsed_args):
-        data = {}
+        data: dict[str, list[Any]] = {}
         for definition in self._DATA:
-            data[definition['key']] = []
+            data[definition['key']] = []  # type: ignore[index]
             for row in self.rr[definition['file']]:
                 self._copy_from_keys(
-                    row, definition['data'], data[definition['key']]
+                    row, definition['data'], data[definition['key']]  # type: ignore[index]
                 )
 
         for row in data['synthesis_mods']:
@@ -1149,7 +1150,7 @@ class SynthesisParser(GenericLuaParser):
         for definition in self._DATA:
             key = definition['key']
             r.add_result(
-                text=LuaFormatter.format_module(data[key]),
+                text=LuaFormatter.format_module(data[key]),  # type: ignore[index]
                 out_file='%s.lua' % key,
                 wiki_page=[{
                     'page': 'Module:Synthesis/%s' % key,
@@ -1327,17 +1328,17 @@ class MonsterParser(GenericLuaParser):
     #_files = [row['files'].keys() in _DATA]
 
     def main(self, parsed_args):
-        data = {}
+        data: dict[str, list[Any]] = {}
         for definition in self._DATA:
-            data[definition['key']] = []
+            data[definition['key']] = []  # type: ignore[index]
             for row in self.rr[definition['file']]:
                 self._copy_from_keys(
-                    row, definition['data'], data[definition['key']]
+                    row, definition['data'], data[definition['key']]  # type: ignore[index]
                 )
 
         for key, data_map in self._ENUM_DATA.items():
-            map_multi = []
-            for file_name, definition in data_map.items():
+            map_multi: list[Any] = []
+            for file_name, definition in data_map.items():  # type: ignore[assignment]
                 for i, row in enumerate(self.rr[file_name]):
                     self._copy_from_keys(
                         row, definition, map_multi, i
@@ -1438,7 +1439,7 @@ class CraftingBenchParser(GenericLuaParser):
     _files = ['CraftingBenchOptions.dat']
 
     def main(self, parsed_args):
-        data = {
+        data: dict[str, list[Any]] = {
             'crafting_bench_options': [],
             'crafting_bench_options_costs': [],
         }
@@ -1456,9 +1457,9 @@ class CraftingBenchParser(GenericLuaParser):
 
 
         r = ExporterResult()
-        for key, data in data.items():
+        for key, data_values in data.items():  # type: ignore[assignment]
             r.add_result(
-                text=LuaFormatter.format_module(data),
+                text=LuaFormatter.format_module(data_values),
                 out_file='%s.lua' % key,
                 wiki_page=[{
                     'page': 'Module:Crafting bench/%s' % key,
