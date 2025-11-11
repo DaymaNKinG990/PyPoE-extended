@@ -71,7 +71,7 @@ class TagHandler:
 
         self.tag_handlers = {}
         for key, func in self.__class__.tag_handlers.items():
-            self.tag_handlers[key] = partial(func, self)  # type: ignore[operator, arg-type]
+            self.tag_handlers[key] = partial(func, self)  # type: ignore[misc, operator, arg-type]
 
     def _check_link(self, string):
         items = self.rr['BaseItemTypes.dat'].index['Name'][string]
