@@ -45,7 +45,7 @@ from functools import wraps
 # 3rd-party
 from PySide6.QtCore import *
 from PySide6.QtGui import QAction
-from PySide6.QtWidgets import *
+from PySide6.QtWidgets import *  # type: ignore[assignment]
 
 # self
 from PyPoE.poe.constants import DISTRIBUTOR, VERSION
@@ -95,7 +95,7 @@ class GGPKOpenAction(QAction):
         p = self.parent()
 
         file = QFileDialog.getOpenFileName(
-            p,
+            p,  # type: ignore[arg-type]
             self.tr("Open GGPK"),
             dir,
             self.tr("GGPK Files (*.ggpk)")
@@ -163,7 +163,7 @@ class GGPKThread(QThread):
         self.sig_update_progress.emit(self.tr('Reading GGPK records...'), 100)
         ggpk_file = GGPKFile()
         # Hook the function for progress bar
-        ggpk_file._read_record = self._progress_ggpk(ggpk_file._read_record)
+        ggpk_file._read_record = self._progress_ggpk(ggpk_file._read_record)  # type: ignore[method-assign]
         ggpk_file.read(self._file_path)
         # Finished
         self.progress_bar.sig_progress.emit(100)

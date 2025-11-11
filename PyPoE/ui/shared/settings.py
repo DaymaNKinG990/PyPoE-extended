@@ -43,7 +43,7 @@ Internal API
 # 3rd-party
 from PySide6.QtCore import *
 from PySide6.QtGui import QAction
-from PySide6.QtWidgets import *
+from PySide6.QtWidgets import *  # type: ignore[assignment]
 
 # self
 
@@ -85,8 +85,8 @@ class SettingsWindow(QDialog):
         self.frame.setMinimumWidth(500)
         self.base_layout.addWidget(self.frame)
 
-        self.layout = QVBoxLayout()
-        self.frame.setLayout(self.layout)
+        self.main_layout = QVBoxLayout()
+        self.frame.setLayout(self.main_layout)
 
         self.current_frame = None
 

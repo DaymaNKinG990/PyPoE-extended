@@ -78,25 +78,25 @@ class DatExportHandler:
 
         if ver != VERSION.DEFAULT:
             console('Loading specification for %s' % ver)
-            dat.set_default_spec(version=ver)
+            dat.set_default_spec(version=ver)  # type: ignore[attr-defined]
 
-        spec = dat._default_spec
+        spec = dat._default_spec  # type: ignore[attr-defined]
         if args.files is None:
             args.files = list(spec)
         else:
-            files = set()
+            files_set = set()
 
             for file_name in args.files:
                 if file_name in spec:
-                    files.add(file_name)
+                    files_set.add(file_name)
                 elif not file_name.endswith('.dat'):
                     file_name += '.dat'
                     if file_name not in spec:
                         console('.dat file "%s" is not in specification. Removing.' % file_name, msg=Msg.error)
                     else:
-                        files.add(file_name)
+                        files_set.add(file_name)
 
-            files = list(files)
+            files = list(files_set)
             files.sort()
             args.files = files
 
@@ -118,7 +118,7 @@ class DatExportHandler:
             #ggpk_data = index.get_dir_record("Data/%s" % lang)
             dir_path = "Data/%s/" % lang
         remove = []
-        for name in tqdm(args.files):
+        for name in args.files:
             file_path = dir_path + name
             try:
                 data = file_system.get_file(file_path)

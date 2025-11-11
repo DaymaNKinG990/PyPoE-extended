@@ -187,7 +187,7 @@ class GGPKViewModel(QObject):
         """
         if not self.is_ggpk_loaded():
             return None
-        return self.ggpk_file.directory
+        return self.ggpk_file.directory  # type: ignore[union-attr]
     
     def set_current_node(self, node: Any) -> None:
         """
@@ -284,7 +284,7 @@ class GGPKViewModel(QObject):
             regex = re.compile(re.escape(pattern), re.IGNORECASE)
         
         results = []
-        for node in self.ggpk_file.directory.walk():
+        for node in self.ggpk_file.directory.walk(function=lambda n: None):  # type: ignore[union-attr, call-arg]
             if regex.search(node.record.name):
                 results.append(node)
         
