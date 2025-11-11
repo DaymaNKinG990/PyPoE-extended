@@ -588,10 +588,7 @@ class TranslationString(TranslationReprMixin):
                 continue
             unused.append(val)
 
-        if only_values:
-            string = values  # type: ignore[assignment]
-        else:
-            string = "".join(string + [self.strings[-1]])  # type: ignore[assignment]
+        string = values if only_values else "".join(string + [self.strings[-1]])  # type: ignore[assignment]
 
         return string, unused, values, extra_strings  # type: ignore[return-value]
 

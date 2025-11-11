@@ -110,10 +110,17 @@ ignore = [
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401"]  # Allow unused imports in __init__
 "tests/**/*.py" = ["S101"]  # Allow assert in tests
-"PyPoE/ui/**/*.py" = ["F403", "F405", "N802", "B008"]  # Qt UI: wildcard imports, camelCase methods, and Qt default args are standard
+"PyPoE/ui/**/*.py" = ["F403", "F405", "N802", "B008", "N999"]  # Qt UI: wildcard imports, camelCase methods, Qt default args, and __main__
 "scripts/**/*.py" = ["N999", "E722", "B008", "B023", "B020"]  # Scripts: relaxed naming and error handling
 "PyPoE/**/constants.py" = ["N801"]  # Constants use UPPERCASE naming convention
 "PyPoE/**/__init__.py" = ["N999"]  # Package name PyPoE uses CamelCase
+"PyPoE/poe/file/bundle.py" = ["N801"]  # ENCODE_TYPES, PATH_TYPES are constants
+"PyPoE/poe/file/shared/__init__.py" = ["N801"]  # FILE_SYSTEM_TYPES is constant
+"PyPoE/poe/sim/item.py" = ["N801"]  # ITEM_TYPES is constant
+"PyPoE/poe/patchserver.py" = ["SIM115"]  # Complex file handling, refactoring needed
+"PyPoE/poe/file/ggpk.py" = ["B023"]  # Loop variable capture, refactoring needed
+"PyPoE/cli/exporter/wiki/handler.py" = ["B026"]  # Star-arg unpacking pattern
+"PyPoE/poe/file/shared/cache.py" = ["B026"]  # Star-arg unpacking pattern
 
 [tool.mypy]
 python_version = "3.10"

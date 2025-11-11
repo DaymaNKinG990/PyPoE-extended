@@ -114,7 +114,7 @@ class GGPKError(Exception):
     pass
 
 
-class InvalidTagException(GGPKError):
+class InvalidTagError(GGPKError):
     """Error raised when an invalid tag is encountered in a GGPK file."""
     pass
 
@@ -593,7 +593,7 @@ class GGPKFile(AbstractFileReadOnly, metaclass=InheritedDocStringsMeta):
         elif tag == b"GGPK":
             record = GGPKRecord(self, length, offset)
         else:
-            raise InvalidTagException(tag)
+            raise InvalidTagError(tag)
 
         record.read(ggpkfile)
         records[offset] = record
@@ -793,7 +793,7 @@ class GGPKFile(AbstractFileReadOnly, metaclass=InheritedDocStringsMeta):
                     ggpkfile=buffer,
                     offset=offset,
                 )
-            except InvalidTagException as e:
+            except InvalidTagError as e:
                 logger.warning("invalid_tag_seeking_next", tag=str(e.args), offset=offset)
                 buffer.seek(offset)
 
