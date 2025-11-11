@@ -303,7 +303,7 @@ class MinimapIconsParser(GenericLuaParser):
     )
 
     def main(self, parsed_args):
-        minimap_icons = []
+        minimap_icons: list[dict[str, Any]] = []
         minimap_icons_lookup = OrderedDict()
 
         for row in self.rr['MinimapIcons.dat']:
@@ -411,8 +411,8 @@ class AtlasParser(GenericLuaParser):
     )
 
     def main(self, parsed_args):
-        atlas_regions = []
-        atlas_base_item_types = []
+        atlas_regions: list[dict[str, Any]] = []
+        atlas_base_item_types: list[dict[str, Any]] = []
 
         for row in self.rr['AtlasRegions.dat']:
             self._copy_from_keys(row, self._COPY_KEYS_ATLAS_REGIONS,
@@ -492,9 +492,9 @@ class BestiaryParser(GenericLuaParser):
     )
 
     def main(self, parsed_args):
-        recipes = []
-        components = []
-        recipe_components_temp = defaultdict(lambda:defaultdict(int))
+        recipes: list[dict[str, Any]] = []
+        components: list[dict[str, Any]] = []
+        recipe_components_temp: defaultdict[str, defaultdict[str, int]] = defaultdict(lambda:defaultdict(int))
 
         for row in self.rr['BestiaryRecipes.dat']:
             self._copy_from_keys(row, self._COPY_KEYS_BESTIARY, recipes)
@@ -588,9 +588,9 @@ class BlightParser(GenericLuaParser):
     )
 
     def main(self, parsed_args):
-        blight_crafting_recipes = []
+        blight_crafting_recipes: list[dict[str, Any]] = []
         blight_crafting_recipes_items = []
-        blight_towers = []
+        blight_towers: list[dict[str, Any]] = []
 
         self.rr['BlightTowersPerLevel.dat'].build_index('BlightTowersKey')
 
@@ -722,11 +722,11 @@ class DelveParser(GenericLuaParser):
     )
 
     def main(self, parsed_args):
-        delve_level_scaling = []
-        delve_resources_per_level = []
-        delve_upgrades = []
-        delve_upgrade_stats = []
-        fossils = []
+        delve_level_scaling: list[dict[str, Any]] = []
+        delve_resources_per_level: list[dict[str, Any]] = []
+        delve_upgrades: list[dict[str, Any]] = []
+        delve_upgrade_stats: list[dict[str, Any]] = []
+        fossils: list[dict[str, Any]] = []
         fossil_weights = []
 
         for row in self.rr['DelveLevelScaling.dat']:
@@ -816,14 +816,14 @@ class HarvestParser(GenericLuaParser):
 
     def main(self, parsed_args):
         tag_handler = HarvestTagHandler(rr=self.rr)
-        harvest_craft_options = []
+        harvest_craft_options: list[dict[str, Any]] = []
 
         for row in self.rr['HarvestCraftOptions.dat']:
             self._copy_from_keys(row, self._COPY_KEYS_HARVEST_CRAFT_OPTIONS,
                                  harvest_craft_options)
             harvest_craft_options[-1]['text'] = parse_description_tags(
                 harvest_craft_options[-1]['text']).handle_tags(
-                tag_handler.tag_handlers)
+                tag_handler.tag_handlers)  # type: ignore[arg-type]
 
 
         r = ExporterResult()
