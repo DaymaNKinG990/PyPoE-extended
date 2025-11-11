@@ -136,7 +136,7 @@ class Tag(ReprMixin):
         while parent:
             parent = self.parent
 
-        return parent
+        return parent  # type: ignore[return-value]
 
     def handle_tags(self, handlers: Dict[str, Callable]) -> str:
         """
@@ -168,7 +168,7 @@ class Tag(ReprMixin):
         if self.id is None:
             return out_str
         else:
-            return handlers[self.id](hstr=out_str, parameter=self.parameter)
+            return handlers[self.id](hstr=out_str, parameter=self.parameter)  # type: ignore[no-any-return]
 
 # =============================================================================
 # Functions
@@ -192,7 +192,7 @@ def parse_description_tags(text: str) -> Tag:
     def f(scanner, result, tid):
         return tid, scanner.match, result
 
-    scanner = re.Scanner([
+    scanner = re.Scanner([  # type: ignore[attr-defined]
         (r'(?<!<)<(?!<)', partial(f, tid='lt')),
         (r'(?<!>)>(?!>)', partial(f, tid='gt')),
         (r'\{', partial(f, tid='lbrace')),
@@ -232,7 +232,7 @@ def parse_description_tags(text: str) -> Tag:
                 del in_text[depth]
                 del parameter[depth]
                 del has_tag[depth]
-                last = last.parent
+                last = last.parent  # type: ignore[assignment]
                 depth -= 1
             else:
                 last.append_to_children(text)
@@ -240,7 +240,7 @@ def parse_description_tags(text: str) -> Tag:
             if in_tag[depth]:
                 parameter[depth] = True
             else:
-                last.children[-1] += text
+                last.children[-1] += text  # type: ignore[operator]
         elif tid == 'text':
             if in_tag[depth]:
                 if parameter[depth]:
