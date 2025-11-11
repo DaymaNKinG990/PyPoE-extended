@@ -223,15 +223,15 @@ class Bundle(AbstractFileReadOnly):
         if end is None:
             end = self.entry_count
 
-        last = self.entry_count - 1
+        last = self.entry_count - 1  # type: ignore[operator]
         if ooz:
-            for i in range(start, end):
+            for i in range(start, end):  # type: ignore[arg-type]
                 if i != last:
                     size = self.chunk_size
                 else:
-                    size = self.size_decompressed % self.chunk_size
+                    size = self.size_decompressed % self.chunk_size  # type: ignore[operator]
 
-                out = ffi.new('uint8_t[]', size+64)
+                out = ffi.new('uint8_t[]', size+64)  # type: ignore[operator]
                 chunk_data = self.data[i]
                 rtrcode = ooz.Ooz_Decompress(
                     chunk_data,  # src_buff
@@ -256,14 +256,14 @@ class Bundle(AbstractFileReadOnly):
                 self.data[i] = ffi.buffer(out)[:-64]  # type: ignore[index]
         else:
             with TemporaryDirectory() as tempdir:
-                for i in range(start, end):
+                for i in range(start, end):  # type: ignore[arg-type]
                     fn = os.path.join(tempdir,'chunk%s' % i)
 
                     with open('%s.in' % fn, 'wb') as f:
                         if i != last:
                             size = 262144
                         else:
-                            size = self.size_decompressed % 262144
+                            size = self.size_decompressed % 262144  # type: ignore[operator]
                         f.write(struct.pack('<Q', size))
                         f.write(self.data[i])  # type: ignore[arg-type]
 
@@ -359,7 +359,7 @@ class FileRecord(IndexRecord):
     __slots__ = ['parent', 'hash', 'bundle', 'file_offset', 'file_size']
 
     _REPR_EXTRA_ATTRIBUTES: dict[str, None] = {x: None for x in __slots__}  # type: ignore[assignment]
-    SIZE: int = 20
+    SIZE: int = 20  # type: ignore[assignment]
 
     def __init__(self, raw: bytes, parent: 'Index', offset: int):
         data = struct.unpack_from('<QIII', raw, offset=offset)
@@ -399,8 +399,8 @@ class DirectoryRecord(IndexRecord):
     """
     __slots__ = ['parent', 'hash', 'offset', 'size', 'unknown', '_paths']
 
-    _REPR_EXTRA_ATTRIBUTES = {x: None for x in __slots__}
-    SIZE = 20
+    _REPR_EXTRA_ATTRIBUTES = {x: None for x in __slots__}  # type: ignore[assignment]
+    SIZE = 20  # type: ignore[assignment]
 
     def __init__(self, raw: bytes, parent: 'Index', offset: int):
         self.parent: Index = parent
@@ -433,7 +433,7 @@ class DirectoryRecord(IndexRecord):
             A list of all files with their full paths (relative to the game
             root) contained within this directory
         """
-        return [x.decode() for x in self._paths]
+        return [x.decode() for x in self._paths]  # type: ignore[attr-defined]
 
     @property
     def files(self) -> List[str]:
@@ -502,7 +502,7 @@ class Index(Bundle):
         except KeyError:
             raise FileNotFoundError()
 
-    def get_hash(self, path: Union[str, bytes], type: PATH_TYPES = None) -> int:
+    def get_hash(self, path: Union[str, bytes], type: PATH_TYPES = None) -> int:  # type: ignore[assignment]
         """
         Calculates the 64 bit FNA1a hash value for a given path
 
@@ -533,7 +533,7 @@ class Index(Bundle):
             path = path.lower()
         path += b'++'
 
-        return fnv1a_64(path)
+        return fnv1a_64(path)  # type: ignore[no-any-return]
 
     def _read(self, buffer: BytesIO):
         if self.bundles:
@@ -578,7 +578,7 @@ class Index(Bundle):
             raise TypeError("Expected bytes after decompression")
         
         for directory_record in self.directories.values():
-            directory_record._paths = self._make_paths(
+            directory_record._paths = self._make_paths(  # type: ignore[assignment]
                 dir_data[
                     directory_record.offset:
                     directory_record.offset + directory_record.size
@@ -636,7 +636,7 @@ if __name__ == '__main__':
     ind = Index()
     ind.read('C:/Temp/Bundles2/_.index.bin')
 
-    print(ind['Metadata/minimap_colours.txt'])
+    print(ind['Metadata/minimap_colours.txt'])  # type: ignore[index]
 
     '''b.decompress()
     for var in dir(b):
