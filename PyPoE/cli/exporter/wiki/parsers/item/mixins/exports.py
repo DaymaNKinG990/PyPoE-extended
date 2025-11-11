@@ -10,10 +10,13 @@ Class attributes are defined in the main ItemsParser class.
 # =============================================================================
 
 import os
-from collections import OrderedDict
+import warnings
+from typing import TYPE_CHECKING, Any, Dict
+from collections import OrderedDict, defaultdict
 
 from PyPoE.cli.core import Msg, console
 from PyPoE.cli.exporter.wiki.handler import ExporterResult
+from PyPoE.cli.exporter.wiki.parsers.item.base import MapItemWikiCondition
 
 # =============================================================================
 # Classes
@@ -22,8 +25,27 @@ from PyPoE.cli.exporter.wiki.handler import ExporterResult
 
 class ExportsMixin:
     """Mixin providing exports methods for ItemsParser."""
-
-    """Mixin providing exports methods for ItemsParser."""
+    
+    # Type hints for attributes from parent ItemsParser class
+    if TYPE_CHECKING:
+        rr: Any
+        rr2: Any
+        tc: Any
+        file_system: Any
+        _parsed_args: Any
+        _language: str
+        _LANG: Dict[str, Dict[str, str]]
+        _MAP_COLORS: Dict[str, str]
+        _MAP_RELEASE_VERSION: Dict[str, str]
+        _img_path: Any
+        _type_map: Any
+        
+        def _image_init(self, *args: Any, **kwargs: Any) -> None: ...
+        def _write_dds(self, *args: Any, **kwargs: Any) -> None: ...
+        def _format_map_name(self, *args: Any, **kwargs: Any) -> str: ...
+        def _get_map_series(self, *args: Any, **kwargs: Any) -> Any: ...
+        def _process_base_item_type(self, *args: Any, **kwargs: Any) -> None: ...
+        def _process_purchase_costs(self, *args: Any, **kwargs: Any) -> None: ...
 
     def export_map_icons(self, parsed_args):
         r = ExporterResult()
@@ -141,7 +163,7 @@ class ExportsMixin:
             tier = row["%sTier" % map_series["Id"]]
 
             # Base info
-            infobox = OrderedDict()
+            infobox: OrderedDict[str, Any] = OrderedDict()
             self._process_base_item_type(base_item_type, infobox, not_new_map=False)
             self._type_map(infobox, base_item_type)
 
@@ -171,7 +193,7 @@ class ExportsMixin:
                     infobox["atlas_region_id"] = atlas_node["AtlasRegionsKey"]["Id"]
 
                     minimum = 0
-                    connections = defaultdict(lambda: ["False" for i in range(0, 5)])
+                    connections: defaultdict = defaultdict(lambda: ["False" for i in range(0, 5)])
                     for i in range(0, 5):
                         tier = atlas_node["Tier%s" % i]
                         infobox["atlas_x%s" % i] = atlas_node["X%s" % i]

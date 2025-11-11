@@ -10,6 +10,7 @@ Class attributes are defined in the main ItemsParser class.
 # =============================================================================
 
 import re
+from typing import TYPE_CHECKING, Any, Dict
 
 # =============================================================================
 # Classes
@@ -18,6 +19,10 @@ import re
 
 class TypesMixin:
     """Mixin providing types methods for ItemsParser."""
+    
+    # Type hints for attributes from parent ItemsParser class
+    if TYPE_CHECKING:
+        _LANG: Dict[str, Dict[str, str]]
 
     def _type_level(self, infobox, base_item_type):
         infobox["required_level"] = base_item_type["DropLevel"]

@@ -9,12 +9,21 @@ Class attributes are defined in the main ItemsParser class.
 # Imports
 # =============================================================================
 
+import os
 import re
+import warnings
+from typing import TYPE_CHECKING, Any, Dict
 from collections import OrderedDict
 
+from PyPoE.cli.core import console, Msg
 from PyPoE.cli.exporter import config
 from PyPoE.cli.exporter.wiki import parser
+from PyPoE.cli.exporter.wiki.handler import ExporterResult
 from PyPoE.poe.file.dat import RelationalReader
+from PyPoE.poe.file.ot import OTFile
+from PyPoE.poe.constants import RARITY
+
+from PyPoE.cli.exporter.wiki.parsers.item.base import _apply_column_map, ItemWikiCondition
 
 # =============================================================================
 # Classes
@@ -23,8 +32,30 @@ from PyPoE.poe.file.dat import RelationalReader
 
 class UtilsMixin:
     """Mixin providing utils methods for ItemsParser."""
-
-    """Mixin providing utils methods for ItemsParser."""
+    
+    # Type hints for attributes from parent ItemsParser class
+    if TYPE_CHECKING:
+        rr: Any
+        rr2: Any
+        tc: Any
+        ot: OTFile
+        file_system: Any
+        _parsed_args: Any
+        _language: str
+        _LANG: Dict[str, Dict[str, str]]
+        _DROP_DISABLED_ITEMS_BY_ID: Any
+        _IGNORE_DROP_LEVEL_CLASSES: Any
+        _IGNORE_DROP_LEVEL_ITEMS_BY_ID: Any
+        _SKIP_ITEMS_BY_ID: Any
+        _NAME_OVERRIDE_BY_ID: Dict[str, Dict[str, str]]
+        _master_hideout_doodad_map: Any
+        _conflict_resolver_map: Any
+        _cls_map: Any
+        _img_path: Any
+        
+        def _item_column_index_filter(self, *args: Any, **kwargs: Any) -> Any: ...
+        def _image_init(self, *args: Any, **kwargs: Any) -> None: ...
+        def _write_dds(self, *args: Any, **kwargs: Any) -> None: ...
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -83,10 +114,10 @@ class UtilsMixin:
 
     def _process_purchase_costs(self, source, infobox):
         for rarity in RARITY:
-            if rarity.id >= 5:
+            if rarity.id >= 5:  # type: ignore[attr-defined]
                 break
-            for i, (item, cost) in enumerate(source[rarity.name_upper + "Purchase"], start=1):
-                prefix = "purchase_cost_%s%s" % (rarity.name_lower, i)
+            for i, (item, cost) in enumerate(source[rarity.name_upper + "Purchase"], start=1):  # type: ignore[attr-defined]
+                prefix = "purchase_cost_%s%s" % (rarity.name_lower, i)  # type: ignore[attr-defined]
                 infobox[prefix + "_name"] = item["Name"]
                 infobox[prefix + "_amount"] = cost
 
@@ -257,7 +288,7 @@ class UtilsMixin:
             cls_id = base_item_type["ItemClassesKey"]["Id"]
             m_id = base_item_type["Id"]
 
-            infobox = OrderedDict()
+            infobox: OrderedDict[str, Any] = OrderedDict()
             self._process_base_item_type(base_item_type, infobox)
             self._process_purchase_costs(base_item_type, infobox)
 

@@ -9,9 +9,11 @@ Class attributes are defined in the main ItemsParser class.
 # Imports
 # =============================================================================
 
+from typing import TYPE_CHECKING, Any, Dict
 from collections import OrderedDict
 
 from PyPoE.cli.exporter.wiki import parser
+from PyPoE.cli.exporter.wiki.parsers.item.base import _apply_column_map
 
 # =============================================================================
 # Classes
@@ -20,8 +22,16 @@ from PyPoE.cli.exporter.wiki import parser
 
 class ExtrasMixin:
     """Mixin providing extras methods for ItemsParser."""
-
-    """Mixin providing extras methods for ItemsParser."""
+    
+    # Type hints for attributes from parent ItemsParser class
+    if TYPE_CHECKING:
+        rr: Any
+        tc: Any
+        _LANG: Dict[str, Dict[str, str]]
+        _language: str
+        _parsed_args: Any
+        
+        def _get_stats(self, *args: Any, **kwargs: Any) -> Any: ...
 
     def _currency_extra(self, infobox, base_item_type, currency):
         # Add the "shift click to unstack" stuff to currency-ish items

@@ -9,6 +9,11 @@ Class attributes are defined in the main ItemsParser class.
 # Imports
 # =============================================================================
 
+import warnings
+from typing import TYPE_CHECKING, Any, Dict
+from collections import OrderedDict
+
+from PyPoE.cli.core import Msg, console
 from PyPoE.poe.sim.formula import GemTypes, gem_stat_requirement
 
 # =============================================================================
@@ -18,8 +23,17 @@ from PyPoE.poe.sim.formula import GemTypes, gem_stat_requirement
 
 class SkillsMixin:
     """Mixin providing skills methods for ItemsParser."""
-
-    """Mixin providing skills methods for ItemsParser."""
+    
+    # Type hints for attributes from parent ItemsParser class
+    if TYPE_CHECKING:
+        rr: Any
+        _LANG: Dict[str, Dict[str, str]]
+        _language: str
+        _parsed_args: Any
+        _attribute_map: Any
+        _conflict_active_skill_gems_map: Any
+        
+        def _skill(self, *args: Any, **kwargs: Any) -> bool: ...
 
     def _skill_gem(self, infobox, base_item_type):
         try:
@@ -60,7 +74,7 @@ class SkillsMixin:
         max_level = len(exp_total) - 1
         ge = skill_gem["GrantedEffectsKey"]
 
-        primary = OrderedDict()
+        primary: OrderedDict[str, Any] = OrderedDict()
         self._skill(
             ge=ge,
             infobox=primary,
@@ -89,7 +103,7 @@ class SkillsMixin:
                 second = True
 
         if second:
-            secondary = OrderedDict()
+            secondary: OrderedDict[str, Any] = OrderedDict()
             self._skill(
                 ge=skill_gem["GrantedEffectsKey2"],
                 infobox=secondary,
