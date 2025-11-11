@@ -31,6 +31,7 @@ import warnings
 import os
 from collections import OrderedDict
 from functools import partial
+from typing import Any
 
 from PyPoE.cli.core import console, Msg
 from PyPoE.cli.exporter import config
@@ -83,10 +84,10 @@ class BaseParser:
     }
     _MISSING_MSG = 'Several arguments have not been found:\n%s'
 
-    _TC_KWARGS = {}
+    _TC_KWARGS: dict[str, str] = {}
 
-    _files = []
-    _translations = []
+    _files: list[str] = []
+    _translations: list[str] = []
 
     def __init__(self, base_path, parsed_args):
         self.parsed_args = parsed_args
@@ -134,7 +135,7 @@ class BaseParser:
                              error_msg=_MISSING_MSG):
         self.rr[dat_file_name].build_index(column_id)
 
-        rows = []
+        rows: list[Any] = []
         missing = []
 
         if column_id in self.rr[dat_file_name].columns_unique:
@@ -300,17 +301,17 @@ class BaseParser:
                 result.missing_ids,
                 result.missing_values,
                 full_result=True,
-                lang=self.lang,
+            lang=self.lang,
+        )
+
+        if custom_result.missing_ids:  # type: ignore[union-attr]
+            warnings.warn(
+                'Missing translation for ids %s and values %s' % (
+                    custom_result.missing_ids, custom_result.missing_values),  # type: ignore[union-attr]
+                MissingIdentifierWarning,
             )
 
-            if custom_result.missing_ids:
-                warnings.warn(
-                    'Missing translation for ids %s and values %s' % (
-                        custom_result.missing_ids, custom_result.missing_values),
-                    MissingIdentifierWarning,
-                )
-
-            for line in custom_result.lines:
+        for line in custom_result.lines:  # type: ignore[union-attr]
                 if line:
                     out.append(self._HIDDEN_FORMAT[self.lang] % line)
 
