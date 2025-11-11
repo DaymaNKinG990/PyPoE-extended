@@ -57,6 +57,7 @@ import select
 import struct
 import io
 import os
+from typing import Any
 from urllib import request
 from urllib.error import URLError
 from collections import OrderedDict
@@ -306,8 +307,9 @@ def node_check_hash(directory_node, folder_path=None, ggpk=None,
             folder_hash_concat = b''.join(
                 item[1].digest() for item in child_hash_list)
             node_hash = sha256(folder_hash_concat)
-            hash_test = compare_digest(node_hash.hexdigest(),
-                                       format(self.record.hash, '064x'))
+            if self.record is not None:
+                hash_test = compare_digest(node_hash.hexdigest(),
+                                           format(self.record.hash, '064x'))
         # put folder hash at end of list if recurse and not root
         if self.record is not None and recurse:
             return hash_list + [(self, node_hash, hash_test)]
@@ -399,10 +401,10 @@ def node_outdated_files(patch_file_list, directory_node_path,
 
     node_hash_list = node_check_hash(directory_node,
                                      folder_path=folder_path,
-                                     recurse=recurse,
-                                     bufsize=bufsize)
+                                    recurse=recurse,
+                                    bufsize=bufsize)
 
-    download_list = {}
+    download_list: dict[str, Any] = {}
     for node, checksum, match in node_hash_list:
         # For files that did not match
         if isinstance(node.record, FileRecord) and not match:
@@ -473,7 +475,7 @@ def node_update_files(patch_file_list, directory_node_path,
     dump(dump_dict, file_handle)
     file_handle.close()
 
-    dir_fd = os.open(folder_path, os.O_DIRECTORY)
+    dir_fd = os.open(folder_path, os.O_DIRECTORY)  # type: ignore[attr-defined]
 
     files_subdir = 'files'
     files_count = len(download_list.keys())
@@ -874,7 +876,7 @@ class PatchFileList:
         # Need details of socket
         sock = self.sock
         # Get the seek (cursor) position of data
-        data_current = data_stream.tell()
+        data_current = data_stream.tell()  # type: ignore[attr-defined]
         recv_attempts = 0
         while True:
             # no single value should be long enough to be broken
@@ -883,7 +885,7 @@ class PatchFileList:
                 raise EOFError('Too many attempts to pull data'
                                + ' when expecting more data')
             # Attempt to read length asked for
-            data_read = data_stream.read(read_length)
+            data_read = data_stream.read(read_length)  # type: ignore[attr-defined]
             recv_attempts += 1
             # If less data than expected
             if len(data_read) < read_length:
@@ -897,10 +899,10 @@ class PatchFileList:
                                    + ' when expecting more data')
                 # Otherwise, create a new data stream with
                 # all existing data + data pulled from socket
-                data_stream.seek(0)
-                data_all = data_stream.read() + sock.recv(bufsize)
-                data_stream = io.BytesIO(data_all)
-                data_stream.seek(data_current)
+                data_stream.seek(0)  # type: ignore[attr-defined]
+                data_all = data_stream.read() + sock.recv(bufsize)  # type: ignore[attr-defined]
+                data_stream = io.BytesIO(data_all)  # type: ignore[assignment]
+                data_stream.seek(data_current)  # type: ignore[attr-defined]
                 # Set instance data, for access from other methods
                 self.data = data_stream
             else:
@@ -1006,8 +1008,7 @@ class PatchFileList:
             folder_name = ''
             if query_header != PatchFileList._PROTO_HEADER2:
                 raise KeyError('Unknown patch server header:'
-                               + ' {} from query: {}'
-                               .format(query_header, folder_query))
+                               + f' {query_header!r} from query: {folder_query!r}')
 
             folder_name = self.extract_varchar()
 
@@ -1029,8 +1030,7 @@ class PatchFileList:
                 else:
                     raise KeyError('Unknown patch server'
                                    + ' item type:'
-                                   + ' {} from query: {}'
-                                   .format(header, folder_query))
+                                   + f' {header!r} from query: {folder_query!r}')
 
                 name = self.extract_varchar()
 
@@ -1155,8 +1155,8 @@ class DirectoryNodeExtended(DirectoryNode):
 
         if recurse is True:
             if len(self.children) > 1:
-                children = []
-                record_dict['children'] = children
+                children: list[dict[str, Any]] = []
+                record_dict['children'] = children  # type: ignore[assignment]
 
                 for child in self.children:
                     children.append(child.get_dict())
