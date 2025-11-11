@@ -547,9 +547,9 @@ class ItemParser:
             if rarity is None:
                 raise ValueError('No rarity found in the item header')
 
-            rarity = rarity.group('rarity')
+            rarity = rarity.group('rarity')  # type: ignore[assignment]
             for rarity_const in RARITY:
-                if rarity_const.name_upper == rarity:
+                if rarity_const.name_upper == rarity:  # type: ignore[attr-defined]
                     self.rarity = rarity_const
                     self._type = ITEM_TYPES.ITEM
                     break
@@ -612,7 +612,7 @@ class ItemParser:
         match = self._re_sockets.match(section())
         if match:
             self.sockets = []
-            self.links = []
+            self.links: list[list[ItemSocket]] = []
             last_linked = False
             for i, char in enumerate(
                     self._re_sockets_split.split(match.group('sockets'))
@@ -620,7 +620,7 @@ class ItemParser:
                 if i % 2 == 0:
                     found = False
                     for socket_colour in SOCKET_COLOUR:
-                        if socket_colour.char == char:
+                        if socket_colour.char == char:  # type: ignore[attr-defined]
                             found = True
                             break
 
@@ -643,8 +643,8 @@ class ItemParser:
                         raise ValueError('Unsupported link character: %s' % char)
             increment_sec()
         else:
-            self.sockets = None
-            self.links = None
+            self.sockets = None  # type: ignore[assignment]
+            self.links = None  # type: ignore[assignment]
 
         # Limited to section
         increment_sec(self._handle_singular(section(), 'limit'))
@@ -718,16 +718,16 @@ class ItemParser:
         # Do a final pass on the prefix for magic items
         if self._type == ITEM_TYPES.ITEM and self.rarity == RARITY.MAGIC and ((self.suffix is None and len(self.stats) >= 1) or (self.suffix is not None and len(self.stats) >= 2)):
             match = self._re_prefix.match(self.base_item_name)
-            self.prefix = match.group('prefix')
+            self.prefix = match.group('prefix')  # type: ignore[union-attr]
             self.base_item_name = self.base_item_name.replace(self.prefix + ' ', '')
 
     def _split(self, section):
         return self._re_split_newline.split(section)
 
     def _handle_singular(self, string, key):
-        match = self._re_singular[key]['re_compiled'].match(string)
+        match = self._re_singular[key]['re_compiled'].match(string)  # type: ignore[attr-defined]
         if match:
-            setattr(self, key, self._re_singular[key]['func'](match.group(key)))
+            setattr(self, key, self._re_singular[key]['func'](match.group(key)))  # type: ignore[operator]
             return True
 
         setattr(self, key, None)

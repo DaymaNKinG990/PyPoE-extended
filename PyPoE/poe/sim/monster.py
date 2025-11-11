@@ -73,6 +73,14 @@ class Monster:
         self._level = None
 
     @property
+    def mv(self):  # type: ignore[attr-defined]
+        return self._mv
+
+    @property
+    def mt(self):  # type: ignore[attr-defined]
+        return self._mt
+
+    @property
     def level(self):
         if self._level is None:
             raise ValueError('Set monster level first before performing actions'
@@ -132,11 +140,11 @@ class MonsterFactory:
         }
         for mod in self.rr['Mods.dat']:
             if mod['Id'].startswith('MonsterMagic'):
-                self.rarity_mods[RARITY.MAGIC] = mod
+                self.rarity_mods[RARITY.MAGIC] = mod  # type: ignore[index]
             elif mod['Id'].startswith('MonsterRare'):
-                self.rarity_mods[RARITY.RARE] = mod
+                self.rarity_mods[RARITY.RARE] = mod  # type: ignore[index]
             elif mod['Id'].startswith('MonsterUnique'):
-                self.rarity_mods[RARITY.UNIQUE] = mod
+                self.rarity_mods[RARITY.UNIQUE] = mod  # type: ignore[index]
 
     def monster(self, rowid=None, metaid=None, name=None, *args, **kwargs):
         """
@@ -180,7 +188,7 @@ class MonsterFactory:
             raise ValueError('One of rowid, metaid or name must be specified '
                              'and be of the correct type')
 
-        return [Monster(
+        return [Monster(  # type: ignore[misc]
             *args,
             parent=self,
             mv=m,
