@@ -73,4 +73,4 @@ if __name__ == "__main__":
 
     profiler.print_stats()
 
-    print("translations.Translation:", t)
+    # print("translations.Translation:", t)  # t is not available outside profiler.run()

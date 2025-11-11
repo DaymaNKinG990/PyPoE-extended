@@ -38,7 +38,7 @@ import line_profiler
 from PyPoE.poe.file.ot import OTFile
 
 # self
-from PyPoE.poe.file.shared.keyvalues import *
+from PyPoE.poe.file.shared.keyvalues import AbstractKeyValueFile
 
 # =============================================================================
 # Globals

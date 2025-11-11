@@ -136,8 +136,8 @@ class SettingFrame(QFrame):
     def __getattr__(self, item):
         try:
             return self.settings[item].value
-        except KeyError:
-            raise AttributeError
+        except KeyError as e:
+            raise AttributeError from e
 
 
 class BaseSetting:

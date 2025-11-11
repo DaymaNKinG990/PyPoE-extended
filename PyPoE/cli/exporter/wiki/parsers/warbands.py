@@ -37,7 +37,7 @@ from graphviz import Digraph  # type: ignore[import-not-found]
 
 # Self
 from PyPoE.cli.core import console
-from PyPoE.cli.exporter.wiki.handler import ExporterHandler, ExporterResult, WikiHandler
+from PyPoE.cli.exporter.wiki.handler import ExporterHandler, ExporterResult
 from PyPoE.cli.exporter.wiki.parser import BaseParser
 
 # =============================================================================

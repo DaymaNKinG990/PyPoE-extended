@@ -203,7 +203,7 @@ def main():
 
     # Show file sizes
     print("\nFile sizes:")
-    for version, db_name in versions_to_migrate:
+    for _version, db_name in versions_to_migrate:
         db_path = output_dir / db_name
         if db_path.exists():
             size_mb = db_path.stat().st_size / 1024 / 1024

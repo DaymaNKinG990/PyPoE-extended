@@ -15,7 +15,7 @@ for filename in os.listdir(mixins_dir):
         # Find class attributes (between 'class' and first 'def')
         in_attrs = False
         attr_lines = []
-        for i, line in enumerate(lines):
+        for _i, line in enumerate(lines):
             if "class " in line and "Mixin" in line:
                 in_attrs = True
                 continue

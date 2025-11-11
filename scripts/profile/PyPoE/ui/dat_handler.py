@@ -34,8 +34,8 @@ See PyPoE/LICENSE
 import sys
 
 # from line_profiler import LineProfiler
-from PySide2.QtCore import *
-from PySide2.QtWidgets import *
+from PySide2.QtCore import QTranslator
+from PySide2.QtWidgets import QApplication, QMainWindow
 
 # self
 from PyPoE.poe.file.file_system import FileSystem
