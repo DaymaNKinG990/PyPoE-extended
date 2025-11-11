@@ -1,0 +1,30 @@
+"""
+GGPK File Module
+
+This module provides classes for reading and working with GGPK files.
+
+Public API:
+- GGPKFile: Main facade class
+- GGPKReader: Reading binary format
+- GGPKRecordManager: Managing records
+- GGPKDirectoryBuilder: Building directory tree
+- GGPKDiffComparator: Comparing GGPK files
+
+Internal API:
+- Records: BaseRecord, FileRecord, DirectoryRecord, etc.
+- Nodes: DirectoryNode
+"""
+
+from PyPoE.poe.file.ggpk.records import (
+    GGPKError,
+    InvalidTagError,
+)
+
+__all__ = [
+    "GGPKError",
+    "InvalidTagError",
+]
+
+# Note: GGPKFile and other classes will be exported after refactoring
+# For now, keep backward compatibility by importing from parent module
+
