@@ -363,7 +363,7 @@ class TranslationLanguage(TranslationReprMixin):
             if result is None:
                 continue
 
-            return result
+            return result  # type: ignore[no-any-return]
 
         return None
 
@@ -562,8 +562,8 @@ class TranslationString(TranslationReprMixin):
                 string.append(self.strings[i])
                 # For adding the plus sign to the $+d and $+d%% formats
                 if '+' in self.tags_types[i] and (
-                        is_range[tagid] and value[1] > 0 or not is_range[tagid]  # type: ignore[call-overload]
-                        and value > 0):
+                        is_range[tagid] and value[1] > 0 or not is_range[tagid]  # type: ignore[call-overload, index, operator]
+                        and value > 0):  # type: ignore[operator]
                     string.append('+')
 
                 if not use_placeholder:
@@ -675,7 +675,7 @@ class TranslationString(TranslationReprMixin):
         for i, tag in enumerate(self.tags):
             tags[tag] = values[i]
 
-        values = list(range(0, len(self.range)))  # type: ignore[assignment]
+        values = list(range(0, len(self.range)))  # type: ignore[assignment, arg-type]
         for i in values:  # type: ignore[assignment]
             if i in tags:
                 # Fix for %1$+d
@@ -697,7 +697,7 @@ class TranslationString(TranslationReprMixin):
                         val = 1
                 else:
                     if r.min == r.max and r.max is not None:
-                        val = r.min
+                        val = r.min  # type: ignore[assignment]
                         warn = False
                     elif r.min is not None and r.max is not None:
                         val = r.max
@@ -804,7 +804,7 @@ class TranslationRange(TranslationReprMixin):
             f_and = bool.__and__
 
         if self.min is None:
-            if f_comp(value, self.max):
+            if f_comp(value, self.max):  # type: ignore[arg-type]
                 return 2
             else:
                 return -10000
@@ -847,13 +847,13 @@ class TranslationQuantifierHandler(TranslationReprMixin):
         ('string_handlers', None),
     ))
 
-    handlers = {
+    handlers: dict[str, Any] = {
     }
 
-    reverse_handlers = {
+    reverse_handlers: dict[str, Any] = {
     }
 
-    regex = None
+    regex: Any = None
 
     __slots__ = ['index_handlers', 'string_handlers']
 
@@ -919,11 +919,11 @@ class TranslationQuantifierHandler(TranslationReprMixin):
             f = self.handlers[handler_name].handler
         except KeyError:
             self._warn_uncaptured(handler_name)
-            return None
+            return None  # type: ignore[return-value]
         if f is None:
             self._warn_uncaptured(handler_name)
-            return None
-        return f
+            return None  # type: ignore[return-value]
+        return f  # type: ignore[no-any-return]
 
     def register_from_string(self, string: str):
         """
@@ -975,7 +975,7 @@ class TranslationQuantifierHandler(TranslationReprMixin):
             The keys of the dictionary refer to the translation quantifier
             string used
         """
-        values = list(values)
+        values = list(values)  # type: ignore[assignment]
         for handler_name in self.index_handlers:
             f = self._get_handler_func(handler_name)
             if f is None:
@@ -983,15 +983,15 @@ class TranslationQuantifierHandler(TranslationReprMixin):
             for index in self.index_handlers[handler_name]:
                 index -= 1
                 if is_range[index]:
-                    values[index] = (f(values[index][0]), f(values[index][1]))
+                    values[index] = (f(values[index][0]), f(values[index][1]))  # type: ignore[call-overload, index]
                 else:
                     values[index] = f(values[index])
 
         for i, value in enumerate(values):
             if is_range[i]:
-                 values[i] = tuple([self._whole_float_to_int(v) for v in value])
+                 values[i] = tuple([self._whole_float_to_int(v) for v in value])  # type: ignore[call-overload, assignment, attr-defined]
             else:
-                 values[i] = self._whole_float_to_int(value)
+                 values[i] = self._whole_float_to_int(value)  # type: ignore[call-overload, assignment, arg-type]
 
         strings = OrderedDict()
         for handler_name, args in self.string_handlers.items():
