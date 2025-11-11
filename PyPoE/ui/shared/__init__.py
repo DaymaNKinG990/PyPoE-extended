@@ -36,7 +36,7 @@ import time
 
 # 3rd-party
 from PySide6.QtCore import *
-from PySide6.QtWidgets import *
+from PySide6.QtWidgets import *  # type: ignore[assignment]
 
 # self
 from PyPoE.ui.shared.settings import SettingsWindow
@@ -88,7 +88,7 @@ class SharedMainWindow(QMainWindow):
             notification = msg
         self.statusBar().showMessage(timef + notification)
         self.notification.append(timef + msg)
-        QApplication.instance().processEvents()
+        QApplication.instance().processEvents()  # type: ignore[union-attr]
 
     def closeEvent(self, *args, **kwargs):
         p = self.parent()

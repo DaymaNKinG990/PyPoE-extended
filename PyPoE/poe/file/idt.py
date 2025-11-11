@@ -98,7 +98,7 @@ class CoordinateList(TypedList, metaclass=TypedContainerMeta):
     """
     A list that only accepts :class:`CoordinateRecord` instances.
     """
-    ACCEPTED_TYPES = CoordinateRecord
+    ACCEPTED_TYPES = CoordinateRecord  # type: ignore[assignment]
 
 
 class TextureRecord(Record):
@@ -149,7 +149,7 @@ class TextureList(TypedList, metaclass=TypedContainerMeta):
     """
     A list that only accepts TextureRecord instances.
     """
-    ACCEPTED_TYPES = TextureRecord
+    ACCEPTED_TYPES = TextureRecord  # type: ignore[assignment]
 
 
 class IDTFile(AbstractFile):

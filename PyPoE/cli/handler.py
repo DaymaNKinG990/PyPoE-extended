@@ -42,7 +42,7 @@ Documentation
 import traceback
 
 # 3rd Party
-from validate import ValidateError
+from validate import ValidateError  # type: ignore[import-untyped]
 
 # self
 from PyPoE.cli.config import ConfigError
@@ -69,7 +69,7 @@ class BaseHandler:
         pass
 
     def _help(self, *args):
-        self.parser.print_help()
+        self.parser.print_help()  # type: ignore[attr-defined]
         return 0
 
     def _show_error(self, e):

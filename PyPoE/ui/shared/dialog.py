@@ -34,7 +34,7 @@ import re
 
 # 3rd Party
 from PySide6.QtCore import *
-from PySide6.QtWidgets import *
+from PySide6.QtWidgets import *  # type: ignore[assignment]
 
 # self
 from PyPoE.ui.shared.regex_widgets import RegexFlagsBox

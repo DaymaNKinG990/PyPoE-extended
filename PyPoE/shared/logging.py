@@ -106,7 +106,7 @@ def get_logger(name: str) -> logging.LoggerAdapter:
     class StructuredLoggerAdapter(logging.LoggerAdapter):
         """Logger adapter that adds structured data to log records."""
 
-        def process(self, msg: str, kwargs: dict[str, Any]) -> tuple[str, dict[str, Any]]:
+        def process(self, msg: str, kwargs: dict[str, Any]) -> tuple[str, dict[str, Any]]:  # type: ignore[override]
             """Process log call to extract structured data.
 
             Args:

@@ -50,8 +50,8 @@ import sys
 from collections.abc import Iterable
 
 # 3rd party
-from configobj import ConfigObj
-from validate import Validator
+from configobj import ConfigObj  # type: ignore[import-untyped]
+from validate import Validator  # type: ignore[import-untyped]
 
 # self
 from PyPoE.cli.core import console, Msg

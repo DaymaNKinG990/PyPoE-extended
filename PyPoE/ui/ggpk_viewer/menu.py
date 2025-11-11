@@ -94,11 +94,11 @@ class CustomOpenAction(GGPKOpenAction):
         p = self._main_window()
 
         p._write_log(self.tr('Sorting GGPK directory...'))
-        self._thread.ggpk_file.directory.walk(self._ggpk_sort)
+        self._thread.ggpk_file.directory.walk(self._ggpk_sort)  # type: ignore[union-attr]
 
         p._write_log(self.tr('Viewing GGPK contents...'))
 
-        p.ggpk_view.setModel(GGPKModel(self._thread.ggpk_file.directory))
+        p.ggpk_view.setModel(GGPKModel(self._thread.ggpk_file.directory))  # type: ignore[union-attr]
         p.ggpk_view.show()
 
         p._write_log(self.tr('Done.'))

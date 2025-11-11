@@ -34,7 +34,7 @@ import sys
 
 # 3rd-party
 from PySide6.QtCore import *
-from PySide6.QtWidgets import *
+from PySide6.QtWidgets import *  # type: ignore[assignment]
 
 # self
 from PyPoE.ui.shared import main
@@ -68,7 +68,7 @@ class LaunchpadMainWindow(QMainWindow):
         layout.addWidget(QLabel(self.tr('Choose an application to start')))
 
         self.buttons = []
-        self.instances = []
+        self.instances: list[QWidget] = []
         for i, qmainwindow_cls in enumerate(apps):
             button = QPushButton(qmainwindow_cls.NAME)
             button.clicked.connect(self._wrap_clicked(i))
