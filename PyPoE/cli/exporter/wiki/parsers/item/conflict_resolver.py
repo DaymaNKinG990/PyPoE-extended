@@ -89,7 +89,7 @@ class ItemConflictResolver:
     def _default_format_map_name(self, base_item_type: Any, map_series: Any | None) -> str:
         """Default implementation of format_map_name."""
         # This should be implemented by the caller or injected
-        return base_item_type["Name"]
+        return str(base_item_type["Name"])  # type: ignore[no-any-return]
 
     def _resolve_quest_items(
         self,
