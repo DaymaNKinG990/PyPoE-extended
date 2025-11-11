@@ -319,13 +319,13 @@ class AbstractFileSystemNode(ReprMixin):
     __slots__ = ['parent', 'file_system_type', 'is_file', 'children']
 
     def __init__(self,
-                parent: 'FileSystemNode',
+                parent: 'AbstractFileSystemNode',
                 file_system_type: FILE_SYSTEM_TYPES,
                 is_file: bool):
-        self.parent: 'FileSystemNode' = parent
+        self.parent: 'AbstractFileSystemNode' = parent
         self.file_system_type: FILE_SYSTEM_TYPES = file_system_type
         self.is_file: bool = is_file
-        self.children: Dict[str, 'FileSystemNode'] = {}
+        self.children: Dict[str, 'AbstractFileSystemNode'] = {}
 
     def __getitem__(self, item: str) -> 'AbstractFileSystemNode':
         """

@@ -30,6 +30,7 @@ See PyPoE/LICENSE
 from __future__ import annotations
 
 import io
+import os
 import warnings
 from collections import OrderedDict
 from collections.abc import Iterable

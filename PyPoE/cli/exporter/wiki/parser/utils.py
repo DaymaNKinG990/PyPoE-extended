@@ -29,10 +29,13 @@ See PyPoE/LICENSE
 # =============================================================================
 
 import re
+from functools import partial
 from collections import OrderedDict
 
 from PyPoE.poe.text import parse_description_tags
 from PyPoE.cli.exporter.wiki.parser.constants import _inter_wiki_map, DEFAULT_INDENT
+from PyPoE.cli.exporter import config
+from PyPoE.cli.exporter.wiki.parser.tags import TagHandler
 
 # =============================================================================
 # Globals

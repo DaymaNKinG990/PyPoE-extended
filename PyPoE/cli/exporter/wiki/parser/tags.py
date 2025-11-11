@@ -30,6 +30,7 @@ See PyPoE/LICENSE
 from collections import OrderedDict
 from functools import partial
 
+from PyPoE.poe.constants import WORDLISTS
 from PyPoE.cli.exporter.wiki.parser.utils import format_result_rows
 
 # =============================================================================
