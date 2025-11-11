@@ -47,12 +47,12 @@ class GGPKReader:
     # All known tags for seeking
     KNOWN_TAGS = (TAG_FILE, TAG_FREE, TAG_PDIR, TAG_GGPK)
 
-    def __init__(self, container=None):
+    def __init__(self, container=None) -> None:
         """
         Initialize GGPK reader.
 
         Args:
-            container: GGPKFile container (for record initialization)
+            container: Optional GGPKFile container (for backward compatibility)
         """
         self._container = container
 

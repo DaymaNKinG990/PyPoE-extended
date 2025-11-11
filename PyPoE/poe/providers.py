@@ -11,6 +11,10 @@ from PyPoE.poe.constants import VERSION
 from PyPoE.poe.file.factory import FileParserFactory
 from PyPoE.poe.file.file_system import FileSystem
 from PyPoE.poe.file.ggpk import GGPKFile
+from PyPoE.poe.file.ggpk.diff_comparator import GGPKDiffComparator
+from PyPoE.poe.file.ggpk.directory_builder import GGPKDirectoryBuilder
+from PyPoE.poe.file.ggpk.reader import GGPKReader
+from PyPoE.poe.file.ggpk.record_manager import GGPKRecordManager
 from PyPoE.poe.file.specification.repository import SQLiteSpecRepository
 from PyPoE.shared.di import DIContainer
 from PyPoE.shared.logging import get_logger
@@ -63,10 +67,34 @@ def register_core_providers(
         )
         logger.info("FileSystem registered", game_path=game_path)
 
-    # GGPK File (transient - each usage creates new instance)
+    # GGPK Components (transient - stateless, can be reused)
     container.register_transient(
+        GGPKReader,
+        lambda: GGPKReader(),
+    )
+    container.register_transient(
+        GGPKRecordManager,
+        lambda: GGPKRecordManager(),
+    )
+    container.register_transient(
+        GGPKDirectoryBuilder,
+        lambda: GGPKDirectoryBuilder(),
+    )
+    container.register_transient(
+        GGPKDiffComparator,
+        lambda: GGPKDiffComparator(),
+    )
+
+    # GGPK File (transient - each usage creates new instance)
+    # Uses DI to inject all components
+    container.register_factory(
         GGPKFile,
-        lambda: GGPKFile(),
+        lambda c: GGPKFile(
+            reader=c.resolve(GGPKReader),
+            record_manager=c.resolve(GGPKRecordManager),
+            directory_builder=c.resolve(GGPKDirectoryBuilder),
+            diff_comparator=c.resolve(GGPKDiffComparator),
+        ),
     )
 
     logger.info("Core providers registered successfully")

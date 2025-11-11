@@ -72,6 +72,7 @@ class GGPKFile(AbstractFileReadOnly, metaclass=InheritedDocStringsMeta):
 
         # Initialize components (DI pattern)
         # Use 'is None' instead of 'or' because empty managers are falsy
+        # Pass self as container for backward compatibility with Record classes
         self._reader = reader if reader is not None else GGPKReader(container=self)
         self._record_manager = (
             record_manager if record_manager is not None else GGPKRecordManager()
@@ -82,6 +83,11 @@ class GGPKFile(AbstractFileReadOnly, metaclass=InheritedDocStringsMeta):
         self._diff_comparator = (
             diff_comparator if diff_comparator is not None else GGPKDiffComparator()
         )
+
+        # Set container in reader for backward compatibility with Record classes
+        # (needed even if reader was injected via DI)
+        if self._reader._container is None:
+            self._reader._container = self
 
         # State
         self.directory: DirectoryNode | None = None
