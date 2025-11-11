@@ -85,6 +85,10 @@ class StatFilterFile(AbstractFileReadOnly):
     """
     Parser for Metadata/skillpopup_stat_filters.txt
 
+    This class implements the following Protocol interfaces:
+    - IReadable: Provides read() method (inherited from AbstractFileReadOnly)
+    - IBufferable: Provides get_read_buffer() method (inherited)
+
     Attributes
     ----------
     groups : dict[str, list[str]]

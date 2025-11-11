@@ -953,6 +953,11 @@ class DatFile(AbstractFileReadOnly):
     """
     Representation of a .dat file.
 
+    This class implements the following Protocol interfaces:
+    - IReadable: Provides read() method (inherited from AbstractFileReadOnly)
+    - IBufferable: Provides get_read_buffer() method (inherited)
+    - IWritable: Provides write() method (supports writing)
+
     Attributes
     ----------
     reader : DatReader

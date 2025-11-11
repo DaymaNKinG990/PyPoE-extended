@@ -147,6 +147,15 @@ class ENCODE_TYPES(IntEnum):
 
 
 class Bundle(AbstractFileReadOnly):
+    """
+    Representation of a .bundle file.
+
+    This class implements the following Protocol interfaces:
+    - IReadable: Provides read() method (inherited from AbstractFileReadOnly)
+    - IBufferable: Provides get_read_buffer() method (inherited)
+    - IWritable: Provides write() method (supports writing)
+    - IDecompressable: Provides decompress() method (for compressed bundles)
+    """
     def __init__(self, *args, **kwargs):
         super().__init__(*args, *kwargs)
         self.encoder: ENCODE_TYPES | None = None

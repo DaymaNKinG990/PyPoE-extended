@@ -220,6 +220,10 @@ class PSGFile(AbstractFileReadOnly):
     """
     Representation of a .psg (Passive Skill Tree Graph) file.
 
+    This class implements the following Protocol interfaces:
+    - IReadable: Provides read() method (inherited from AbstractFileReadOnly)
+    - IBufferable: Provides get_read_buffer() method (inherited)
+
     Parameters
     ----------
     _passive_skills : None or DatReader

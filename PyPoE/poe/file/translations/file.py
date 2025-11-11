@@ -81,6 +81,10 @@ class TranslationFile(AbstractFileReadOnly):
     """
     Translation file reader.
 
+    This class implements the following Protocol interfaces:
+    - IReadable: Provides read() method (inherited from AbstractFileReadOnly)
+    - IBufferable: Provides get_read_buffer() method (inherited)
+
     Translation files can be found in the following folder in the content.ggpk:
 
     Metadata/StatDescriptions/xxx_descriptions.txt
