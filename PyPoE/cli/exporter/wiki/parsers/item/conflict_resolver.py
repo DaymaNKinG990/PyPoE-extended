@@ -206,7 +206,7 @@ class ItemConflictResolver:
         base_item_type: Any,
     ) -> str | None:
         """Resolve conflict for map fragments."""
-        return base_item_type["Name"]
+        return str(base_item_type["Name"])  # type: ignore[no-any-return]
 
     def _resolve_divination_card(
         self,
@@ -225,7 +225,7 @@ class ItemConflictResolver:
         base_item_type: Any,
     ) -> str | None:
         """Resolve conflict for labyrinth map items."""
-        return base_item_type["Name"]
+        return str(base_item_type["Name"])  # type: ignore[no-any-return]
 
     def _resolve_misc_map_item(
         self,
@@ -233,7 +233,7 @@ class ItemConflictResolver:
         base_item_type: Any,
     ) -> str | None:
         """Resolve conflict for misc map items."""
-        return base_item_type["Name"]
+        return str(base_item_type["Name"])  # type: ignore[no-any-return]
 
     def _resolve_delve_socketable_currency(
         self,
@@ -249,7 +249,7 @@ class ItemConflictResolver:
         base_item_type: Any,
     ) -> str | None:
         """Resolve conflict for delve stackable socketable currency."""
-        return base_item_type["Name"]
+        return str(base_item_type["Name"])  # type: ignore[no-any-return]
 
     def _resolve_atlas_region_upgrade(
         self,
@@ -257,7 +257,7 @@ class ItemConflictResolver:
         base_item_type: Any,
     ) -> str | None:
         """Resolve conflict for atlas region upgrade items."""
-        return base_item_type["Name"]
+        return str(base_item_type["Name"])  # type: ignore[no-any-return]
 
     def _resolve_active_skill_gems(
         self,
