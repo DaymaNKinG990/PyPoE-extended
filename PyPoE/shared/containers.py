@@ -43,6 +43,8 @@ __all__ = ['Record', 'TypedContainerMeta', 'TypedContainerMixin', 'TypedList']
 # =============================================================================
 
 class Record:
+    __slots__: tuple[str, ...] = ()
+    
     def __str__(self):
         return repr(self)
 
@@ -108,10 +110,10 @@ class TypedContainerMixin:
             )
 
     def _is_acceptable(self, obj):
-        if not isinstance(obj, self.ACCEPTED_TYPES):
+        if not isinstance(obj, self.ACCEPTED_TYPES):  # type: ignore[arg-type]
             raise TypeError('"%s" instance only accepts "%s" instances.' % (
                 self.__class__.__name__,
-                ', '.join([t.__name__ for t in self.ACCEPTED_TYPES]),
+                ', '.join([t.__name__ for t in self.ACCEPTED_TYPES]),  # type: ignore[attr-defined]
             ))
 
 
@@ -139,4 +141,4 @@ class TypedList(list, TypedContainerMixin):
 
     def insert(self, index, p_object):
         self._is_acceptable(p_object)
-        list.insert(self, p_object)
+        list.insert(self, index, p_object)

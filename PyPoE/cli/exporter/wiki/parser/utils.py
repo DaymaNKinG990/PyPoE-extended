@@ -31,6 +31,7 @@ See PyPoE/LICENSE
 import re
 from functools import partial
 from collections import OrderedDict
+from typing import Any
 
 from PyPoE.poe.text import parse_description_tags
 from PyPoE.cli.exporter.wiki.parser.constants import _inter_wiki_map, DEFAULT_INDENT
@@ -63,7 +64,7 @@ _MAX_RE = 97
 
 
 def _make_inter_wiki_re():
-    out = {}
+    out: dict[str, list[Any]] = {}
     for language, _inter_wiki_mapping in _inter_wiki_map.items():
         out[language] = []
         for i in range(0, (len(_inter_wiki_mapping)//_MAX_RE)+1):
@@ -153,7 +154,7 @@ def make_inter_wiki_links(string):
             text = match.group('text')
             # Offset by 1 to account for text group
             index = match.groups().index(text, 1)-1
-            data = mapping[i*_MAX_RE+index][1]
+            data = mapping[i*_MAX_RE+index][1]  # type: ignore[index]
 
             out.append(string[last_index:match.start('text')])
             if text == data['link']:
@@ -198,7 +199,7 @@ def find_template(wikitext, template_name):
     def f(scanner, result, tid):
         return tid, scanner.match, result
 
-    scanner = re.Scanner([
+    scanner = re.Scanner([  # type: ignore[attr-defined]
         # Need to have this look ahead to avoid matching templates that start
         # with the same name.
         (r'{{%s(?=[^\w}\|]*\||}})' % template_name,
@@ -215,7 +216,7 @@ def find_template(wikitext, template_name):
     ], re.UNICODE | re.MULTILINE)
 
     # Returns
-    texts = [[], ]
+    texts: list[list[Any]] = [[], ]
     kw_arguments = OrderedDict()
     arguments = []
 
@@ -271,7 +272,7 @@ def find_template(wikitext, template_name):
             texts[-1].append(text)
 
     # Don't really need the list anymore
-    texts = [''.join(t) for t in texts]
+    texts = [''.join(t) for t in texts]  # type: ignore[misc]
 
     return {'texts': texts, 'args': arguments, 'kwargs': kw_arguments}
 
@@ -293,4 +294,4 @@ def parse_and_handle_description_tags(rr, text):
         Parsed texts with wiki templates/links
     """
     return parse_description_tags(text).handle_tags(
-        TagHandler(rr).tag_handlers).replace('\n', '<br>').replace('\r', '')
+        TagHandler(rr).tag_handlers).replace('\n', '<br>').replace('\r', '')  # type: ignore[arg-type]
