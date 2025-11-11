@@ -978,7 +978,7 @@ class PatchFileList:
             else:
                 # test if folder is known
                 try:
-                    test_directory = self.directory[folder].record
+                    test_directory = self.directory[folder].record  # type: ignore[attr-defined]
                     if not isinstance(test_directory, DirectoryRecord):
                         raise ValueError('Must only query folders.')
                 except FileNotFoundError:
@@ -999,7 +999,7 @@ class PatchFileList:
         sock_data = sock.recv(2048)
         data = io.BytesIO(sock_data)
         # Set instance data, so that it can be modified by other methods
-        self.data = data
+        self.data = data  # type: ignore[assignment]
 
         for folder in folders:
             # patch proto 4 decode
@@ -1047,7 +1047,7 @@ class PatchFileList:
                         name=name,
                         hash=sha256sum)
                 elif tag == FileRecord.tag:
-                    temp_record = VirtualFileRecord(
+                    temp_record = VirtualFileRecord(  # type: ignore[assignment]
                         name=name,
                         hash=sha256sum,
                         size=size)
@@ -1057,7 +1057,7 @@ class PatchFileList:
                     hash=murmur2_32(name.lower().encode('utf-16le')),
                     parent=parent))
 
-            parent.children = folder_directory_nodes
+            parent.children = folder_directory_nodes  # type: ignore[assignment]
 
 class BaseRecordData(ReprMixin):
     """
@@ -1159,7 +1159,7 @@ class DirectoryNodeExtended(DirectoryNode):
                 record_dict['children'] = children  # type: ignore[assignment]
 
                 for child in self.children:
-                    children.append(child.get_dict())
+                    children.append(child.get_dict())  # type: ignore[attr-defined]
 
         return record_dict
 
@@ -1207,7 +1207,7 @@ class DirectoryNodeExtended(DirectoryNode):
                     size=node_file_size)
 
             elif node_type == 'folder':
-                temp_record = VirtualDirectoryRecord(
+                temp_record = VirtualDirectoryRecord(  # type: ignore[assignment]
                     name=node_name,
                     hash=node_hash)
 
@@ -1216,9 +1216,9 @@ class DirectoryNodeExtended(DirectoryNode):
                     node_type))
 
         if parent is None:
-            self.record = temp_record
-            self.hash = node_hash
-            self.parent = None
+            self.record = temp_record  # type: ignore[assignment]
+            self.hash = node_hash  # type: ignore[assignment]
+            self.parent = None  # type: ignore[assignment]
             child_node = self
         else:
             child_node = DirectoryNodeExtended(
@@ -1267,4 +1267,4 @@ class DirectoryNodeExtended(DirectoryNode):
             if (max_depth == -1 or _depth <= max_depth):
                 # depth first
                 for child in self.children:
-                    yield from child.gen_walk(max_depth, _depth)
+                    yield from child.gen_walk(max_depth, _depth)  # type: ignore[attr-defined]
