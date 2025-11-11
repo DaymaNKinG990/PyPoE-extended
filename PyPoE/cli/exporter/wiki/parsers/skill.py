@@ -36,6 +36,7 @@ import os
 import warnings
 import traceback
 from collections import OrderedDict, defaultdict
+from typing import Any
 
 # Self
 from PyPoE.cli.core import console, Msg
@@ -119,7 +120,7 @@ class SkillHandler(ExporterHandler):
 
 
 class WikiCondition(parser.WikiCondition):
-    COPY_KEYS = (
+    COPY_KEYS = (  # type: ignore[assignment]
         # for skills
         'radius',
         'radius_description',
@@ -133,7 +134,7 @@ class WikiCondition(parser.WikiCondition):
         'skill_screenshot_file',
     )
 
-    NAME = 'Skill'
+    NAME = 'Skill'  # type: ignore[assignment]
     INDENT = 40
     ADD_INCLUDE = False
 
@@ -307,7 +308,7 @@ class SkillParserShared(parser.BaseParser):
                 self._write_dds(
                     data=self.file_system.get_file(ae['Icon_DDSFile']),
                     out_path=os.path.join(
-                        self._img_path,
+                        self._img_path,  # type: ignore[arg-type]
                         '%s skill icon.dds' % msg_name
                     ),
                     parsed_args=parsed_args,
@@ -317,12 +318,12 @@ class SkillParserShared(parser.BaseParser):
 
         # reformat the datas we need
         level_data = []
-        stat_key_order = {
+        stat_key_order: dict[str, OrderedDict[Any, Any]] = {
             'stats': OrderedDict(),
         }
 
         for i, row in enumerate(gepl):
-            data = defaultdict()
+            data: defaultdict[Any, Any] = defaultdict()
 
             stats = [r['Id'] for j, r in enumerate(row['StatsKeys'])
                      if j < len(row['StatValues'])] + \
@@ -402,11 +403,11 @@ class SkillParserShared(parser.BaseParser):
 
         # Find static & dynamic stats..
 
-        static = {
+        static: dict[str, Any] = {
             'columns': set(self._GEPL_COPY),
             'stats': OrderedDict(stat_key_order['stats']),
         }
-        dynamic = {
+        dynamic: dict[str, Any] = {
             'columns': set(),
             'stats': OrderedDict(),
         }
@@ -414,8 +415,8 @@ class SkillParserShared(parser.BaseParser):
         for data in level_data[1:]:
             for key in list(static['columns']):
                 if last[key] != data[key]:
-                    static['columns'].remove(key)
-                    dynamic['columns'].add(key)
+                    static['columns'].remove(key)  # type: ignore[attr-defined]
+                    dynamic['columns'].add(key)  # type: ignore[attr-defined]
             for key in list(static['stats']):
                 if key not in last['stats']:
                     continue
@@ -424,8 +425,8 @@ class SkillParserShared(parser.BaseParser):
 
                 if last['stats'][key]['values'] != data['stats'][key][
                         'values']:
-                    del static['stats'][key]
-                    dynamic['stats'][key] = None
+                    del static['stats'][key]  # type: ignore[attr-defined]
+                    dynamic['stats'][key] = None  # type: ignore[index]
             last = data
 
         #
@@ -528,8 +529,7 @@ class SkillParserShared(parser.BaseParser):
             df = column_data.get('skip_active')
             if df is not None and not ge['IsSupport']:
                 continue
-            infobox['static_' + column_data['template']] = \
-                column_data['format'](gepl[0][column])
+            infobox['static_' + column_data['template']] = column_data['format'](gepl[0][column])  # type: ignore[operator]
 
         # Normal stats
         # TODO: Loop properly - some stats not available at level 0
@@ -638,8 +638,7 @@ class SkillParserShared(parser.BaseParser):
                     continue
                 # Removed the check of defaults on purpose, makes sense
                 # to add the info since it is dynamically changed
-                infobox[prefix + column_data['template']] = \
-                    column_data['format'](row[column])
+                infobox[prefix + column_data['template']] = column_data['format'](row[column])  # type: ignore[operator]
 
             # Stat handling
             lines = []
@@ -698,7 +697,7 @@ class SkillParser(SkillParserShared):
                     'Skipping skill gem skill "%s"' % skill['Id'],
                     msg=Msg.warning)
                 continue
-            data = OrderedDict()
+            data: OrderedDict[str, Any] = OrderedDict()
 
             try:
                 self._skill(ge=skill, infobox=data, parsed_args=parsed_args)
