@@ -78,6 +78,14 @@ from io import BytesIO
 from typing import Any, Union
 
 # self
+from PyPoE.poe.file.shared.protocols import (
+    IBufferable,
+    IDecompressable,
+    IFileSystemNode,
+    IReadable,
+    ISeekable,
+    IWritable,
+)
 from PyPoE.shared.mixins import ReprMixin
 
 # =============================================================================
@@ -86,10 +94,18 @@ from PyPoE.shared.mixins import ReprMixin
 
 __all__ = [
     "ParserError",
-    "ParserWarningAbstractFileReadOnly",
+    "ParserWarning",
+    "AbstractFileReadOnly",
     "AbstractFile",
     "FILE_SYSTEM_TYPES",
     "AbstractFileSystemNode",
+    # Protocol interfaces (new in Phase 8.1)
+    "IReadable",
+    "IBufferable",
+    "IWritable",
+    "ISeekable",
+    "IDecompressable",
+    "IFileSystemNode",
 ]
 
 # =============================================================================
@@ -127,6 +143,17 @@ class AbstractFileReadOnly(ReprMixin):
 
     It provides common methods as well as methods that implementing classes
     should override.
+
+    This class implements the following Protocol interfaces:
+    - IReadable: Provides read() method
+    - IBufferable: Provides get_read_buffer() method
+
+    Note: For new code, consider using Protocol interfaces directly
+    (IReadable, IBufferable) instead of inheriting from this class.
+    This allows better Interface Segregation Principle (ISP) compliance.
+
+    See also:
+        :mod:`PyPoE.poe.file.shared.protocols` for Protocol interfaces
     """
 
     def _read(self, buffer, *args, **kwargs):
@@ -219,6 +246,17 @@ class AbstractFile(AbstractFileReadOnly):
 
     It provides common methods as well as methods that implementing classes
     should override.
+
+    This class implements the following Protocol interfaces:
+    - IReadable: Provides read() method (inherited from AbstractFileReadOnly)
+    - IBufferable: Provides get_read_buffer() method (inherited)
+    - IWritable: Provides write() method
+
+    Note: For new code, consider using Protocol interfaces directly
+    (IReadable, IBufferable, IWritable) instead of inheriting from this class.
+
+    See also:
+        :mod:`PyPoE.poe.file.shared.protocols` for Protocol interfaces
     """
 
     def _write(self, buffer, *args, **kwargs):

@@ -32,6 +32,12 @@ class GGPKFile(AbstractFileReadOnly, metaclass=InheritedDocStringsMeta):
     - GGPKDirectoryBuilder: Building directory tree
     - GGPKDiffComparator: Comparing files
 
+    This class implements the following Protocol interfaces:
+    - IReadable: Provides read() method (inherited from AbstractFileReadOnly)
+    - IBufferable: Provides get_read_buffer() method (inherited)
+
+    Note: GGPKFile does NOT implement IWritable (read-only file format).
+
     Attributes
     ----------
     directory : DirectoryNode | None
