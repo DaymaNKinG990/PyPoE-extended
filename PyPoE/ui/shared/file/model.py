@@ -67,13 +67,13 @@ class DatTableModel(DatModelShared):
     def __init__(self, *args, **kwargs):
         DatModelShared.__init__(self, *args, **kwargs)
 
-        self._columns = [(id, item['section']) for id, item in self._dat_file.reader.table_columns.items()]
+        self._columns = [(id, item['section']) for id, item in self._dat_file.reader.table_columns.items()]  # type: ignore[union-attr]
 
     def rowCount(self, parent=QModelIndex()):
-        return len(self._dat_file.reader.table_data)
+        return len(self._dat_file.reader.table_data)  # type: ignore[union-attr]
 
     def columnCount(self, parent=QModelIndex()):
-        return len(self._dat_file.reader.table_columns) + 1
+        return len(self._dat_file.reader.table_columns) + 1  # type: ignore[union-attr]
 
     def data(self, index, role=Qt.DisplayRole):
         if not index.isValid():
@@ -83,9 +83,9 @@ class DatTableModel(DatModelShared):
 
         c = index.column()
         if c == 0:
-            return self._dat_file.reader.table_data[index.row()].rowid
+            return self._dat_file.reader.table_data[index.row()].rowid  # type: ignore[union-attr]
         else:
-            return self._dat_file.reader.table_data[index.row()][c-1]
+            return self._dat_file.reader.table_data[index.row()][c-1]  # type: ignore[union-attr]
 
     def headerData(self, section, orientation, role=Qt.DisplayRole):
         if orientation != Qt.Horizontal:
@@ -121,12 +121,12 @@ class DatDataModel(DatModelShared):
         ]
 
         self._data = []
-        if len(self._dat_file.reader.data_parsed) > 1:
-            last = self._dat_file.reader.data_parsed[0]
+        if len(self._dat_file.reader.data_parsed) > 1:  # type: ignore[union-attr]
+            last = self._dat_file.reader.data_parsed[0]  # type: ignore[union-attr]
             self._data.append(last)
             # Remove duplicates for easier reading
             # TODO add option this?
-            for item in self._dat_file.reader.data_parsed:
+            for item in self._dat_file.reader.data_parsed:  # type: ignore[union-attr]
                 #if (last.data_start_offset == item.data_start_offset and
                 #    last.data_end_offset == item.data_end_offset and
                 #    last.data_start_offset == last.data_end_offset):
@@ -196,7 +196,7 @@ class GGPKModel(QAbstractItemModel):
         node = parent.internalPointer()
         return self.createIndex(row, column, self._get_child_at_row(node, row))
 
-    def parent(self, index):
+    def parent(self, index):  # type: ignore[override]
         if not index.isValid():
             return QModelIndex()
         node = index.internalPointer()
