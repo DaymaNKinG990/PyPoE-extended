@@ -110,6 +110,8 @@ ignore = [
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401"]  # Allow unused imports in __init__
 "tests/**/*.py" = ["S101"]  # Allow assert in tests
+"PyPoE/ui/**/*.py" = ["F403", "F405", "N802"]  # Qt UI: wildcard imports and camelCase methods are standard
+"scripts/**/*.py" = ["N999", "E722", "B008", "B023", "B020"]  # Scripts: relaxed naming and error handling
 
 [tool.mypy]
 python_version = "3.10"
