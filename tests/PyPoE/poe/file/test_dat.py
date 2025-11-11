@@ -241,11 +241,11 @@ class TestDatValue:
 
         # Property Tests
         with pytest.raises(TypeError):
-            self.dv_basic.data_size
+            _ = self.dv_basic.data_size
         with pytest.raises(TypeError):
-            self.dv_basic.data_start_offset
+            _ = self.dv_basic.data_start_offset
         with pytest.raises(TypeError):
-            self.dv_basic.data_end_offset
+            _ = self.dv_basic.data_end_offset
         assert not self.dv_basic.is_data, "Should not be data"
         assert not self.dv_basic.has_data, "Should not have any data"
         assert not self.dv_basic.is_pointer, "Should not be a pointer"
@@ -261,11 +261,11 @@ class TestDatValue:
 
         # Property Tests
         with pytest.raises(TypeError):
-            self.dv_raw.data_size
+            _ = self.dv_raw.data_size
         with pytest.raises(TypeError):
-            self.dv_raw.data_start_offset
+            _ = self.dv_raw.data_start_offset
         with pytest.raises(TypeError):
-            self.dv_raw.data_end_offset
+            _ = self.dv_raw.data_end_offset
         assert not self.dv_raw.is_data, "Should not be data"
         assert not self.dv_raw.has_data, "Should not have any data"
         assert not self.dv_raw.is_pointer, "Should not be a pointer"
@@ -297,11 +297,11 @@ class TestDatValue:
 
         # Child Property tests
         with pytest.raises(TypeError):
-            self.dv_pointer.child.data_size
+            _ = self.dv_pointer.child.data_size
         with pytest.raises(TypeError):
-            self.dv_pointer.child.data_start_offset
+            _ = self.dv_pointer.child.data_start_offset
         with pytest.raises(TypeError):
-            self.dv_pointer.child.data_end_offset
+            _ = self.dv_pointer.child.data_end_offset
         assert self.dv_pointer.child.is_data, "Should be data"
         assert not self.dv_pointer.child.has_data, "Should not have any data"
         assert not self.dv_pointer.child.is_pointer, "Should not be a pointer"
@@ -335,11 +335,11 @@ class TestDatValue:
         for i in range(0, len(self.dv_list.children)):
             child = self.dv_list.children[i]
             with pytest.raises(TypeError):
-                child.data_size
+                _ = child.data_size
             with pytest.raises(TypeError):
-                child.data_start_offset
+                _ = child.data_start_offset
             with pytest.raises(TypeError):
-                child.data_end_offset
+                _ = child.data_end_offset
             assert child.is_data, "Should be data"
             assert not child.has_data, "Should not have any data"
             assert not child.is_pointer, "Should not be a pointer"
