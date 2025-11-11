@@ -170,7 +170,7 @@ class TranslationReverseResult(TranslationReprMixin):
 
     def __init__(self,
                  translations: List[Translation],
-                 values: List[Union[int, float]]):
+                 values: List[Union[int, float]] | List[List[int]]):
         self.translations: List[Translation] = translations
-        self.values: List[Union[int, float]] = values
+        self.values: List[Union[int, float]] | List[List[int]] = values
 

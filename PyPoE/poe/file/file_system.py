@@ -42,11 +42,11 @@ import os
 from typing import Union
 
 # 3rd-party
-import brotli
+import brotli  # type: ignore[import-untyped]
 
 # self
 from PyPoE.poe.file.shared import FILE_SYSTEM_TYPES, AbstractFileSystemNode
-from PyPoE.poe.file.ggpk import GGPKFile
+from PyPoE.poe.file.ggpk import GGPKFile, FileRecord
 from PyPoE.poe.file.bundle import Index
 from PyPoE.poe.file.shared import ParserError
 
@@ -67,20 +67,16 @@ class FileSystemNode(AbstractFileSystemNode):
     __slots__ = ['file_system'] + AbstractFileSystemNode.__slots__
 
     def __init__(self,
-                 *args,
-                 parent: 'FileSystemNode',
+                 parent: 'FileSystemNode | None',
                  file_system_type: FILE_SYSTEM_TYPES,
                  is_file: bool,
                  file_system: 'FileSystem',
-                 name: str,
-                 **kwargs):
+                 name: str):
 
         super().__init__(
-            *args,
-            parent=parent,
-            file_system_type=file_system_type,
-            is_file=is_file,
-            **kwargs)
+            parent,  # type: ignore[arg-type]
+            file_system_type,
+            is_file)
 
         self.file_system: 'FileSystem' = file_system
         self._name: str = name
@@ -129,7 +125,11 @@ class FileSystem:
         self.index: Union[Index, None] = Index()
         try:
             if self.ggpk:
-                self.index.read(self.ggpk[self.index.PATH].record.extract())
+                node = self.ggpk[self.index.PATH]
+                if isinstance(node.record, FileRecord):
+                    self.index.read(node.record.extract())
+                else:
+                    raise ParserError('Index path does not point to a file')
             else:
                 self.index.read(os.path.join(root_path, self.index.PATH))
         except FileNotFoundError:
@@ -156,9 +156,11 @@ class FileSystem:
                 pass
             else:
                 if self.ggpk:
-                    fr.bundle.read(
-                        self.ggpk[fr.bundle.ggpk_path].record.extract()
-                    )
+                    node = self.ggpk[fr.bundle.ggpk_path]
+                    if isinstance(node.record, FileRecord):
+                        fr.bundle.read(node.record.extract())
+                    else:
+                        raise ParserError('Bundle path does not point to a file')
                 else:
                     fr.bundle.read(os.path.join(
                         self.root_path, fr.bundle.ggpk_path))
@@ -167,7 +169,11 @@ class FileSystem:
         # If the file is in the index, this section can't be reached
         if self.ggpk:
             try:
-                return self.ggpk[path].record.extract()
+                node = self.ggpk[path]
+                if isinstance(node.record, FileRecord):
+                    return node.record.extract()  # type: ignore[no-any-return]
+                else:
+                    raise ParserError('Path does not point to a file')
             except FileNotFoundError:
                 pass
 
@@ -229,7 +235,7 @@ class FileSystem:
                 raise ParserError(
                     'Decompressed size does not match size in the header'
                 )
-            return dec
+            return dec  # type: ignore[no-any-return]
 
     def build_directory(self) -> FileSystemNode:
         """
@@ -254,22 +260,21 @@ class FileSystem:
         for path, directories, files in os.walk(self.root_path):
             p = os.path.commonprefix([self.root_path, path])
             node = self.directory[path.replace(p, '')]
-            params = {
-                'file_system': self,
-                'parent': node,
-                'file_system_type': FILE_SYSTEM_TYPES.DISK,
-            }
             for name in directories:
                 node.children[name] = FileSystemNode(
-                    name=name,
+                    parent=node,  # type: ignore[arg-type]
+                    file_system_type=FILE_SYSTEM_TYPES.DISK,
                     is_file=False,
-                    **params
+                    file_system=self,
+                    name=name,
                 )
             for name in files:
                 node.children[name] = FileSystemNode(
-                    name=name,
+                    parent=node,  # type: ignore[arg-type]
+                    file_system_type=FILE_SYSTEM_TYPES.DISK,
                     is_file=True,
-                    **params
+                    file_system=self,
+                    name=name,
                 )
 
         if self.ggpk:
@@ -277,34 +282,36 @@ class FileSystem:
                 # Return at depth 0? Root object
 
                 if node.parent:
-                    root = self.directory[node.parent.get_path()]
+                    root = self.directory[node.parent.get_path()]  # type: ignore[index]
                 else:
                     root = self.directory
 
-                root.children[node.name] = FileSystemNode(
-                    file_system=self,
-                    name=node.name,
+                root.children[node.name] = FileSystemNode(  # type: ignore[assignment]
+                    parent=root,  # type: ignore[arg-type]
                     file_system_type=FILE_SYSTEM_TYPES.GGPK,
                     is_file=node.is_file,
-                    parent=root,
+                    file_system=self,
+                    name=node.name,
                 )
-            self.ggpk.directory.walk(function=add_to_directory)
+            if self.ggpk.directory:
+                self.ggpk.directory.walk(function=add_to_directory)
 
-        for dir_record in self.index.directories.values():
-            parent = self.directory
-            for directory in dir_record.path.split('/'):
-                try:
-                    parent = parent.children[directory]
-                except KeyError:
-                    node = FileSystemNode(
-                        file_system=self,
-                        name=directory,
-                        file_system_type=FILE_SYSTEM_TYPES.BUNDLE,
-                        is_file=False,
-                        parent=parent
-                    )
-                    parent.children[directory] = node
-                    parent = node
+        if self.index:  # type: ignore[union-attr]
+            for dir_record in self.index.directories.values():
+                parent = self.directory
+                for directory in dir_record.path.split('/'):
+                    try:
+                        parent = parent.children[directory]  # type: ignore[assignment]
+                    except KeyError:
+                        node = FileSystemNode(
+                            parent=parent,  # type: ignore[arg-type]
+                            file_system_type=FILE_SYSTEM_TYPES.BUNDLE,
+                            is_file=False,
+                            file_system=self,
+                            name=directory,
+                        )
+                        parent.children[directory] = node  # type: ignore[assignment]
+                        parent = node  # type: ignore[assignment]
 
             for file_name in dir_record.files:
                 node = FileSystemNode(

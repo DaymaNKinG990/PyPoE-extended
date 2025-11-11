@@ -142,8 +142,8 @@ class TranslationFile(AbstractFileReadOnly):
             if parent is not a :class:`TranslationFileCache`
         """
         self.translations: List[Translation] = []
-        self.translations_hash: Dict[str, Translation] = {}
-        self._base_dir: str = base_dir
+        self.translations_hash: Dict[str, List[Translation]] = {}
+        self._base_dir: str | None = base_dir
 
         if parent is not None:
             # Check class name instead of isinstance to avoid circular import at runtime
@@ -176,15 +176,15 @@ class TranslationFile(AbstractFileReadOnly):
                 translation = Translation(identifier=match.group('identifier'))
 
                 # Parse the IDs for the translations
-                id_count = regex_int.search(data, offset, offset_max)
-                if id_count is None:
+                id_count_match = regex_int.search(data, offset, offset_max)
+                if id_count_match is None:
                     raise ValueError(
                         'Couldn\'t find id count between offset %s and %s' % (
                             offset, offset_max
                         )
                     )
-                offset = id_count.end()
-                id_count = int(id_count.group())
+                offset = id_count_match.end()
+                id_count = int(id_count_match.group())
 
                 id_string = regex_ids.search(data, offset, offset_max)
                 if id_string is None:
@@ -212,8 +212,15 @@ class TranslationFile(AbstractFileReadOnly):
                 language = 'English'
                 while t:
                     tl = TranslationLanguage(language, parent=translation)
-                    tcount = regex_int.search(data, offset, offset_max)
-                    offset = tcount.end()
+                    tcount_match = regex_int.search(data, offset, offset_max)
+                    if tcount_match is None:
+                        raise ValueError(
+                            'Couldn\'t find translation count between offset %s and %s' % (
+                                offset, offset_max
+                            )
+                        )
+                    offset = tcount_match.end()
+                    tcount = int(tcount_match.group())
                     language_match = regex_lang.search(data, offset, offset_max)
 
                     if language_match is None:
@@ -223,7 +230,7 @@ class TranslationFile(AbstractFileReadOnly):
                         offset_next_lang = language_match.start()
                         language = language_match.group('language')
 
-                    for i in range(0, int(tcount.group())):
+                    for i in range(0, tcount):
                         ts_match = regex_translation_string.search(data, offset, offset_next_lang)
                         if not ts_match:
                             raise ParserError(
@@ -431,17 +438,18 @@ class TranslationFile(AbstractFileReadOnly):
         if isinstance(tags, str):
             tags = [tags, ]
 
-        trans_found = []
-        trans_missing = []
-        trans_missing_values = []
-        trans_found_values = []
+        trans_found: list[Translation] = []
+        trans_missing: list[str] = []
+        trans_missing_values: list[int | tuple[int, int]] = []
+        trans_found_values: list[int | tuple[int, int]] = []
         for i, tag in enumerate(tags):
             # stats that are zero are not displayed
+            value = values[i]
             try:
-                if values[i][0] == 0 and values[i][1] == 0:
+                if isinstance(value, tuple) and value[0] == 0 and value[1] == 0:  # type: ignore[index]
                     continue
             except TypeError:
-                if values[i] == 0:
+                if value == 0:
                     continue
 
             if tag not in self.translations_hash:
@@ -454,23 +462,23 @@ class TranslationFile(AbstractFileReadOnly):
                 index = tr.ids.index(tag)
                 if tr in trans_found:
                     tf_index = trans_found.index(tr)
-                    trans_found_values[tf_index][index] = values[i]
+                    trans_found_values[tf_index][index] = values[i]  # type: ignore[index]
                 else:
                     trans_found.append(tr)
                     # Used to identify invalid translations later
-                    v = [0xFFFFFFFF for i in range(0, len(tr.ids))]
-                    v[index] = values[i]
-                    trans_found_values.append(v)
+                    v: list[int | tuple[int, int]] = [0xFFFFFFFF for i in range(0, len(tr.ids))]  # type: ignore[assignment]
+                    v[index] = values[i]  # type: ignore[assignment]
+                    trans_found_values.append(v)  # type: ignore[arg-type]
 
         # It seems that partial matches for the tags are indeed allowed and not
         # invalid.
         # Cases are base_chance_to_freeze_% and always_freeze for example
-        partial = []
+        partial: list[Translation] = []
         for i, found_values in enumerate(trans_found_values):
-            for j, value in enumerate(found_values):
+            for j, value in enumerate(found_values):  # type: ignore[arg-type]
                 if value == 0xFFFFFFFF:
                     # Assume 0 as default.
-                    found_values[j] = 0
+                    found_values[j] = 0  # type: ignore[index]
                     partial.append(trans_found[i])
 
         if partial:
@@ -490,11 +498,11 @@ class TranslationFile(AbstractFileReadOnly):
         for i, tr in enumerate(trans_found):
 
             tl = tr.get_language(lang)
-            ts, short_values, is_range = tl.get_string(trans_found_values[i])
+            ts, short_values, is_range = tl.get_string(trans_found_values[i])  # type: ignore[arg-type]
             if ts:
                 string_instances.append(ts)
                 result = ts.format_string(
-                    short_values, is_range, use_placeholder, only_values
+                    short_values, is_range, use_placeholder, only_values  # type: ignore[arg-type]
                 )
                 trans_lines.append(result[0])
                 trans_found_lines.append(result[0])
@@ -524,9 +532,9 @@ class TranslationFile(AbstractFileReadOnly):
                 string_instances=string_instances,
             )
         if only_values:
-            return values_parsed
+            return values_parsed  # type: ignore[return-value]
         else:
-            return trans_lines
+            return trans_lines  # type: ignore[return-value]
 
     def reverse_translation(self,
                             string: str,

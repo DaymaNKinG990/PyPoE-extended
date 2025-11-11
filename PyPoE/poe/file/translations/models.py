@@ -341,7 +341,7 @@ class TranslationLanguage(TranslationReprMixin):
             short_values, is_range, use_placeholder, only_values  # type: ignore[arg-type]
         )
 
-    def reverse_string(self, string: str) -> 'TranslationString':
+    def reverse_string(self, string: str) -> List[int] | None:
         """
         Attempts to find a match for the given string and returns a list of
         reversed values if a match is found for this language.
@@ -363,9 +363,9 @@ class TranslationLanguage(TranslationReprMixin):
             if result is None:
                 continue
 
-            return result  # type: ignore[no-any-return]
+            return result
 
-        return None  # type: ignore[return-value]
+        return None
 
 
 class TranslationString(TranslationReprMixin):
@@ -744,14 +744,14 @@ class TranslationRange(TranslationReprMixin):
     __slots__ = ['parent', 'min', 'max', 'negated']
 
     def __init__(self,
-                 min: int,
-                 max: int,
+                 min: int | None,
+                 max: int | None,
                  parent: TranslationString,
                  negated: bool = False):
         parent.range.append(self)
         self.parent: TranslationString = parent
-        self.min: int = min
-        self.max: int = max
+        self.min: int | None = min
+        self.max: int | None = max
         self.negated: bool = negated
 
     def __eq__(self, other: Any) -> bool:
