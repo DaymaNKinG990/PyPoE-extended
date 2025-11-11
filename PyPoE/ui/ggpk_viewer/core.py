@@ -67,6 +67,8 @@ class GGPKViewerMainWindow(SharedMainWindow):
         self.viewmodel = GGPKViewModel(version=self.s_general.version, parent=self)
         
         # Connect ViewModel signals to View slots
+        self.viewmodel.ggpk_loading_started.connect(self._on_ggpk_loading_started)
+        self.viewmodel.ggpk_loading_progress.connect(self._on_ggpk_loading_progress)
         self.viewmodel.ggpk_loaded.connect(self._on_ggpk_loaded)
         self.viewmodel.ggpk_load_failed.connect(self._on_ggpk_load_failed)
         self.viewmodel.node_selected.connect(self._on_node_selected)
@@ -248,9 +250,21 @@ class GGPKViewerMainWindow(SharedMainWindow):
     # MVVM: ViewModel signal slots
     # =========================================================================
 
+    def _on_ggpk_loading_started(self, file_path: str):
+        """Handle GGPK loading start."""
+        self._write_log(self.tr(f'Loading GGPK file: {file_path}...'))
+        # Disable UI interactions during loading
+        self.ggpk_view.setEnabled(False)
+
+    def _on_ggpk_loading_progress(self, progress: int, message: str):
+        """Handle GGPK loading progress updates."""
+        self._write_log(self.tr(f'Progress: {progress}% - {message}'))
+
     def _on_ggpk_loaded(self):
         """Handle successful GGPK loading."""
         self._write_log(self.tr('GGPK file loaded successfully'))
+        # Re-enable UI
+        self.ggpk_view.setEnabled(True)
         # Update model with new GGPK
         model = self.ggpk_view.model()
         if isinstance(model, GGPKModel):
@@ -259,6 +273,8 @@ class GGPKViewerMainWindow(SharedMainWindow):
     def _on_ggpk_load_failed(self, error_message: str):
         """Handle GGPK loading failure."""
         self._write_log(error_message, msg=Msg.error)
+        # Re-enable UI
+        self.ggpk_view.setEnabled(True)
         QMessageBox.warning(
             self,
             self.tr('Error'),

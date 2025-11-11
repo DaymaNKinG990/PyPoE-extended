@@ -40,8 +40,8 @@ class TestGGPKViewModel:
         
         assert vm.specification is not None
 
-    def test_load_ggpk_file_success(self, mock_factory):
-        """Test loading GGPK file successfully."""
+    def test_load_ggpk_file_success_sync(self, mock_factory):
+        """Test loading GGPK file successfully (synchronous mode)."""
         vm = GGPKViewModel()
         mock_path = Path("test.ggpk")
         
@@ -50,25 +50,42 @@ class TestGGPKViewModel:
             mock_instance = MagicMock()
             mock_ggpk.return_value = mock_instance
             
-            result = vm.load_ggpk_file(mock_path)
+            # Use sync mode for testing
+            vm.load_ggpk_file(mock_path, async_mode=False)
             
-            assert result is True
             assert vm.ggpk_file == mock_instance
             mock_instance.read.assert_called_once_with(mock_path)
             mock_instance.directory_build.assert_called_once()
 
-    def test_load_ggpk_file_failure(self, mock_factory):
-        """Test loading GGPK file with error."""
+    def test_load_ggpk_file_failure_sync(self, mock_factory):
+        """Test loading GGPK file with error (synchronous mode)."""
         vm = GGPKViewModel()
         mock_path = Path("nonexistent.ggpk")
         
         with patch('PyPoE.poe.file.ggpk.GGPKFile') as mock_ggpk:
             mock_ggpk.side_effect = Exception("File not found")
             
-            result = vm.load_ggpk_file(mock_path)
+            # Use sync mode for testing
+            vm.load_ggpk_file(mock_path, async_mode=False)
             
-            assert result is False
             assert vm.ggpk_file is None
+    
+    def test_load_ggpk_file_async_mode(self, mock_factory):
+        """Test loading GGPK file asynchronously."""
+        vm = GGPKViewModel()
+        vm.thread_pool = MagicMock()  # Mock thread pool
+        mock_path = Path("test.ggpk")
+        
+        with patch('PyPoE.ui.ggpk_viewer.workers.GGPKLoadWorker') as mock_worker_class:
+            mock_worker = MagicMock()
+            mock_worker_class.return_value = mock_worker
+            
+            # Use async mode (default)
+            vm.load_ggpk_file(mock_path, async_mode=True)
+            
+            # Worker should be created and started
+            mock_worker_class.assert_called_once_with(mock_path)
+            vm.thread_pool.start.assert_called_once_with(mock_worker)
 
     def test_get_node_info(self, mock_factory):
         """Test getting node information."""

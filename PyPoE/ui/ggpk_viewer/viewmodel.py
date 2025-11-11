@@ -32,7 +32,7 @@ from typing import Optional, List, Dict, Any
 import re
 
 # Library
-from PySide6.QtCore import QObject, Signal
+from PySide6.QtCore import QObject, Signal, QThreadPool
 
 # Package
 from PyPoE.poe.constants import VERSION
@@ -73,10 +73,13 @@ class GGPKViewModel(QObject):
     """
     
     # Qt Signals for communication with View
+    ggpk_loading_started = Signal(str)  # file_path
+    ggpk_loading_progress = Signal(int, str)  # progress (0-100), message
     ggpk_loaded = Signal()
     ggpk_load_failed = Signal(str)  # error_message
     node_selected = Signal(object)  # node
-    extraction_complete = Signal(bool, str)  # success, path
+    extraction_started = Signal(str)  # file_name
+    extraction_complete = Signal(bool, str)  # success, path_or_error
     specification_reloaded = Signal()
     
     def __init__(self, version: VERSION = VERSION.STABLE, parent: Optional[QObject] = None):
@@ -93,39 +96,78 @@ class GGPKViewModel(QObject):
         self.ggpk_file: Optional[ggpk.GGPKFile] = None
         self.current_node: Optional[Any] = None
         
+        # Thread pool for async operations
+        self.thread_pool: QThreadPool = QThreadPool.globalInstance()
+        
         # Specification factory with dependency injection
         self.factory: FileParserFactory = FileParserFactory.default(version=version)
         self.specification: Specification = self.factory.get_specification()
         
         logger.info("ggpk_viewmodel_initialized", version=version.name)
     
-    def load_ggpk_file(self, file_path: Path) -> bool:
+    def load_ggpk_file(self, file_path: Path, async_mode: bool = True) -> None:
         """
-        Load GGPK file.
+        Load GGPK file asynchronously (non-blocking).
         
         Args:
             file_path: Path to .ggpk file
+            async_mode: If True, load asynchronously (default). If False, load synchronously.
         
-        Returns:
-            True if loaded successfully, False otherwise
+        Note:
+            In async mode, this method returns immediately and emits signals:
+            - ggpk_loading_started: When loading begins
+            - ggpk_loading_progress: Progress updates (0-100)
+            - ggpk_loaded: When loading completes successfully
+            - ggpk_load_failed: If loading fails
         """
-        try:
-            logger.info("loading_ggpk_file", path=str(file_path))
+        if async_mode:
+            # Use async worker to avoid blocking UI
+            from PyPoE.ui.ggpk_viewer.workers import GGPKLoadWorker
             
-            self.ggpk_file = ggpk.GGPKFile()
-            self.ggpk_file.read(file_path)
-            self.ggpk_file.directory_build()
+            logger.info("starting_async_ggpk_load", path=str(file_path))
             
-            logger.info("ggpk_file_loaded", path=str(file_path))
-            self.ggpk_loaded.emit()
-            return True
+            worker = GGPKLoadWorker(file_path)
             
-        except Exception as e:
-            error_msg = f"Failed to load GGPK file: {str(e)}"
-            logger.error("ggpk_load_failed", error=str(e), path=str(file_path))
-            self.ggpk_load_failed.emit(error_msg)
-            self.ggpk_file = None
-            return False
+            # Connect worker signals to ViewModel signals
+            worker.signals.loading_started.connect(self.ggpk_loading_started.emit)
+            worker.signals.loading_progress.connect(self.ggpk_loading_progress.emit)
+            worker.signals.loading_finished.connect(self._on_ggpk_loaded)
+            worker.signals.loading_failed.connect(self._on_ggpk_load_failed)
+            
+            # Start worker in thread pool
+            self.thread_pool.start(worker)
+        else:
+            # Synchronous loading (for backward compatibility/testing)
+            try:
+                logger.info("loading_ggpk_file_sync", path=str(file_path))
+                self.ggpk_loading_started.emit(str(file_path))
+                
+                self.ggpk_file = ggpk.GGPKFile()
+                self.ggpk_file.read(file_path)
+                self.ggpk_loading_progress.emit(70, "Building directory...")
+                self.ggpk_file.directory_build()
+                self.ggpk_loading_progress.emit(100, "Complete")
+                
+                logger.info("ggpk_file_loaded", path=str(file_path))
+                self.ggpk_loaded.emit()
+                
+            except Exception as e:
+                error_msg = f"Failed to load GGPK file: {str(e)}"
+                logger.error("ggpk_load_failed", error=str(e), path=str(file_path))
+                self.ggpk_load_failed.emit(error_msg)
+                self.ggpk_file = None
+    
+    def _on_ggpk_loaded(self, ggpk_file: ggpk.GGPKFile) -> None:
+        """Handle successful GGPK loading from worker."""
+        self.ggpk_file = ggpk_file
+        logger.info("ggpk_file_loaded_async")
+        self.ggpk_loaded.emit()
+    
+    def _on_ggpk_load_failed(self, error_msg: str, traceback: str) -> None:
+        """Handle GGPK loading failure from worker."""
+        logger.error("ggpk_load_failed_async", error=error_msg)
+        self.ggpk_file = None
+        self.ggpk_load_failed.emit(error_msg)
     
     def is_ggpk_loaded(self) -> bool:
         """
