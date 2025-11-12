@@ -11,6 +11,7 @@ Contains ItemsParser class for exporting items to wiki format.
 # Python
 import re
 from collections import OrderedDict
+from collections.abc import Callable
 from functools import partialmethod
 from typing import Any
 
@@ -43,12 +44,12 @@ class ItemsParser(SkillParserShared):  # type: ignore[misc]
 
     # Type hints for dynamically created methods (via _type_factory)
     # These are created at class definition time, but MyPy needs explicit declarations
-    _type_amulet: TypingCallable[[Any, Any], bool]  # type: ignore[assignment]
-    _type_level: TypingCallable[[Any, Any], bool]  # type: ignore[assignment]
-    _type_attribute: TypingCallable[[Any, Any], bool]  # type: ignore[assignment]
-    _type_armour: TypingCallable[[Any, Any], bool]  # type: ignore[assignment]
-    _type_weapon: TypingCallable[[Any, Any], bool]  # type: ignore[assignment]
-    _type_shield: TypingCallable[[Any, Any], bool]  # type: ignore[assignment]
+    _type_amulet: Callable[[Any, Any], bool]  # type: ignore[assignment]
+    _type_level: Callable[[Any, Any], bool]  # type: ignore[assignment]
+    _type_attribute: Callable[[Any, Any], bool]  # type: ignore[assignment]
+    _type_armour: Callable[[Any, Any], bool]  # type: ignore[assignment]
+    _type_weapon: Callable[[Any, Any], bool]  # type: ignore[assignment]
+    _type_shield: Callable[[Any, Any], bool]  # type: ignore[assignment]
 
     # From extras.py
     _type_currency = _type_factory(
@@ -469,11 +470,11 @@ class ItemsParser(SkillParserShared):  # type: ignore[misc]
                 self._type_weapon,
             ),
             # Flasks
-            "LifeFlask": (self._type_level, self._type_flask, self._type_flask_charges),
-            "ManaFlask": (self._type_level, self._type_flask, self._type_flask_charges),
-            "HybridFlask": (self._type_level, self._type_flask, self._type_flask_charges),
-            "UtilityFlask": (self._type_level, self._type_flask, self._type_flask_charges),
-            "UtilityFlaskCritical": (self._type_level, self._type_flask, self._type_flask_charges),
+            "LifeFlask": (self._type_level, self._type_flask, self._type_flask_charges),  # type: ignore[attr-defined]
+            "ManaFlask": (self._type_level, self._type_flask, self._type_flask_charges),  # type: ignore[attr-defined]
+            "HybridFlask": (self._type_level, self._type_flask, self._type_flask_charges),  # type: ignore[attr-defined]
+            "UtilityFlask": (self._type_level, self._type_flask, self._type_flask_charges),  # type: ignore[attr-defined]
+            "UtilityFlaskCritical": (self._type_level, self._type_flask, self._type_flask_charges),  # type: ignore[attr-defined]
             # Gems
             "Active Skill Gem": (self._skill_gem,),
             "Support Skill Gem": (self._skill_gem,),
