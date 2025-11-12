@@ -218,7 +218,8 @@ def get_custom_translation_file() -> TranslationFile:
     global _custom_translation_file
     if _custom_translation_file is None:
         set_custom_translation_file()
-    return _custom_translation_file  # type: ignore[no-any-return]
+    assert _custom_translation_file is not None  # Set by set_custom_translation_file
+    return _custom_translation_file
 
 
 def set_custom_translation_file(file: str | None = None):
