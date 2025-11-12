@@ -55,7 +55,7 @@ class ExportDatCommand(Command):
             self._handler.handle(args)
             return 0
         except Exception as e:
-            from PyPoE.cli.core import console, Msg
+            from PyPoE.cli.core import Msg, console
 
             console(f"Error executing DAT export: {e}", msg=Msg.error)
             return 1

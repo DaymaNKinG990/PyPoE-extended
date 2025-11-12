@@ -5,9 +5,7 @@ This module contains the PatchFileList class which provides a simplified
 interface for retrieving and managing file lists from the patch server.
 """
 
-from PyPoE.poe.patchserver.connection import PatchConnection
 from PyPoE.poe.patchserver.file_list import PatchFileListBuilder
-from PyPoE.poe.patchserver.node import DirectoryNodeExtended
 from PyPoE.poe.patchserver.patch import Patch
 from PyPoE.poe.patchserver.protocol import PatchProtocolParser
 

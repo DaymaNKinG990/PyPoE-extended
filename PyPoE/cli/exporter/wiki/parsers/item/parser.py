@@ -24,7 +24,6 @@ from PyPoE.cli.exporter.wiki.parsers.item.data_extractor import ItemDataExtracto
 from PyPoE.cli.exporter.wiki.parsers.item.skill_handler import ItemSkillHandler
 from PyPoE.cli.exporter.wiki.parsers.item.type_parser import ItemTypeParser
 from PyPoE.cli.exporter.wiki.parsers.item.wiki_exporter import ItemWikiExporter
-
 from PyPoE.cli.exporter.wiki.parsers.skill import SkillParserShared
 
 # Self

@@ -31,7 +31,6 @@ from PyPoE.poe.constants import MOD_GENERATION_TYPE
 from PyPoE.poe.file.shared.cache import AbstractFileCache
 from PyPoE.poe.file.translations.constants import (  # type: ignore[attr-defined]
     CUSTOM_TRANSLATION_FILE,
-    _custom_translation_file,
 )
 from PyPoE.poe.file.translations.file import TranslationFile
 from PyPoE.poe.file.translations.models import (

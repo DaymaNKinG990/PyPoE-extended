@@ -36,7 +36,6 @@ from PyPoE.cli.exporter import config
 from PyPoE.cli.exporter.util import fix_path, get_content_path
 from PyPoE.cli.exporter.wiki.parser.utils import make_inter_wiki_links
 from PyPoE.poe.constants import MOD_DOMAIN, MOD_STATS_RANGE
-from PyPoE.shared.di import DIContainer
 from PyPoE.poe.file.dat import RelationalReader
 from PyPoE.poe.file.factory import FileParserFactory
 from PyPoE.poe.file.file_system import FileSystem
@@ -50,6 +49,7 @@ from PyPoE.poe.file.translations import (
     install_data_dependant_quantifiers,
 )
 from PyPoE.poe.sim.mods import get_translation_file_from_domain
+from PyPoE.shared.di import DIContainer
 
 # =============================================================================
 # Globals

@@ -8,7 +8,6 @@ import contextlib
 import io
 import socket
 import struct
-from typing import Any
 
 from PyPoE.poe.patchserver.socket_utils import socket_fd_open
 

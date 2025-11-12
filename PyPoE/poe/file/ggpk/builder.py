@@ -54,10 +54,10 @@ class GGPKFileBuilder:
             file_path: Path to the GGPK file (optional, can be set later)
         """
         self._file_path = file_path
-        self._reader: "GGPKReader | None" = None
-        self._record_manager: "GGPKRecordManager | None" = None
-        self._directory_builder: "GGPKDirectoryBuilder | None" = None
-        self._diff_comparator: "GGPKDiffComparator | None" = None
+        self._reader: GGPKReader | None = None
+        self._record_manager: GGPKRecordManager | None = None
+        self._directory_builder: GGPKDirectoryBuilder | None = None
+        self._diff_comparator: GGPKDiffComparator | None = None
 
     def with_file_path(self, file_path: str) -> Self:
         """

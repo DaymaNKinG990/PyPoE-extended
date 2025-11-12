@@ -8,7 +8,6 @@ import io
 import select
 import socket
 import struct
-from typing import Any
 
 
 class PatchProtocolParser:

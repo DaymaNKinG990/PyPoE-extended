@@ -6,14 +6,12 @@ This module handles building the file list structure from patch server responses
 
 import io
 import struct
-from typing import Any
 
-from PyPoE.poe.file.ggpk import DirectoryRecord, FileRecord
+from PyPoE.poe.file.ggpk import DirectoryRecord
 from PyPoE.poe.patchserver.connection import PatchConnection
 from PyPoE.poe.patchserver.node import DirectoryNodeExtended
 from PyPoE.poe.patchserver.protocol import PatchProtocolParser
 from PyPoE.poe.patchserver.records import VirtualDirectoryRecord, VirtualFileRecord
-from PyPoE.poe.patchserver.socket_utils import socket_fd_open
 from PyPoE.shared.murmur2 import murmur2_32
 
 
