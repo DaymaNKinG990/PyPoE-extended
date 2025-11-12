@@ -43,12 +43,12 @@ class ItemsParser(SkillParserShared):  # type: ignore[misc]
 
     # Type hints for dynamically created methods (via _type_factory)
     # These are created at class definition time, but MyPy needs explicit declarations
-    _type_amulet: Callable[[Any, Any], bool]  # type: ignore[assignment]
-    _type_level: Callable[[Any, Any], bool]  # type: ignore[assignment]
-    _type_attribute: Callable[[Any, Any], bool]  # type: ignore[assignment]
-    _type_armour: Callable[[Any, Any], bool]  # type: ignore[assignment]
-    _type_weapon: Callable[[Any, Any], bool]  # type: ignore[assignment]
-    _type_shield: Callable[[Any, Any], bool]  # type: ignore[assignment]
+    _type_amulet: TypingCallable[[Any, Any], bool]  # type: ignore[assignment]
+    _type_level: TypingCallable[[Any, Any], bool]  # type: ignore[assignment]
+    _type_attribute: TypingCallable[[Any, Any], bool]  # type: ignore[assignment]
+    _type_armour: TypingCallable[[Any, Any], bool]  # type: ignore[assignment]
+    _type_weapon: TypingCallable[[Any, Any], bool]  # type: ignore[assignment]
+    _type_shield: TypingCallable[[Any, Any], bool]  # type: ignore[assignment]
 
     # From extras.py
     _type_currency = _type_factory(
