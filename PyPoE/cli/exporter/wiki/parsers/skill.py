@@ -401,7 +401,8 @@ class SkillParserShared(parser.BaseParser):
             data["stats"] = {}
 
             for j, stats in enumerate(tr.found_ids):
-                values = list(tr.values[j]) if isinstance(tr.values[j], (list, tuple)) else [tr.values[j]]
+                # tr.values[j] is int, not list, so we need to wrap it
+                values = [tr.values[j]] if isinstance(tr.values[j], int) else list(tr.values[j])  # type: ignore[arg-type]
                 stats = list(stats)
                 values_parsed = list(tr.values_parsed[j])
                 # Skip zero stats again, since some translations might
@@ -634,8 +635,12 @@ class SkillParserShared(parser.BaseParser):
                     tr_values.append((value, stat_dict_max["values"][j]))
 
                 # Should only be one
-                line = tf.get_translation(stat_ids, tr_values, lang=config.get_option("language"))
-                line = line[0] if line else ""
+                line_result = tf.get_translation(stat_ids, tr_values, lang=config.get_option("language"))
+                # get_translation without full_result returns list[str]
+                if isinstance(line_result, list) and line_result:
+                    line = line_result[0]
+                else:
+                    line = ""
 
             if line:
                 lines.append(line)
@@ -654,18 +659,19 @@ class SkillParserShared(parser.BaseParser):
                     ("base_skill_effect_duration",),
                 ),
             )
-            added = []
+            added: list[str] = []
             for value_keys, tags in field_stats:
                 values = [(level_data[0][key], level_data[max_level][key]) for key in value_keys]
                 # Account for default (0 = 100%)
                 if values[0] != 0 or values[1] != 0:
-                    added.extend(
-                        tf.get_translation(
-                            tags=tags,
-                            values=values,
-                            lang=config.get_option("language"),
-                        )
+                    translation_result = tf.get_translation(
+                        tags=list(tags),  # Convert tuple to list
+                        values=values,
+                        lang=config.get_option("language"),
                     )
+                    # get_translation without full_result returns list[str]
+                    if isinstance(translation_result, list):
+                        added.extend(translation_result)
 
             if added:
                 lines = added + lines
