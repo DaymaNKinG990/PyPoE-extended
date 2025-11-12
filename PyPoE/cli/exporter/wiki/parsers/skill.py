@@ -137,6 +137,21 @@ class WikiCondition(parser.WikiCondition):
 
 
 class SkillParserShared(parser.BaseParser):
+    """
+    Shared base class for skill parsers.
+
+    Provides common functionality for parsing skill data including:
+    - Skill level progression
+    - Stat requirements
+    - Mana costs
+    - Cooldowns
+    - Skill gem properties
+
+    Attributes:
+        _files: List of DAT files to load
+        _GEPL_COPY: Columns to copy from GrantedEffectsPerLevel.dat
+        _SKILL_COLUMN_MAP: Mapping of skill columns to wiki templates
+    """
     _files = [
         # pretty much chain loads everything we need
         "ActiveSkills.dat",
@@ -314,13 +329,43 @@ class SkillParserShared(parser.BaseParser):
 
         return self._skill_stat_filters
 
-    def _write_stats(self, infobox, stats_and_values, global_prefix):
+    def _write_stats(self, infobox: dict[str, Any], stats_and_values: Any, global_prefix: str) -> None:
+        """
+        Write stat information to infobox.
+
+        Args:
+            infobox: Infobox dictionary to populate
+            stats_and_values: Iterable of (stat_id, value) tuples
+            global_prefix: Prefix for stat keys (e.g., "level1_")
+        """
         for i, val in enumerate(stats_and_values):
             prefix = f"{global_prefix}stat{i + 1}_"
             infobox[prefix + "id"] = val[0]
             infobox[prefix + "value"] = val[1]
 
-    def _skill(self, ge, infobox, parsed_args, max_level=None, msg_name=None):
+    def _skill(
+        self,
+        ge: Any,
+        infobox: dict[str, Any],
+        parsed_args: Any,
+        max_level: int | None = None,
+        msg_name: str | None = None,
+    ) -> bool:
+        """
+        Process skill gem data and populate infobox.
+
+        Extracts skill progression data, stats, and properties for wiki export.
+
+        Args:
+            ge: GrantedEffects.dat row
+            infobox: Infobox dictionary to populate
+            parsed_args: Parsed command-line arguments
+            max_level: Maximum skill level to process (None for all levels)
+            msg_name: Skill name for error messages (uses ge['Id'] if None)
+
+        Returns:
+            True if successful, False otherwise
+        """
         if msg_name is None:
             msg_name = ge["Id"]
 
@@ -725,7 +770,22 @@ class SkillParserShared(parser.BaseParser):
 
 
 class SkillParser(SkillParserShared):
-    def by_id(self, parsed_args):
+    """
+    Parser for exporting skill data to wiki format.
+
+    Provides methods for exporting skills by ID or row ID range.
+    """
+
+    def by_id(self, parsed_args: Any) -> Any:
+        """
+        Export skills by ID.
+
+        Args:
+            parsed_args: Parsed arguments containing skill_id(s)
+
+        Returns:
+            Export result object
+        """
         return self.export(
             parsed_args,
             self._column_index_filter(
@@ -735,7 +795,16 @@ class SkillParser(SkillParserShared):
             ),
         )
 
-    def by_rowid(self, parsed_args):
+    def by_rowid(self, parsed_args: Any) -> Any:
+        """
+        Export skills by row ID range.
+
+        Args:
+            parsed_args: Parsed arguments containing start and end row IDs
+
+        Returns:
+            Export result object
+        """
         return self.export(
             parsed_args,
             self.rr["GrantedEffects.dat"][parsed_args.start : parsed_args.end],

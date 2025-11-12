@@ -1725,7 +1725,14 @@ class ItemsParser(SkillParserShared):  # type: ignore[misc]
         """
         Process base item type information.
 
+        Extracts and processes base item type data including name, class, size,
+        flavour text, drop level, tags, description, help text, and implicit mods.
         This method is used by multiple specialized classes and should remain in ItemsParser.
+
+        Args:
+            base_item_type: Base item type data from BaseItemTypes.dat
+            infobox: Infobox dictionary to populate
+            not_new_map: If True, includes metadata_id for non-map items
         """
         from PyPoE.cli.exporter.wiki import parser
         from PyPoE.poe.file.ot import OTFile
