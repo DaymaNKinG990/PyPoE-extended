@@ -188,10 +188,10 @@ class ItemWikiExporter:
         r = ExporterResult()
 
         map_series = self._get_map_series(parsed_args)
-        if map_series is False:
+        if map_series is False or map_series is None:
             return r
 
-        if map_series.rowid <= 3:
+        if map_series.rowid <= 3:  # type: ignore[union-attr]
             console(
                 "Only Betrayal and newer map series are supported by this function",
                 msg=Msg.error,
