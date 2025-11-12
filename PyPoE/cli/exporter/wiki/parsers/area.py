@@ -40,6 +40,7 @@ Interal API
 import re
 from collections import OrderedDict
 from functools import partialmethod
+from typing import Any
 
 # 3rd-party
 # self
@@ -72,7 +73,19 @@ class WikiCondition(parser.WikiCondition):
 
 
 class AreaCommandHandler(ExporterHandler):
-    def __init__(self, sub_parser):
+    """
+    Handler for area export commands.
+
+    Sets up command-line interface for area data export.
+    """
+
+    def __init__(self, sub_parser: Any) -> None:
+        """
+        Initialize AreaCommandHandler.
+
+        Args:
+            sub_parser: Argument parser subparser to add commands to
+        """
         self.parser = sub_parser.add_parser(
             "area",
             help="Area Exporter",
@@ -145,7 +158,14 @@ class AreaCommandHandler(ExporterHandler):
             dest="re_id",
         )
 
-    def add_default_parsers(self, *args, **kwargs):
+    def add_default_parsers(self, *args: Any, **kwargs: Any) -> None:
+        """
+        Add default parsers and area-specific arguments.
+
+        Args:
+            *args: Positional arguments passed to parent
+            **kwargs: Keyword arguments including 'parser'
+        """
         super().add_default_parsers(*args, **kwargs)
         parser = kwargs["parser"]
         self.add_format_argument(parser)
@@ -160,6 +180,12 @@ class AreaCommandHandler(ExporterHandler):
 
 
 class AreaParser(parser.BaseParser):
+    """
+    Parser for exporting area data to wiki format.
+
+    Handles export of world areas including their properties,
+    connections, and metadata.
+    """
     _files = [
         "WorldAreas.dat",
         "MapPins.dat",
@@ -416,25 +442,61 @@ class AreaParser(parser.BaseParser):
         },
     }
 
-    def by_rowid(self, parsed_args):
+    def by_rowid(self, parsed_args: Any) -> Any:
+        """
+        Export areas by row ID range.
+
+        Args:
+            parsed_args: Parsed arguments containing start and end row IDs
+
+        Returns:
+            Export result object
+        """
         return self.export(
             parsed_args,
             self.rr["WorldAreas.dat"][parsed_args.start : parsed_args.end],
         )
 
-    def by_id(self, parsed_args):
+    def by_id(self, parsed_args: Any) -> Any:
+        """
+        Export areas by ID.
+
+        Args:
+            parsed_args: Parsed arguments containing area ID(s)
+
+        Returns:
+            Export result object
+        """
         return self.export(
             parsed_args,
             self._area_column_index_filter(column_id="Id", arg_list=parsed_args.area_id),
         )
 
-    def by_name(self, parsed_args):
+    def by_name(self, parsed_args: Any) -> Any:
+        """
+        Export areas by name.
+
+        Args:
+            parsed_args: Parsed arguments containing area name(s)
+
+        Returns:
+            Export result object
+        """
         return self.export(
             parsed_args,
             self._area_column_index_filter(column_id="Name", arg_list=parsed_args.area_name),
         )
 
-    def by_filter(self, parsed_args):
+    def by_filter(self, parsed_args: Any) -> Any:
+        """
+        Filter and export areas by regex pattern.
+
+        Args:
+            parsed_args: Parsed arguments containing regex pattern (re_id)
+
+        Returns:
+            Export result object
+        """
         re_id = re.compile(parsed_args.re_id) if parsed_args.re_id else None
 
         out = []
@@ -445,7 +507,17 @@ class AreaParser(parser.BaseParser):
 
         return self.export(parsed_args, out)
 
-    def export(self, parsed_args, areas):
+    def export(self, parsed_args: Any, areas: list[Any]) -> Any:
+        """
+        Export areas to wiki format.
+
+        Args:
+            parsed_args: Parsed command-line arguments
+            areas: List of WorldAreas.dat rows to export
+
+        Returns:
+            ExporterResult instance
+        """
         console(f"Found {len(areas)} areas, parsing...")
 
         r = ExporterResult()
