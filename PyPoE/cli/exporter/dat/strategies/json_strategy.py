@@ -97,7 +97,8 @@ class JsonExportStrategy(ExportStrategy):
 
         if include_record_length:
             record_length = dat_file.reader.table_record_length
-            out_obj["record_length"] = int(record_length) if record_length is not None else 0
+            if record_length is not None:
+                out_obj["record_length"] = int(record_length)
 
         # Write to file
         console(f'Dumping data to "{output_path}"...')

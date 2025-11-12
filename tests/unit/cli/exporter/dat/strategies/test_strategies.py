@@ -216,9 +216,8 @@ class TestDatStrategyExporter:
             "File2.dat": MagicMock(spec=DatFile),
         }
 
-        with TemporaryDirectory() as tmpdir:
-            with patch("PyPoE.cli.core.console"):
-                exporter.export_multiple(dat_files, tmpdir)
+        with TemporaryDirectory() as tmpdir, patch("PyPoE.cli.core.console"):
+            exporter.export_multiple(dat_files, tmpdir)
 
         assert strategy.export.call_count == 2
 
