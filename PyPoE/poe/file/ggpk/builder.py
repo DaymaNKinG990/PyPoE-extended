@@ -135,9 +135,9 @@ class GGPKFileBuilder:
             ValueError: If file_path is required but not set
         """
         # GGPKFile can be created without file_path (set later via read())
-        # Note: GGPKFile.__init__ accepts file_path as first positional arg or via kwargs
+        # Note: GGPKFile inherits from AbstractFileReadOnly which accepts file_path via kwargs
         return GGPKFile(
-            self._file_path,
+            file_path=self._file_path,
             reader=self._reader,
             record_manager=self._record_manager,
             directory_builder=self._directory_builder,
