@@ -41,6 +41,7 @@ import os.path
 import re
 from collections import OrderedDict
 from functools import partialmethod
+from typing import Any
 
 # 3rd-party
 # self
@@ -71,7 +72,19 @@ class WikiCondition(parser.WikiCondition):
 
 
 class PassiveSkillCommandHandler(ExporterHandler):
-    def __init__(self, sub_parser):
+    """
+    Handler for passive skill export commands.
+
+    Sets up command-line interface for passive skill data export.
+    """
+
+    def __init__(self, sub_parser: Any) -> None:
+        """
+        Initialize PassiveSkillCommandHandler.
+
+        Args:
+            sub_parser: Argument parser subparser to add commands to
+        """
         self.parser = sub_parser.add_parser(
             "passive",
             help="Passive skill exporter",
@@ -101,7 +114,14 @@ class PassiveSkillCommandHandler(ExporterHandler):
             dest='re_id',
         )"""
 
-    def add_default_parsers(self, *args, **kwargs):
+    def add_default_parsers(self, *args: Any, **kwargs: Any) -> None:
+        """
+        Add default parsers and passive skill-specific arguments.
+
+        Args:
+            *args: Positional arguments passed to parent
+            **kwargs: Keyword arguments including 'parser'
+        """
         super().add_default_parsers(*args, **kwargs)
         self.add_format_argument(kwargs["parser"])
         self.add_image_arguments(kwargs["parser"])
@@ -116,6 +136,12 @@ class PassiveSkillCommandHandler(ExporterHandler):
 
 
 class PassiveSkillParser(parser.BaseParser):
+    """
+    Parser for exporting passive skill data to wiki format.
+
+    Handles export of passive skills from the skill tree including
+    their stats, connections, and properties.
+    """
     _files = [
         "PassiveSkills.dat",
     ]
@@ -257,24 +283,61 @@ class PassiveSkillParser(parser.BaseParser):
 
         return new
 
-    def by_rowid(self, parsed_args):
+    def by_rowid(self, parsed_args: Any) -> Any:
+        """
+        Export passive skills by row ID range.
+
+        Args:
+            parsed_args: Parsed arguments containing start and end row IDs
+
+        Returns:
+            Export result object
+        """
         return self.export(
             parsed_args,
             self.rr["PassiveSkills.dat"][parsed_args.start : parsed_args.end],
         )
 
-    def by_id(self, parsed_args):
+    def by_id(self, parsed_args: Any) -> Any:
+        """
+        Export passive skills by ID.
+
+        Args:
+            parsed_args: Parsed arguments containing passive skill ID(s)
+
+        Returns:
+            Export result object
+        """
         return self.export(
             parsed_args, self._passive_column_index_filter(column_id="Id", arg_list=parsed_args.id)
         )
 
-    def by_name(self, parsed_args):
+    def by_name(self, parsed_args: Any) -> Any:
+        """
+        Export passive skills by name.
+
+        Args:
+            parsed_args: Parsed arguments containing passive skill name(s)
+
+        Returns:
+            Export result object
+        """
         return self.export(
             parsed_args,
             self._passive_column_index_filter(column_id="Name", arg_list=parsed_args.name),
         )
 
-    def export(self, parsed_args, passives):
+    def export(self, parsed_args: Any, passives: list[Any]) -> Any:
+        """
+        Export passive skills to wiki format.
+
+        Args:
+            parsed_args: Parsed command-line arguments
+            passives: List of PassiveSkills.dat rows to export
+
+        Returns:
+            ExporterResult instance
+        """
         r = ExporterResult()
 
         passives = self._apply_filter(parsed_args, passives)
