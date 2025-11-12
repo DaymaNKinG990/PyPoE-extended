@@ -104,7 +104,14 @@ class SkillHandler(ExporterHandler):
             type=int,
         )
 
-    def add_default_parsers(self, *args, **kwargs):
+    def add_default_parsers(self, *args: Any, **kwargs: Any) -> None:
+        """
+        Add default parsers and skill-specific arguments.
+
+        Args:
+            *args: Positional arguments passed to parent
+            **kwargs: Keyword arguments including 'parser'
+        """
         super().add_default_parsers(*args, **kwargs)
         self.add_format_argument(kwargs["parser"])
         self.add_image_arguments(kwargs["parser"])
@@ -810,7 +817,17 @@ class SkillParser(SkillParserShared):
             self.rr["GrantedEffects.dat"][parsed_args.start : parsed_args.end],
         )
 
-    def export(self, parsed_args, skills):
+    def export(self, parsed_args: Any, skills: list[Any]) -> Any:
+        """
+        Export skills to wiki format.
+
+        Args:
+            parsed_args: Parsed command-line arguments
+            skills: List of GrantedEffects.dat rows to export
+
+        Returns:
+            ExporterResult instance
+        """
         self._image_init(parsed_args=parsed_args)
         console(f"Found {len(skills)} skills, parsing...")
         self.rr["SkillGems.dat"].build_index("GrantedEffectsKey")
