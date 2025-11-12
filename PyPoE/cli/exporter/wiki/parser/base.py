@@ -64,16 +64,24 @@ __all__ = ["BaseParser"]
 
 class BaseParser:
     """
-    :ivar str base_path:
+    Base parser class for wiki export handlers.
 
-    :ivar rr:
-    :type rr: RelationalReader
+    This class provides common functionality for all wiki parsers, including:
+    - File system access
+    - Relational data reading
+    - Translation file caching
+    - Image handling
+    - Wiki formatting utilities
 
-    :ivar tc:
-    :type tc: TranslationFileCache
-
-    :ivar custom:
-    :type custom: TranslationFile
+    Attributes:
+        base_path: Base path for output files
+        parsed_args: Parsed command-line arguments
+        rr: RelationalReader instance for data access
+        tc: TranslationFileCache instance for translations
+        custom: Custom TranslationFile instance
+        file_system: FileSystem instance for file operations
+        lang: Language code for translations
+        _img_path: Path for storing images (if enabled)
     """
 
     _DETAILED_FORMAT = '<abbr title="%s">%s</abbr>'
@@ -257,7 +265,24 @@ class BaseParser:
             language=language,
         )
 
-    def _column_index_filter(self, dat_file_name, column_id, arg_list, error_msg=_MISSING_MSG):
+    def _column_index_filter(
+        self, dat_file_name: str, column_id: str, arg_list: list[str], error_msg: str = _MISSING_MSG
+    ) -> list[Any]:
+        """
+        Filter rows from a DAT file by column index.
+
+        Builds an index for the specified column and returns matching rows
+        for the given arguments. Warns about missing arguments.
+
+        Args:
+            dat_file_name: Name of the DAT file to query
+            column_id: Column name to index and filter by
+            arg_list: List of values to filter by
+            error_msg: Error message format for missing arguments
+
+        Returns:
+            List of matching rows (DatRecord instances or lists)
+        """
         self.rr[dat_file_name].build_index(column_id)
 
         rows: list[Any] = []
@@ -276,22 +301,88 @@ class BaseParser:
 
         return rows
 
-    def _format_tr(self, tr):
+    def _format_tr(self, tr: Any) -> str:
+        """
+        Format translation result for wiki output.
+
+        Converts translation lines to wiki format with inter-wiki links.
+
+        Args:
+            tr: TranslationResult object with lines attribute
+
+        Returns:
+            Formatted string with wiki links
+        """
         return make_inter_wiki_links(self._format_lines(tr.lines))
 
-    def _format_lines(self, lines):
+    def _format_lines(self, lines: list[str]) -> str:
+        """
+        Format lines for wiki output.
+
+        Joins lines with <br> tags and replaces newlines with <br>.
+
+        Args:
+            lines: List of strings to format
+
+        Returns:
+            Formatted string with HTML line breaks
+        """
         return "<br>".join(lines).replace("\n", "<br>")
 
-    def _format_wiki_title(self, title):
+    def _format_wiki_title(self, title: str) -> str:
+        """
+        Format title for wiki output.
+
+        Replaces underscores with tildes for wiki formatting.
+
+        Args:
+            title: Title string to format
+
+        Returns:
+            Formatted title string
+        """
         return title.replace("_", "~").replace("~~~", "_~~_~~_")
 
-    def _format_hidden(self, custom):
+    def _format_hidden(self, custom: str) -> str:
+        """
+        Format hidden text for wiki output.
+
+        Wraps text with language-specific "hidden" marker.
+
+        Args:
+            custom: Text to mark as hidden
+
+        Returns:
+            Formatted string with hidden marker
+        """
         return self._HIDDEN_FORMAT[self.lang] % make_inter_wiki_links(custom)
 
-    def _format_detailed(self, custom, ingame):
+    def _format_detailed(self, custom: str, ingame: str) -> str:
+        """
+        Format detailed text with tooltip for wiki output.
+
+        Creates an abbreviation with tooltip showing in-game text.
+
+        Args:
+            custom: Custom text to display
+            ingame: In-game text for tooltip
+
+        Returns:
+            Formatted HTML string with tooltip
+        """
         return self._DETAILED_FORMAT % (ingame, make_inter_wiki_links(custom))
 
-    def _write_dds(self, data, out_path, parsed_args):
+    def _write_dds(self, data: bytes, out_path: str, parsed_args: Any) -> None:
+        """
+        Write DDS image data to file.
+
+        Extracts DDS data, writes to file, and optionally converts to PNG.
+
+        Args:
+            data: Raw DDS image data
+            out_path: Output file path
+            parsed_args: Parsed arguments (may contain convert_images flag)
+        """
         out_path = fix_path(out_path)
         with open(out_path, "wb") as f:
             f.write(self.file_system.extract_dds(data))
@@ -311,14 +402,46 @@ class BaseParser:
 
         console(f'Converted "{out_path}" to png')
 
-    def _image_init(self, parsed_args):
+    def _image_init(self, parsed_args: Any) -> None:
+        """
+        Initialize image storage directory.
+
+        Creates image directory if image storage is enabled.
+
+        Args:
+            parsed_args: Parsed arguments (may contain store_images flag)
+        """
         from PyPoE.shared.file_utils import ensure_directory
 
         if parsed_args.store_images:
             self._img_path = os.path.join(self.base_path, "img")
             ensure_directory(self._img_path)
 
-    def _get_stats(self, stats=None, values=None, mod=None, translation_file=None):
+    def _get_stats(
+        self,
+        stats: list[str] | None = None,
+        values: list[tuple[int, int]] | None = None,
+        mod: Any | None = None,
+        translation_file: str | None = None,
+    ) -> list[str]:
+        """
+        Get formatted stat descriptions for wiki output.
+
+        Retrieves and formats stat descriptions from translation files.
+        Handles special cases for monster domain stats.
+
+        Args:
+            stats: List of stat IDs (extracted from mod if None)
+            values: List of (min, max) value tuples (extracted from mod if None)
+            mod: Mod data object (required if stats/values not provided)
+            translation_file: Translation file name (auto-determined if None)
+
+        Returns:
+            List of formatted stat description strings
+
+        Raises:
+            ValueError: If mod is required but not provided
+        """
         if translation_file is None:
             if mod is None:
                 raise ValueError(
