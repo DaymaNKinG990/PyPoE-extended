@@ -1907,3 +1907,30 @@ class ItemsParser(SkillParserShared):  # type: ignore[misc]
     def _skill_gem(self, infobox: dict[str, Any], base_item_type: Any) -> bool:
         """Process skill gem item."""
         return self._skill_handler.process_skill_gem(infobox, base_item_type)
+
+    def export(self, parsed_args: Any) -> Any:
+        """
+        Export items (backward compatibility method).
+
+        This method provides backward compatibility for tests and other code
+        that uses the old API. It delegates to by_name() if 'item' is in parsed_args,
+        or to by_id() if 'id' is in parsed_args.
+
+        Args:
+            parsed_args: Parsed command-line arguments
+
+        Returns:
+            ExporterResult instance
+        """
+        # Backward compatibility: check for 'item' attribute (old API)
+        if hasattr(parsed_args, "item") and parsed_args.item:
+            # Convert to new API format
+            parsed_args.name = parsed_args.item
+            return self.by_name(parsed_args)
+        elif hasattr(parsed_args, "id") and parsed_args.id:
+            return self.by_id(parsed_args)
+        elif hasattr(parsed_args, "name") and parsed_args.name:
+            return self.by_name(parsed_args)
+        else:
+            # Fallback to by_filter if no specific method is available
+            return self.by_filter(parsed_args)

@@ -61,7 +61,19 @@ def item_parser(poe_version, cli_config):
     if not os.path.exists(path):
         pytest.skip(ERR)
 
-    return item.ItemsParser(base_path=path)
+    # Create a minimal parsed_args object for ItemsParser initialization
+    # ItemsParser now requires parsed_args in constructor
+    parsed_args = type(
+        "Args",
+        (object,),
+        {
+            "store_images": False,
+            "convert_images": False,
+            "english_file_link": False,
+        },
+    )
+
+    return item.ItemsParser(base_path=path, parsed_args=parsed_args)
 
 
 # =============================================================================
