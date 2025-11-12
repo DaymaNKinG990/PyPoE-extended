@@ -68,9 +68,11 @@ class DatTableModel(DatModelShared):
     def __init__(self, *args, **kwargs):
         DatModelShared.__init__(self, *args, **kwargs)
 
+        if self._dat_file.reader is None:
+            raise ValueError("DatFile.reader is None - file must be read first")
         self._columns = [
             (id, item["section"]) for id, item in self._dat_file.reader.table_columns.items()
-        ]  # type: ignore[union-attr]
+        ]
 
     def rowCount(self, parent=QModelIndex()):
         return len(self._dat_file.reader.table_data)  # type: ignore[union-attr]

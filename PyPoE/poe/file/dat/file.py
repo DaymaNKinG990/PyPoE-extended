@@ -69,19 +69,11 @@ class DatFile(AbstractFileReadOnly):
         if specification is None:
             raise ValueError("specification is required for DatReader")
 
-        # Use builder parameters if set, otherwise create defaults
-        caster = self._builder_caster if self._builder_caster is not None else DatCaster(
-            use_dat_value=self._builder_use_dat_value, x64=self._builder_x64
-        )
-        parser = self._builder_parser if self._builder_parser is not None else DatParser()
-        indexer = self._builder_indexer if self._builder_indexer is not None else DatIndexer()
-
+        # DatReader creates its own components (caster, parser, indexer) internally
+        # Builder pattern is not supported for DatReader
         self.reader = DatReader(
             self._file_name or "",
             specification=specification,
-            caster=caster,
-            parser=parser,
-            indexer=indexer,
             use_dat_value=self._builder_use_dat_value,
             x64=self._builder_x64,
         )

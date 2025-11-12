@@ -379,8 +379,20 @@ class ModParser(BaseParser):
                 #    print(tempest['MonsterVarietiesKey'])
                 #    break
 
+            # Convert stat_values to list[int] | list[tuple[int, int]]
+            # stat_values is list[list[int] | int], need to flatten or convert to tuples
+            converted_values: list[int] | list[tuple[int, int]] = []
+            for val in stat_values:
+                if isinstance(val, list) and len(val) == 2:
+                    converted_values.append((val[0], val[1]))  # type: ignore[arg-type]
+                elif isinstance(val, (int, float)):
+                    converted_values.append(int(val))  # type: ignore[arg-type]
+                else:
+                    # Fallback: use first value if list, or 0 if not
+                    converted_values.append(int(val[0]) if isinstance(val, list) and val else 0)  # type: ignore[arg-type]
+            
             t = tf.get_translation(
-                stat_ids, stat_values, full_result=True, lang=config.get_option("language")
+                stat_ids, converted_values, full_result=True, lang=config.get_option("language")
             )
             self._append_effect(t, effects, "The area gets the following modifiers:")
 

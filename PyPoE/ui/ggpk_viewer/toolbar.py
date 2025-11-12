@@ -118,8 +118,9 @@ class ContextToolbar(QToolBar):
         try:
             # Extract DDS using FileSystem method
             if node.record._container:
+                from PyPoE.cli.core import get_content_path
                 from PyPoE.poe.file.file_system import FileSystem
-                fs = FileSystem()
+                fs = FileSystem(root_path=get_content_path())
                 data = fs.extract_dds(data)
         except FileNotFoundError as e:
             self.parent()._write_log(f"Broken symbolic link.\n{e}")

@@ -186,7 +186,7 @@ class GGPKViewModel(QObject):
                 self.ggpk_loading_started.emit(str(file_path))
 
                 self.ggpk_file = GGPKFile()
-                self.ggpk_file.read(file_path)
+                self.ggpk_file.read(str(file_path))
                 self.ggpk_loading_progress.emit(70, "Building directory...")
                 self.ggpk_file.directory_build()
                 self.ggpk_loading_progress.emit(100, "Complete")

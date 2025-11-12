@@ -1402,7 +1402,8 @@ class SynthesisParser(GenericLuaParser):
         data: dict[str, list[Any]] = {}
         for definition in self._DATA:
             data[definition["key"]] = []  # type: ignore[index]
-            for row in self.rr[definition["file"]]:
+            file_name = definition["file"] if isinstance(definition["file"], str) else str(definition["file"])
+            for row in self.rr[file_name]:  # type: ignore[index]
                 self._copy_from_keys(
                     row,
                     definition["data"],
@@ -1412,8 +1413,8 @@ class SynthesisParser(GenericLuaParser):
         for row in data["synthesis_mods"]:
             row["stat_text"] = self._format_tr(
                 self.tc["stat_descriptions.txt"].get_translation(
-                    tags=(row["stat_id"],),
-                    values=(row["stat_value"],),
+                    tags=[row["stat_id"]],  # Convert tuple to list
+                    values=[row["stat_value"]],  # Convert tuple to list
                     lang=self.lang,
                     full_result=True,
                 )
@@ -1720,7 +1721,8 @@ class MonsterParser(GenericLuaParser):
         data: dict[str, list[Any]] = {}
         for definition in self._DATA:
             data[definition["key"]] = []  # type: ignore[index]
-            for row in self.rr[definition["file"]]:
+            file_name = definition["file"] if isinstance(definition["file"], str) else str(definition["file"])
+            for row in self.rr[file_name]:  # type: ignore[index]
                 self._copy_from_keys(
                     row,
                     definition["data"],

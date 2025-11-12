@@ -106,7 +106,7 @@ class GGPKLoadWorker(QRunnable):
             ggpk_file = GGPKFile()
 
             # Hook progress updates if needed
-            ggpk_file.read(self.file_path)
+            ggpk_file.read(str(self.file_path))
             self.signals.loading_progress.emit(70, "Read complete")
 
             # Phase 2: Build directory structure (30%)
