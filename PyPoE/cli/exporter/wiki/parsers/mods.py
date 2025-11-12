@@ -400,7 +400,19 @@ class ModParser(BaseParser):
         return r
 
     @deprecated(message="Will be done in-wiki in the future - non functional")
-    def tempest(self, parsed_args):
+    def tempest(self, parsed_args: Any) -> Any:
+        """
+        Export tempest mods (DEPRECATED).
+
+        This method is deprecated and will be removed in the future.
+        Tempest mods will be handled in-wiki instead.
+
+        Args:
+            parsed_args: Parsed command-line arguments
+
+        Returns:
+            ExporterResult instance
+        """
         tf = self.tc["map_stat_descriptions.txt"]
         data = []
         for mod in self.rr["Mods.dat"]:
