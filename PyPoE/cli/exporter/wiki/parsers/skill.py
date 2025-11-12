@@ -559,7 +559,7 @@ class SkillParserShared(parser.BaseParser):
                     ]
                     * len(values),
                 )
-                if formatted and formatted[0]:
+                if formatted and formatted[0] and isinstance(formatted[0], str):
                     lines.append(formatted[0])
 
             infobox[prefix + "stat_text"] = "<br>".join(lines)
