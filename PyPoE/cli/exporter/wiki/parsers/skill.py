@@ -401,8 +401,8 @@ class SkillParserShared(parser.BaseParser):
             data["stats"] = {}
 
             for j, stats in enumerate(tr.found_ids):
-                # tr.values[j] is int, not list, so we need to wrap it
-                values = [tr.values[j]] if isinstance(tr.values[j], int) else list(tr.values[j])  # type: ignore[arg-type]
+                # tr.values[j] is int (single value), not list
+                values = [tr.values[j]]  # type: ignore[call-overload]
                 stats = list(stats)
                 values_parsed = list(tr.values_parsed[j])
                 # Skip zero stats again, since some translations might
@@ -542,7 +542,7 @@ class SkillParserShared(parser.BaseParser):
                 raise TypeError(f"Expected TranslationResult, got {type(qtr_result)}")
             qtr = qtr_result
 
-            lines = []
+            lines: list[str] = []
             for i, ts in enumerate(qtr.string_instances):
                 values = []
                 for stat_id in qtr.found_ids[i]:
@@ -552,15 +552,15 @@ class SkillParserShared(parser.BaseParser):
                         values.append(0)
                     else:
                         values.append(row["StatsValuesPermille"][index] / 1000)
-                lines.append(
-                    ts.format_string(
-                        values=values,
-                        is_range=[
-                            False,
-                        ]
-                        * len(values),
-                    )[0]
+                formatted = ts.format_string(
+                    values=values,
+                    is_range=[
+                        False,
+                    ]
+                    * len(values),
                 )
+                if formatted and formatted[0]:
+                    lines.append(formatted[0])
 
             infobox[prefix + "stat_text"] = "<br>".join(lines)
 
@@ -670,11 +670,11 @@ class SkillParserShared(parser.BaseParser):
                         lang=config.get_option("language"),
                     )
                     # get_translation without full_result returns list[str]
-                    if isinstance(translation_result, list):
-                        added.extend(translation_result)
+                    if isinstance(translation_result, list) and all(isinstance(x, str) for x in translation_result):
+                        added.extend(translation_result)  # type: ignore[arg-type]
 
             if added:
-                lines = added + lines
+                lines = added + lines  # type: ignore[assignment,operator]
 
         infobox["stat_text"] = self._format_lines(lines)
 
