@@ -2,7 +2,6 @@
 Unit tests for export strategies.
 """
 
-from io import BytesIO
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from unittest.mock import MagicMock, patch
