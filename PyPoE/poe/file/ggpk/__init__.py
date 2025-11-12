@@ -15,6 +15,7 @@ Internal API:
 - Nodes: DirectoryNode
 """
 
+from PyPoE.poe.file.ggpk.builder import GGPKFileBuilder
 from PyPoE.poe.file.ggpk.file import GGPKFile
 from PyPoE.poe.file.ggpk.nodes import DirectoryNode
 from PyPoE.poe.file.ggpk.records import (
@@ -30,6 +31,7 @@ from PyPoE.poe.file.ggpk.records import (
 
 __all__ = [
     "GGPKFile",
+    "GGPKFileBuilder",
     "DirectoryNode",
     "BaseRecord",
     "DirectoryRecord",
