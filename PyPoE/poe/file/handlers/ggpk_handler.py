@@ -7,7 +7,6 @@ This module provides GGPKFileHandler for processing GGPK files.
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from PyPoE.poe.file.ggpk import GGPKFile
     from PyPoE.poe.file.shared import AbstractFileReadOnly
 
 from PyPoE.poe.file.handlers.base import FileHandler

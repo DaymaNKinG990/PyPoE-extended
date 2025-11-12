@@ -7,7 +7,6 @@ This module provides DatFileHandler for processing DAT files.
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from PyPoE.poe.file.dat import DatFile
     from PyPoE.poe.file.shared import AbstractFileReadOnly
 
 from PyPoE.poe.file.handlers.base import FileHandler
