@@ -134,10 +134,10 @@ def method_name(self, param: Type) -> ReturnType:
 
 ## 📈 Прогресс
 
-**Текущий прогресс:** ~17% (85/500 docstrings)
+**Текущий прогресс:** ~20% (100/500 docstrings)
 
 **Приоритет 1 (Public API):** 0% (0/150) - большинство уже имеют docstrings
-**Приоритет 2 (Классы/Методы):** 34% (85/250)
+**Приоритет 2 (Классы/Методы):** 40% (100/250)
   - ✅ BaseParser: 100% (9 методов)
   - ✅ ItemsParser: 100% (12 методов)
   - ✅ SkillParserShared: 100% (3 метода)
@@ -151,6 +151,13 @@ def method_name(self, param: Type) -> ReturnType:
   - ✅ AreaParser: 100% (5 методов)
   - ✅ PassiveSkillCommandHandler: 100% (2 метода)
   - ✅ PassiveSkillParser: 100% (4 метода)
+  - ✅ IncursionCommandHandler: 100% (2 метода)
+  - ✅ IncursionRoomParser: 100% (4 метода)
+  - ✅ WarbandsHandler: 100% (1 метод)
+  - ✅ WarbandsParser: 100% (2 метода)
+  - ✅ LuaFormatter: 100% (4 метода)
+  - ✅ GenericLuaParser: 100% (1 метод)
+  - ✅ LuaHandler: 100% (1 метод)
 **Приоритет 3 (Внутренние):** 0% (0/100)
 
 ---
