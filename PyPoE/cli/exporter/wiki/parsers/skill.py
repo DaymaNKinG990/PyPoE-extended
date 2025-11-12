@@ -384,12 +384,18 @@ class SkillParserShared(parser.BaseParser):
                     del stats[index]
                     del values[index]
 
-            tr = tf.get_translation(
+            tr_result = tf.get_translation(
                 tags=stats,
                 values=values,
                 full_result=True,
                 lang=config.get_option("language"),
             )
+            # Type narrowing: when full_result=True, get_translation returns TranslationResult
+            from PyPoE.poe.file.translations.results import TranslationResult
+
+            if not isinstance(tr_result, TranslationResult):
+                raise TypeError(f"Expected TranslationResult, got {type(tr_result)}")
+            tr = tr_result
             data["_tr"] = tr
 
             data["stats"] = {}
