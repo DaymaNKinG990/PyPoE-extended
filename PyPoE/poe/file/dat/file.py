@@ -52,40 +52,39 @@ class DatFile(AbstractFileReadOnly):
         Args:
             buffer: Binary file buffer
             *args: Additional positional arguments
-            **kwargs: Additional keyword arguments (passed to DatReader)
+            **kwargs: Additional keyword arguments (specification is required)
 
         Returns:
             DatReader instance
+
+        Raises:
+            ValueError: If specification is not provided
         """
-        # Use builder parameters if set, otherwise use kwargs
-        if self._builder_caster is not None or self._builder_parser is not None or self._builder_indexer is not None:
-            from PyPoE.poe.file.dat.caster import DatCaster
-            from PyPoE.poe.file.dat.indexer import DatIndexer
-            from PyPoE.poe.file.dat.parser import DatParser
+        from PyPoE.poe.file.dat.caster import DatCaster
+        from PyPoE.poe.file.dat.indexer import DatIndexer
+        from PyPoE.poe.file.dat.parser import DatParser
 
-            caster = self._builder_caster if self._builder_caster is not None else DatCaster(
-                use_dat_value=self._builder_use_dat_value, x64=self._builder_x64
-            )
-            parser = self._builder_parser if self._builder_parser is not None else DatParser()
-            indexer = self._builder_indexer if self._builder_indexer is not None else DatIndexer()
+        # Get specification from kwargs
+        specification = kwargs.get("specification")
+        if specification is None:
+            raise ValueError("specification is required for DatReader")
 
-            # Get specification from kwargs or use default
-            specification = kwargs.get("specification")
-            if specification is None:
-                raise ValueError("specification is required for DatReader")
+        # Use builder parameters if set, otherwise create defaults
+        caster = self._builder_caster if self._builder_caster is not None else DatCaster(
+            use_dat_value=self._builder_use_dat_value, x64=self._builder_x64
+        )
+        parser = self._builder_parser if self._builder_parser is not None else DatParser()
+        indexer = self._builder_indexer if self._builder_indexer is not None else DatIndexer()
 
-            self.reader = DatReader(
-                self._file_name or "",
-                specification=specification,
-                caster=caster,
-                parser=parser,
-                indexer=indexer,
-                use_dat_value=self._builder_use_dat_value,
-                x64=self._builder_x64,
-            )
-        else:
-            # Default behavior (backward compatible)
-            self.reader = DatReader(self._file_name or "", **kwargs)
+        self.reader = DatReader(
+            self._file_name or "",
+            specification=specification,
+            caster=caster,
+            parser=parser,
+            indexer=indexer,
+            use_dat_value=self._builder_use_dat_value,
+            x64=self._builder_x64,
+        )
 
         self.reader.read(buffer.read())
 
