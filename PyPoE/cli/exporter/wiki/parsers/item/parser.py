@@ -41,6 +41,15 @@ class ItemsParser(SkillParserShared):  # type: ignore[misc]
     # It's initialized as empty dict here, then populated in __init__
     _conflict_resolver_map: dict[str, Any] = {}
 
+    # Type hints for dynamically created methods (via _type_factory)
+    # These are created at class definition time, but MyPy needs explicit declarations
+    _type_amulet: Callable[[Any, Any], bool]  # type: ignore[assignment]
+    _type_level: Callable[[Any, Any], bool]  # type: ignore[assignment]
+    _type_attribute: Callable[[Any, Any], bool]  # type: ignore[assignment]
+    _type_armour: Callable[[Any, Any], bool]  # type: ignore[assignment]
+    _type_weapon: Callable[[Any, Any], bool]  # type: ignore[assignment]
+    _type_shield: Callable[[Any, Any], bool]  # type: ignore[assignment]
+
     # From extras.py
     _type_currency = _type_factory(
         data_file="CurrencyItems.dat",
@@ -350,79 +359,79 @@ class ItemsParser(SkillParserShared):  # type: ignore[misc]
     def _cls_map(self):
         return {
             # Jewellery
-            "Amulet": (self._type_amulet,),
+            "Amulet": (self._type_amulet,),  # type: ignore[attr-defined]
             # Armour types
             "Gloves": (
-                self._type_level,
+                self._type_level,  # type: ignore[attr-defined]
                 self._type_attribute,
                 self._type_armour,
             ),
             "Boots": (
-                self._type_level,
+                self._type_level,  # type: ignore[attr-defined]
                 self._type_attribute,
                 self._type_armour,
             ),
             "Body Armour": (
-                self._type_level,
+                self._type_level,  # type: ignore[attr-defined]
                 self._type_attribute,
                 self._type_armour,
             ),
             "Helmet": (
-                self._type_level,
+                self._type_level,  # type: ignore[attr-defined]
                 self._type_attribute,
                 self._type_armour,
             ),
             "Shield": (
-                self._type_level,
+                self._type_level,  # type: ignore[attr-defined]
                 self._type_attribute,
                 self._type_armour,
-                self._type_shield,
+                self._type_shield,  # type: ignore[attr-defined]
             ),
             # Weapons
             "Claw": (
-                self._type_level,
+                self._type_level,  # type: ignore[attr-defined]
                 self._type_attribute,
-                self._type_weapon,
+                self._type_weapon,  # type: ignore[attr-defined]
             ),
             "Dagger": (
-                self._type_level,
+                self._type_level,  # type: ignore[attr-defined]
                 self._type_attribute,
-                self._type_weapon,
+                self._type_weapon,  # type: ignore[attr-defined]
             ),
             "Rune Dagger": (
-                self._type_level,
+                self._type_level,  # type: ignore[attr-defined]
                 self._type_attribute,
-                self._type_weapon,
+                self._type_weapon,  # type: ignore[attr-defined]
             ),
             "Wand": (
-                self._type_level,
+                self._type_level,  # type: ignore[attr-defined]
                 self._type_attribute,
-                self._type_weapon,
+                self._type_weapon,  # type: ignore[attr-defined]
             ),
             "One Hand Sword": (
-                self._type_level,
+                self._type_level,  # type: ignore[attr-defined]
                 self._type_attribute,
-                self._type_weapon,
+                self._type_weapon,  # type: ignore[attr-defined]
             ),
             "Thrusting One Hand Sword": (
-                self._type_level,
+                self._type_level,  # type: ignore[attr-defined]
                 self._type_attribute,
-                self._type_weapon,
+                self._type_weapon,  # type: ignore[attr-defined]
             ),
             "One Hand Axe": (
-                self._type_level,
+                self._type_level,  # type: ignore[attr-defined]
                 self._type_attribute,
-                self._type_weapon,
+                self._type_weapon,  # type: ignore[attr-defined]
             ),
             "One Hand Mace": (
-                self._type_level,
+                self._type_level,  # type: ignore[attr-defined]
                 self._type_attribute,
-                self._type_weapon,
+                self._type_weapon,  # type: ignore[attr-defined]
             ),
             "Sceptre": (
-                self._type_level,
+                self._type_level,  # type: ignore[attr-defined]
                 self._type_attribute,
-                self._type_weapon,
+                self._type_weapon,  # type: ignore[attr-defined]
             ),
             "Bow": (
                 self._type_level,
@@ -585,6 +594,30 @@ class ItemsParser(SkillParserShared):  # type: ignore[misc]
         ),
         row_index=True,
     )
+
+    # From types.py - simple methods that don't need data files
+    # These are created as bound methods that delegate to ItemTypeParser
+    # Note: _type_parser is created in __init__, so these methods will work at runtime
+    def _type_level(self, infobox: dict[str, Any], base_item_type: Any) -> bool:
+        """Parse level requirement for item type."""
+        # Delegate to ItemTypeParser (created in __init__)
+        if hasattr(self, "_type_parser"):
+            return self._type_parser.parse_type_level(infobox, base_item_type)
+        # Fallback for class-level access (shouldn't happen, but MyPy needs this)
+        infobox["required_level"] = base_item_type["DropLevel"]  # type: ignore[index]
+        return True
+
+    def _type_amulet(self, infobox: dict[str, Any], base_item_type: Any) -> bool:
+        """Parse amulet type (including talismans)."""
+        # Delegate to ItemTypeParser (created in __init__)
+        if hasattr(self, "_type_parser"):
+            return self._type_parser.parse_type_amulet(infobox, base_item_type)
+        # Fallback for class-level access (shouldn't happen, but MyPy needs this)
+        match = re.search("Talisman([0-9])", base_item_type["Id"])  # type: ignore[index]
+        if match:
+            infobox["is_talisman"] = True
+            infobox["talisman_tier"] = match.group(1)
+        return True
 
     # From utils.py
     _type_flask = _type_factory(
