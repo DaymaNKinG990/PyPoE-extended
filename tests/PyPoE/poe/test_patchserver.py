@@ -45,7 +45,15 @@ from urllib.error import HTTPError
 import pytest
 
 # self
-from PyPoE.poe import patchserver
+from PyPoE.poe.patchserver import (
+    Patch,
+    PatchFileList,
+    node_check_hash,
+    node_outdated_files,
+    node_update_files,
+    socket_fd_close,
+    socket_fd_open,
+)
 from PyPoE.poe.file.ggpk import DirectoryNode, FileRecord
 
 # =============================================================================
@@ -79,7 +87,7 @@ _TEST_NODE_PATHS = get_node_folders(_TEST_FILE)
 
 @pytest.fixture(scope="module")
 def patch():
-    return patchserver.Patch()
+    return Patch()
 
 
 @pytest.fixture(scope="module")
@@ -90,12 +98,12 @@ def temp(tmpdir_factory):
 
 @pytest.fixture(scope="function")
 def patch_temp():
-    return patchserver.Patch()
+    return Patch()
 
 
 @pytest.fixture(scope="module")
 def patch_file_list(patch):
-    return patchserver.PatchFileList(patch)
+    return PatchFileList(patch)
 
 
 # =============================================================================
@@ -105,10 +113,10 @@ def patch_file_list(patch):
 
 @pytest.mark.dependency(name="test_socket")
 def test_socket_fd_open_close(patch_temp):
-    test_sock_from_fd = patchserver.socket_fd_open(patch_temp.sock_fd)
+    test_sock_from_fd = socket_fd_open(patch_temp.sock_fd)
     assert isinstance(test_sock_from_fd, socket)
     sock_fd = test_sock_from_fd.detach()
-    patchserver.socket_fd_close(sock_fd)
+    socket_fd_close(sock_fd)
 
 
 class TestPatch:
@@ -188,7 +196,7 @@ class TestPatchFileList:
 )
 def test_node_check_hash(temp, patch_file_list, recurse, node_path):
     node = patch_file_list.directory[node_path]
-    node_hashes = patchserver.node_check_hash(node, str(temp), recurse=recurse)
+    node_hashes = node_check_hash(node, str(temp), recurse=recurse)
     if isinstance(node, FileRecord) and os.path.exists(
         os.path.join(str(temp), node.record.name)
     ):
@@ -219,14 +227,14 @@ def test_node_outdated_files(temp, patch_file_list, recurse, node_path):
     except FileNotFoundError:
         # check that error is raised if node_path not found
         with pytest.raises(ValueError):
-            files_needed = patchserver.node_outdated_files(
+            files_needed = node_outdated_files(
                 patch_file_list, node_path, str(temp), recurse=recurse
             )
         return
 
     temp = temp.join(node_path.rsplit("/", 1)[0])
     # get return values for the tested function
-    files_needed_dict = patchserver.node_outdated_files(
+    files_needed_dict = node_outdated_files(
         patch_file_list, node_path, str(temp), recurse=recurse
     )
     # get list of nodes needed
@@ -254,7 +262,7 @@ def test_node_outdated_files(temp, patch_file_list, recurse, node_path):
 @pytest.mark.parametrize("recurse,node_path", [(False, _TEST_NODE_PATHS[-1])])
 @pytest.mark.skip(reason="expensive test")
 def test_node_update_files(patch_file_list, temp, recurse, node_path):
-    patchserver.node_update_files(patch_file_list, node_path, str(temp), recurse=recurse)
+    node_update_files(patch_file_list, node_path, str(temp), recurse=recurse)
 
     node = patch_file_list.directory[node_path]
     max_depth = -1 if recurse else 1
@@ -262,7 +270,7 @@ def test_node_update_files(patch_file_list, temp, recurse, node_path):
         if isinstance(walk_node.record, FileRecord):
             assert os.path.exists(os.path.join(str(temp), node.get_path()))
 
-    files_needed = patchserver.node_outdated_files(
+    files_needed = node_outdated_files(
         patch_file_list, node_path, str(temp), recurse=recurse
     )
     assert files_needed

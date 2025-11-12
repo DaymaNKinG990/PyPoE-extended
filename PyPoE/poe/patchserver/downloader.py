@@ -101,9 +101,13 @@ class PatchDownloader:
                 with request.urlopen(url=f"{host}{file_path}") as robj:
                     if robj.getcode() != 200:
                         raise ValueError(f"HTTP response code: {robj.getcode()}")
-                    return robj.read()
+                    result = robj.read()
+                    if isinstance(result, bytes):
+                        return result
+                    return bytes(result)  # type: ignore[arg-type]
             except URLError as url_error:
                 # try alternate patch url if connection refused
                 if not isinstance(url_error.reason, ConnectionRefusedError) or not index < len(hosts):
                     raise url_error
+        raise ValueError("Failed to download from all hosts")
 
