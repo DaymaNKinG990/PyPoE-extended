@@ -46,6 +46,9 @@ from PyPoE.shared.decorators import doc
 
 __all__ = ["TranslationFileCache"]
 
+# Global variable for custom translation file
+_custom_translation_file: TranslationFile | None = None
+
 # =============================================================================
 # Classes
 # =============================================================================
