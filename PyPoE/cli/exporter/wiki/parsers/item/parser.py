@@ -44,8 +44,8 @@ class ItemsParser(SkillParserShared):  # type: ignore[misc]
 
     # Type hints for dynamically created methods (via _type_factory)
     # These are created at class definition time, but MyPy needs explicit declarations
-    _type_amulet: Callable[[Any, Any], bool]  # type: ignore[assignment]
-    _type_level: Callable[[Any, Any], bool]  # type: ignore[assignment]
+    # Note: _type_level and _type_amulet are defined as methods (not via _type_factory),
+    # so they don't need type hints here
     _type_attribute: Callable[[Any, Any], bool]  # type: ignore[assignment]
     _type_armour: Callable[[Any, Any], bool]  # type: ignore[assignment]
     _type_weapon: Callable[[Any, Any], bool]  # type: ignore[assignment]
@@ -120,63 +120,8 @@ class ItemsParser(SkillParserShared):  # type: ignore[misc]
     )
 
     # From extras.py
-    _type_map = _type_factory(
-        data_file="Maps.dat",
-        data_mapping=(
-            (
-                "Tier",
-                {
-                    "template": "map_tier",
-                },
-            ),
-            (
-                "Regular_GuildCharacter",
-                {
-                    "template": "map_guild_character",
-                    "condition": lambda v: v,
-                },
-            ),
-            (
-                "Regular_WorldAreasKey",
-                {
-                    "template": "map_area_id",
-                    "format": lambda v: v["Id"],
-                },
-            ),
-            (
-                "Unique_GuildCharacter",
-                {
-                    "template": "unique_map_guild_character",
-                    "condition": lambda v: v != "",
-                },
-            ),
-            (
-                "Unique_WorldAreasKey",
-                {
-                    "template": "unique_map_area_id",
-                    "format": lambda v: v["Id"],
-                    "condition": lambda v: v is not None,
-                },
-            ),
-            (
-                "Unique_WorldAreasKey",
-                {
-                    "template": "unique_map_area_level",
-                    "format": lambda v: v["AreaLevel"],
-                    "condition": lambda v: v is not None,
-                },
-            ),
-            (
-                "MapSeriesKey",
-                {
-                    "template": "map_series",
-                    "format": lambda v: v["Name"],
-                },
-            ),
-        ),
-        row_index=True,
-        function="_maps_extra",
-    )
+    # Note: _type_map is defined as a method (line 1880), not via _type_factory
+    # The _type_factory definition was removed because the method is defined explicitly
 
     # From extras.py
     _type_map_fragment_mods = _type_factory(
@@ -1689,6 +1634,7 @@ class ItemsParser(SkillParserShared):  # type: ignore[misc]
         # 2. ItemWikiExporter
         self._wiki_exporter = ItemWikiExporter(
             relational_reader=self.rr,
+            translation_cache=self.tc,
             file_system=self.file_system,
             language=self._language,
             lang_map=self._LANG,

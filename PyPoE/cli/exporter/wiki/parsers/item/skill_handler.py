@@ -37,7 +37,7 @@ class ItemSkillHandler:
         relational_reader: Any,
         language: str,
         attribute_map: dict[str, str],
-        conflict_active_skill_gems_map: dict[str, str],
+        conflict_active_skill_gems_map: dict[str, bool],
         *,
         skill_processor: Callable[[Any, OrderedDict[str, Any], Any, str, int], bool] | None = None,
         parsed_args: Any | None = None,
