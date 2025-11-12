@@ -134,10 +134,10 @@ def method_name(self, param: Type) -> ReturnType:
 
 ## 📈 Прогресс
 
-**Текущий прогресс:** ~11% (55/500 docstrings)
+**Текущий прогресс:** ~17% (85/500 docstrings)
 
 **Приоритет 1 (Public API):** 0% (0/150) - большинство уже имеют docstrings
-**Приоритет 2 (Классы/Методы):** 22% (55/250)
+**Приоритет 2 (Классы/Методы):** 34% (85/250)
   - ✅ BaseParser: 100% (9 методов)
   - ✅ ItemsParser: 100% (12 методов)
   - ✅ SkillParserShared: 100% (3 метода)
@@ -145,6 +145,12 @@ def method_name(self, param: Type) -> ReturnType:
   - ✅ SkillHandler: 100% (2 метода)
   - ✅ ModsHandler: 100% (2 метода)
   - ✅ ModParser: 100% (7 методов)
+  - ✅ MonsterCommandHandler: 100% (2 метода)
+  - ✅ MonsterParser: 100% (5 методов)
+  - ✅ AreaCommandHandler: 100% (2 метода)
+  - ✅ AreaParser: 100% (5 методов)
+  - ✅ PassiveSkillCommandHandler: 100% (2 метода)
+  - ✅ PassiveSkillParser: 100% (4 метода)
 **Приоритет 3 (Внутренние):** 0% (0/100)
 
 ---
