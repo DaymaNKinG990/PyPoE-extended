@@ -54,17 +54,45 @@ __all__ = ["LuaHandler"]
 # =============================================================================
 
 
-def lua_format_value(key, value):
+def lua_format_value(key: str, value: Any) -> str:
+    """
+    Format a key-value pair for Lua output.
+
+    Args:
+        key: Key name
+        value: Value to format
+
+    Returns:
+        Formatted Lua string
+    """
     f = "\t\t%s=%s,\n" if isinstance(value, int) else '\t\t%s="%s",\n'
     return f % (key, value)
 
 
 class LuaFormatter:
-    def __init__(self):
+    """
+    Formatter for Lua table output.
+
+    Provides methods to format Python data structures into Lua table syntax.
+    """
+
+    def __init__(self) -> None:
+        """Initialize LuaFormatter."""
         pass
 
     @classmethod
-    def format_module(cls, data, indent=0, newline=True):
+    def format_module(cls, data: Any, indent: int = 0, newline: bool = True) -> str:
+        """
+        Format data as a complete Lua module.
+
+        Args:
+            data: Data to format
+            indent: Indentation level
+            newline: Whether to use newlines
+
+        Returns:
+            Formatted Lua module string
+        """
         out = []
         out.append(f"local data = {cls.format_value(data, indent=indent + 1, newline=newline)}")
         out.append("\n")
@@ -73,7 +101,16 @@ class LuaFormatter:
         return "".join(out)
 
     @classmethod
-    def format_key(cls, key):
+    def format_key(cls, key: Any) -> str:
+        """
+        Format a key for Lua table.
+
+        Args:
+            key: Key to format
+
+        Returns:
+            Formatted key string
+        """
         if not isinstance(key, str):
             key = str(key)
 
@@ -83,7 +120,18 @@ class LuaFormatter:
         return key
 
     @classmethod
-    def format_value(cls, value, indent=2, newline=True):
+    def format_value(cls, value: Any, indent: int = 2, newline: bool = True) -> str:
+        """
+        Format a value for Lua table.
+
+        Args:
+            value: Value to format
+            indent: Indentation level
+            newline: Whether to use newlines
+
+        Returns:
+            Formatted value string
+        """
         if isinstance(value, (int, float)):
             if isinstance(value, bool):
                 return str(value).lower()
@@ -125,7 +173,28 @@ class LuaFormatter:
 
 
 class GenericLuaParser(BaseParser):
-    def _copy_from_keys(self, row, keys, out_data=None, index=None, rtr=False):
+    """
+    Generic parser for Lua export.
+
+    Provides common functionality for copying data from DAT rows to Lua format.
+    """
+
+    def _copy_from_keys(
+        self, row: Any, keys: list[tuple[str, dict[str, Any]]], out_data: list[Any] | None = None, index: int | None = None, rtr: bool = False
+    ) -> Any:
+        """
+        Copy data from row using key mappings.
+
+        Args:
+            row: DAT row to copy from
+            keys: List of (key, copy_data) tuples
+            out_data: Output data list (optional)
+            index: Index to update in out_data (optional)
+            rtr: If True, return copyrow instead of appending
+
+        Returns:
+            Copyrow dict if rtr=True, None otherwise
+        """
         copyrow = OrderedDict()
         for k, copy_data in keys:
             value = row[k]
@@ -151,7 +220,19 @@ class GenericLuaParser(BaseParser):
 
 
 class LuaHandler(ExporterHandler):
-    def __init__(self, sub_parser):
+    """
+    Handler for Lua export commands.
+
+    Sets up command-line interface for Lua data export.
+    """
+
+    def __init__(self, sub_parser: Any) -> None:
+        """
+        Initialize LuaHandler.
+
+        Args:
+            sub_parser: Argument parser subparser to add commands to
+        """
         self.parser = sub_parser.add_parser("lua", help="Lua Exporter")
         self.parser.set_defaults(func=lambda args: self.parser.print_help())
         lua_sub = self.parser.add_subparsers()

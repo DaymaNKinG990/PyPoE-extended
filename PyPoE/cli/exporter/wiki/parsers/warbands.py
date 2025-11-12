@@ -31,6 +31,7 @@ See PyPoE/LICENSE
 
 # Python
 import os
+from typing import Any
 
 # 3rd Party
 from graphviz import Digraph  # type: ignore[import-not-found]
@@ -46,7 +47,19 @@ from PyPoE.cli.exporter.wiki.parser import BaseParser
 
 
 class WarbandsHandler(ExporterHandler):
-    def __init__(self, sub_parser):
+    """
+    Handler for warbands export commands.
+
+    Sets up command-line interface for warbands data export.
+    """
+
+    def __init__(self, sub_parser: Any) -> None:
+        """
+        Initialize WarbandsHandler.
+
+        Args:
+            sub_parser: Argument parser subparser to add commands to
+        """
         self.parser = sub_parser.add_parser("warbands", help="Warbands Exporter")
         self.parser.set_defaults(func=lambda args: self.parser.print_help())
         lua_sub = self.parser.add_subparsers()
@@ -84,6 +97,11 @@ class WarbandsHandler(ExporterHandler):
 
 
 class WarbandsParser(BaseParser):
+    """
+    Parser for exporting warbands data to wiki format.
+
+    Handles export of warbands information and movement graphs.
+    """
     # Load files in advance
     _files = [
         "MonsterPacks.dat",
@@ -98,7 +116,16 @@ class WarbandsParser(BaseParser):
     # Load translations in advance
     _translations = []
 
-    def warbands(self, parsed_args):
+    def warbands(self, parsed_args: Any) -> Any:
+        """
+        Export warbands information.
+
+        Args:
+            parsed_args: Parsed command-line arguments
+
+        Returns:
+            ExporterResult instance
+        """
         out = []
         for warband in self.rr["WarbandsPackMonsters.dat"]:
             out.append(warband["Id"])
@@ -123,7 +150,17 @@ class WarbandsParser(BaseParser):
 
         return r
 
-    def graph(self, parsed_args, **kwargs):
+    def graph(self, parsed_args: Any, **kwargs: Any) -> Any:
+        """
+        Export warbands movement graph.
+
+        Args:
+            parsed_args: Parsed command-line arguments containing graph type and format
+            **kwargs: Additional keyword arguments
+
+        Returns:
+            ExporterResult instance
+        """
         if parsed_args.type == "map":
             dat_file = self.rr["WarbandsMapGraph.dat"]
             out_file = "warbands_map_graph.cv"

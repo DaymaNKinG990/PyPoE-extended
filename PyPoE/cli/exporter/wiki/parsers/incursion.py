@@ -40,6 +40,7 @@ Internal API
 import os
 from collections import OrderedDict
 from functools import partialmethod
+from typing import Any
 
 # 3rd-party
 # self
@@ -69,7 +70,19 @@ class IncursionRoomWikiCondition(parser.WikiCondition):
 
 
 class IncursionCommandHandler(ExporterHandler):
-    def __init__(self, sub_parser):
+    """
+    Handler for incursion export commands.
+
+    Sets up command-line interface for incursion room data export.
+    """
+
+    def __init__(self, sub_parser: Any) -> None:
+        """
+        Initialize IncursionCommandHandler.
+
+        Args:
+            sub_parser: Argument parser subparser to add commands to
+        """
         self.parser = sub_parser.add_parser(
             "incursion",
             help="Incursion data exporter",
@@ -88,7 +101,14 @@ class IncursionCommandHandler(ExporterHandler):
             cls=IncursionRoomParser,
         )
 
-    def add_default_parsers(self, *args, **kwargs):
+    def add_default_parsers(self, *args: Any, **kwargs: Any) -> None:
+        """
+        Add default parsers and incursion-specific arguments.
+
+        Args:
+            *args: Positional arguments passed to parent
+            **kwargs: Keyword arguments including 'parser'
+        """
         super().add_default_parsers(*args, **kwargs)
         parser = kwargs["parser"]
         self.add_format_argument(parser)
@@ -96,6 +116,12 @@ class IncursionCommandHandler(ExporterHandler):
 
 
 class IncursionRoomParser(parser.BaseParser):
+    """
+    Parser for exporting incursion room data to wiki format.
+
+    Handles export of incursion rooms including their properties,
+    upgrades, and connections.
+    """
     _files = [
         "IncursionRooms.dat",
     ]
@@ -185,25 +211,62 @@ class IncursionRoomParser(parser.BaseParser):
         "Russian": "комната вмешательства",
     }
 
-    def by_rowid(self, parsed_args):
+    def by_rowid(self, parsed_args: Any) -> Any:
+        """
+        Export incursion rooms by row ID range.
+
+        Args:
+            parsed_args: Parsed arguments containing start and end row IDs
+
+        Returns:
+            Export result object
+        """
         return self.export(
             parsed_args,
             self.rr["IncursionRooms.dat"][parsed_args.start : parsed_args.end],
         )
 
-    def by_id(self, parsed_args):
+    def by_id(self, parsed_args: Any) -> Any:
+        """
+        Export incursion rooms by ID.
+
+        Args:
+            parsed_args: Parsed arguments containing incursion room ID(s)
+
+        Returns:
+            Export result object
+        """
         return self.export(
             parsed_args,
             self._incursion_column_index_filter(column_id="Id", arg_list=parsed_args.id),
         )
 
-    def by_name(self, parsed_args):
+    def by_name(self, parsed_args: Any) -> Any:
+        """
+        Export incursion rooms by name.
+
+        Args:
+            parsed_args: Parsed arguments containing incursion room name(s)
+
+        Returns:
+            Export result object
+        """
         return self.export(
             parsed_args,
             self._incursion_column_index_filter(column_id="Name", arg_list=parsed_args.name),
         )
 
-    def export(self, parsed_args, incursion_rooms):
+    def export(self, parsed_args: Any, incursion_rooms: list[Any]) -> Any:
+        """
+        Export incursion rooms to wiki format.
+
+        Args:
+            parsed_args: Parsed command-line arguments
+            incursion_rooms: List of IncursionRooms.dat rows to export
+
+        Returns:
+            ExporterResult instance
+        """
         r = ExporterResult()
 
         if not incursion_rooms:
