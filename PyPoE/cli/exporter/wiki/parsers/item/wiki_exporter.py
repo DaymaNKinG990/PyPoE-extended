@@ -94,7 +94,7 @@ class ItemWikiExporter:
         self._format_map_name = format_map_name or self._default_format_map_name
         self._get_map_series = get_map_series or (lambda args: None)
         self._process_base_item_type = (
-            process_base_item_type or (lambda bit, ib, not_new_map=True: None)
+            process_base_item_type or (lambda bit, ib, not_new_map=True: None)  # type: ignore[misc]
         )
         self._process_purchase_costs = process_purchase_costs or (lambda source, ib: None)
         self._type_map = type_map or (lambda ib, bit: None)
@@ -303,7 +303,7 @@ class ItemWikiExporter:
                         for atlas_node2 in atlas_node[f"AtlasNodeKeys{i}"]:  # type: ignore[index]
                             ivi = atlas_node2["ItemVisualIdentityKey"]  # type: ignore[index]
                             if ivi["IsAtlasOfWorldsMapIcon"]:  # type: ignore[index]
-                                key = self._format_map_name(
+                                key = self._format_map_name(  # type: ignore[call-arg]
                                     atlas_node2["MapsKey"]["BaseItemTypesKey"],  # type: ignore[index]
                                     map_series,
                                 )
