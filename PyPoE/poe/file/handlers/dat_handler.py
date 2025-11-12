@@ -51,9 +51,12 @@ class DatFileHandler(FileHandler):
                     # Actual reading should be done before processing
                     pass
                 # Build index if auto_build_index is enabled
-                elif hasattr(file.reader, "auto_build_index") and file.reader.auto_build_index:
-                    if not hasattr(file.reader, "index") or not file.reader.index:
-                        file.reader.indexer.build_index(file.reader.table_data, file.reader.specification)
+                elif (
+                    hasattr(file.reader, "auto_build_index")
+                    and file.reader.auto_build_index
+                    and (not hasattr(file.reader, "index") or not file.reader.index)
+                ):
+                    file.reader.indexer.build_index(file.reader.table_data, file.reader.specification)
         else:
             self._next(file)
 

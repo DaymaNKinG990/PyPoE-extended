@@ -44,10 +44,9 @@ class GGPKFileHandler(FileHandler):
             # Type narrowing for MyPy
             from PyPoE.poe.file.ggpk import GGPKFile
 
-            if isinstance(file, GGPKFile):
+            if isinstance(file, GGPKFile) and file.directory is None:
                 # Build directory structure if not already built
-                if file.directory is None:
-                    file.directory_build()
+                file.directory_build()
         else:
             self._next(file)
 
