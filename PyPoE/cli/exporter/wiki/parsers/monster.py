@@ -34,6 +34,7 @@ Documentation
 import re
 from collections import OrderedDict
 from functools import partialmethod
+from typing import Any
 
 # Self
 from PyPoE.cli.core import Msg, console
@@ -64,7 +65,19 @@ class MonsterWikiCondition(parser.WikiCondition):
 
 
 class MonsterCommandHandler(ExporterHandler):
-    def __init__(self, sub_parser):
+    """
+    Handler for monster export commands.
+
+    Sets up command-line interface for monster data export.
+    """
+
+    def __init__(self, sub_parser: Any) -> None:
+        """
+        Initialize MonsterCommandHandler.
+
+        Args:
+            sub_parser: Argument parser subparser to add commands to
+        """
         self.parser = sub_parser.add_parser(
             "monster",
             help="Monster exporter (non-lua)",
@@ -137,13 +150,26 @@ class MonsterCommandHandler(ExporterHandler):
             dest="re_id",
         )
 
-    def add_default_parsers(self, *args, **kwargs):
+    def add_default_parsers(self, *args: Any, **kwargs: Any) -> None:
+        """
+        Add default parsers and monster-specific arguments.
+
+        Args:
+            *args: Positional arguments passed to parent
+            **kwargs: Keyword arguments including 'parser'
+        """
         super().add_default_parsers(*args, **kwargs)
         parser = kwargs["parser"]
         self.add_format_argument(parser)
 
 
 class MonsterParser(parser.BaseParser):
+    """
+    Parser for exporting monster data to wiki format.
+
+    Handles export of monster varieties including their properties,
+    stats, and metadata.
+    """
     _files = [
         "MonsterVarieties.dat",
     ]
@@ -280,25 +306,61 @@ class MonsterParser(parser.BaseParser):
         )
     )
 
-    def by_rowid(self, parsed_args):
+    def by_rowid(self, parsed_args: Any) -> Any:
+        """
+        Export monsters by row ID range.
+
+        Args:
+            parsed_args: Parsed arguments containing start and end row IDs
+
+        Returns:
+            Export result object
+        """
         return self.export(
             parsed_args,
             self.rr["MonsterVarieties.dat"][parsed_args.start : parsed_args.end],
         )
 
-    def by_id(self, parsed_args):
+    def by_id(self, parsed_args: Any) -> Any:
+        """
+        Export monsters by ID.
+
+        Args:
+            parsed_args: Parsed arguments containing monster ID(s)
+
+        Returns:
+            Export result object
+        """
         return self.export(
             parsed_args,
             self._area_column_index_filter(column_id="Id", arg_list=parsed_args.monster_id),
         )
 
-    def by_name(self, parsed_args):
+    def by_name(self, parsed_args: Any) -> Any:
+        """
+        Export monsters by name.
+
+        Args:
+            parsed_args: Parsed arguments containing monster name(s)
+
+        Returns:
+            Export result object
+        """
         return self.export(
             parsed_args,
             self._area_column_index_filter(column_id="Name", arg_list=parsed_args.monster_name),
         )
 
-    def by_filter(self, parsed_args):
+    def by_filter(self, parsed_args: Any) -> Any:
+        """
+        Filter and export monsters by regex pattern.
+
+        Args:
+            parsed_args: Parsed arguments containing regex pattern (re_id)
+
+        Returns:
+            Export result object
+        """
         re_id = re.compile(parsed_args.re_id) if parsed_args.re_id else None
 
         out = []
@@ -309,7 +371,17 @@ class MonsterParser(parser.BaseParser):
 
         return self.export(parsed_args, out)
 
-    def export(self, parsed_args, monsters):
+    def export(self, parsed_args: Any, monsters: list[Any]) -> Any:
+        """
+        Export monsters to wiki format.
+
+        Args:
+            parsed_args: Parsed command-line arguments
+            monsters: List of MonsterVarieties.dat rows to export
+
+        Returns:
+            ExporterResult instance
+        """
         r = ExporterResult()
 
         if not monsters:
