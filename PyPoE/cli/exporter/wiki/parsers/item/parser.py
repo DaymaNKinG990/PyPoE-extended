@@ -1560,6 +1560,10 @@ class ItemsParser(SkillParserShared):  # type: ignore[misc]
         """
         Initialize ItemsParser with composition of specialized classes.
 
+        Creates instances of specialized classes (ItemConflictResolver, ItemWikiExporter,
+        ItemSkillHandler, ItemTypeParser, ItemDataExtractor) via composition and
+        dependency injection.
+
         Args:
             base_path: Base path for output files
             parsed_args: Parsed command-line arguments
@@ -1571,6 +1575,7 @@ class ItemsParser(SkillParserShared):  # type: ignore[misc]
             custom_translation: Custom TranslationFile (optional, loaded if None)
             language: Language code (optional, from config if None)
             relational_reader_english: Optional RelationalReader for English language
+                (used for cross-language links)
         """
         # Initialize BaseParser (via SkillParserShared)
         super().__init__(
