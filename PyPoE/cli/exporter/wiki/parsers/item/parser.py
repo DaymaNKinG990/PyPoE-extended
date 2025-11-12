@@ -12,20 +12,19 @@ Contains ItemsParser class for exporting items to wiki format.
 import re
 from collections import OrderedDict
 from functools import partialmethod
+from typing import Any
 
 from PyPoE.cli.exporter.wiki.parsers.item.base import (
     _type_factory,
 )
 
-# Mixins
-from PyPoE.cli.exporter.wiki.parsers.item.mixins import (
-    ConflictsMixin,
-    ExportsMixin,
-    ExtrasMixin,
-    SkillsMixin,
-    TypesMixin,
-    UtilsMixin,
-)
+# Specialized classes (composition)
+from PyPoE.cli.exporter.wiki.parsers.item.conflict_resolver import ItemConflictResolver
+from PyPoE.cli.exporter.wiki.parsers.item.data_extractor import ItemDataExtractor
+from PyPoE.cli.exporter.wiki.parsers.item.skill_handler import ItemSkillHandler
+from PyPoE.cli.exporter.wiki.parsers.item.type_parser import ItemTypeParser
+from PyPoE.cli.exporter.wiki.parsers.item.wiki_exporter import ItemWikiExporter
+
 from PyPoE.cli.exporter.wiki.parsers.skill import SkillParserShared
 
 # Self
@@ -35,15 +34,7 @@ from PyPoE.cli.exporter.wiki.parsers.skill import SkillParserShared
 # =============================================================================
 
 
-class ItemsParser(  # type: ignore[misc]
-    SkillsMixin,
-    TypesMixin,
-    ExtrasMixin,
-    ConflictsMixin,
-    ExportsMixin,
-    UtilsMixin,
-    SkillParserShared,
-):
+class ItemsParser(SkillParserShared):  # type: ignore[misc]
     # === Class attributes from mixins ===
 
     # From conflicts.py
@@ -1564,3 +1555,140 @@ class ItemsParser(  # type: ignore[misc]
             ("Int", "intelligence"),
         )
     )
+
+    def __init__(
+        self,
+        base_path: str,
+        parsed_args: Any,
+        *,
+        # Dependency injection parameters (optional, passed to BaseParser)
+        file_system: Any | None = None,
+        specification: Any | None = None,
+        relational_reader: Any | None = None,
+        translation_cache: Any | None = None,
+        ot_cache: Any | None = None,
+        custom_translation: Any | None = None,
+        language: str | None = None,
+        relational_reader_english: Any | None = None,
+    ):
+        """
+        Initialize ItemsParser with composition of specialized classes.
+
+        Args:
+            base_path: Base path for output files
+            parsed_args: Parsed command-line arguments
+            file_system: FileSystem instance (optional, created if None)
+            specification: Specification instance (optional, loaded if None)
+            relational_reader: RelationalReader instance (optional, created if None)
+            translation_cache: TranslationFileCache instance (optional, created if None)
+            ot_cache: OTFileCache instance (optional, created if None)
+            custom_translation: Custom TranslationFile (optional, loaded if None)
+            language: Language code (optional, from config if None)
+            relational_reader_english: Optional RelationalReader for English language
+        """
+        # Initialize BaseParser (via SkillParserShared)
+        super().__init__(
+            base_path=base_path,
+            parsed_args=parsed_args,
+            file_system=file_system,
+            specification=specification,
+            relational_reader=relational_reader,
+            translation_cache=translation_cache,
+            ot_cache=ot_cache,
+            custom_translation=custom_translation,
+            language=language,
+        )
+
+        # Store parsed_args and language for use in specialized classes
+        self._parsed_args = parsed_args
+        self._language = self.lang  # BaseParser sets self.lang
+
+        # Handle English RelationalReader (for cross-language links)
+        if self._language != "English":
+            if relational_reader_english is not None:
+                self.rr2 = relational_reader_english
+            else:
+                # Create English RelationalReader if not provided
+                from PyPoE.poe.file.dat import RelationalReader
+
+                self.rr2 = RelationalReader(
+                    path_or_file_system=self.file_system,
+                    files=["BaseItemTypes.dat", "Prophecies.dat"],
+                    read_options={
+                        "use_dat_value": False,
+                        "auto_build_index": True,
+                    },
+                    raise_error_on_missing_relation=False,
+                    language="English",
+                )
+        else:
+            self.rr2 = None
+
+        # Create specialized classes via composition
+        # 1. ItemConflictResolver
+        self._conflict_resolver = ItemConflictResolver(
+            relational_reader=self.rr,
+            language=self._language,
+            lang_map=self._LANG,
+            format_map_name=self._format_map_name,
+        )
+
+        # 2. ItemWikiExporter
+        self._wiki_exporter = ItemWikiExporter(
+            relational_reader=self.rr,
+            file_system=self.file_system,
+            language=self._language,
+            lang_map=self._LANG,
+            map_colors=self._MAP_COLORS,
+            map_release_version=self._MAP_RELEASE_VERSION,
+            relational_reader_english=self.rr2,
+            image_init=self._image_init,
+            write_dds=self._write_dds,
+            format_map_name=self._format_map_name,
+            get_map_series=self._get_map_series,
+            process_base_item_type=self._process_base_item_type,
+            process_purchase_costs=self._process_purchase_costs,
+            type_map=self._type_map,
+            img_path=self._img_path,
+        )
+
+        # 3. ItemSkillHandler
+        self._skill_handler = ItemSkillHandler(
+            relational_reader=self.rr,
+            language=self._language,
+            attribute_map=self._attribute_map,
+            conflict_active_skill_gems_map=self._conflict_active_skill_gems_map,
+            skill_processor=self._skill,
+            parsed_args=self._parsed_args,
+        )
+
+        # 4. ItemTypeParser
+        self._type_parser = ItemTypeParser(
+            relational_reader=self.rr,
+            translation_cache=self.tc,
+            language=self._language,
+            lang_map=self._LANG,
+            get_stats=self._get_stats,
+        )
+
+        # 5. ItemDataExtractor
+        self._data_extractor = ItemDataExtractor(
+            relational_reader=self.rr,
+            translation_cache=self.tc,
+            file_system=self.file_system,
+            language=self._language,
+            lang_map=self._LANG,
+            skip_items_by_id=self._SKIP_ITEMS_BY_ID,
+            drop_disabled_items_by_id=self._DROP_DISABLED_ITEMS_BY_ID,
+            ignore_drop_level_classes=self._IGNORE_DROP_LEVEL_CLASSES,
+            ignore_drop_level_items_by_id=self._IGNORE_DROP_LEVEL_ITEMS_BY_ID,
+            name_override_by_id=self._NAME_OVERRIDE_BY_ID,
+            conflict_resolver_map=self._conflict_resolver_map,
+            cls_map=self._cls_map,
+            relational_reader_english=self.rr2,
+            process_base_item_type=self._process_base_item_type,
+            process_purchase_costs=self._process_purchase_costs,
+            image_init=self._image_init,
+            write_dds=self._write_dds,
+            img_path=self._img_path,
+        )
