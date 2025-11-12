@@ -5,7 +5,7 @@ This module contains the DatValue class which represents individual values
 found in DAT files, including support for pointers and lists.
 """
 
-from typing import Any, Optional, TYPE_CHECKING, Union
+from typing import TYPE_CHECKING, Any, Union
 
 if TYPE_CHECKING:
     from PyPoE.poe.file.dat.reader import DatReader
@@ -60,13 +60,13 @@ class DatValue:
         value: Any = None,
         offset: int | None = None,
         size: int | None = None,
-        parent: Optional[Union["DatReader", "DatValueType"]] = None,
+        parent: Union["DatReader", "DatValueType"] | None = None,
         specification: Any = None,
     ) -> None:
         self.value: Any = value
         self.size: int | None = size
         self.offset: int | None = offset
-        self.parent: Union["DatReader", "DatValueType", None] = parent
+        self.parent: DatReader | DatValueType | None = parent
         self.specification: Any = specification
         self.children: list[DatValue] | None = None
         self.child: DatValue | None = None

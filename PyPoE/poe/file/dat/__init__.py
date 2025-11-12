@@ -13,8 +13,8 @@ This module has been refactored into submodules for better organization:
 """
 
 # Export constants
-from PyPoE.poe.file.dat.parser import DAT_FILE_MAGIC_NUMBER
 from PyPoE.poe.file.dat.file import DatFile
+from PyPoE.poe.file.dat.parser import DAT_FILE_MAGIC_NUMBER
 from PyPoE.poe.file.dat.relational import RelationalReader
 
 __all__ = [

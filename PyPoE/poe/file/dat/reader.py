@@ -5,7 +5,6 @@ This module contains the DatReader class which coordinates parsing, casting,
 and indexing of DAT files using composition of specialized classes.
 """
 
-from collections import OrderedDict
 from collections.abc import Iterable
 from io import BytesIO
 from typing import Any

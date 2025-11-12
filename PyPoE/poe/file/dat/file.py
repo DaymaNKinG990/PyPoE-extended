@@ -7,8 +7,8 @@ working with DAT files.
 
 from typing import Any, BinaryIO
 
-from PyPoE.poe.file.shared import AbstractFileReadOnly
 from PyPoE.poe.file.dat.reader import DatReader
+from PyPoE.poe.file.shared import AbstractFileReadOnly
 
 
 class DatFile(AbstractFileReadOnly):

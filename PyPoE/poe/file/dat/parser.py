@@ -11,7 +11,6 @@ from typing import Any
 
 from PyPoE.poe.file.dat.caster import CastTypes, DatCaster
 from PyPoE.poe.file.dat.record import DatRecord
-from PyPoE.poe.file.dat.value import DatValue
 from PyPoE.poe.file.specification.errors import SpecificationError
 
 DAT_FILE_MAGIC_NUMBER = b"\xbb\xbb\xbb\xbb\xbb\xbb\xbb\xbb"

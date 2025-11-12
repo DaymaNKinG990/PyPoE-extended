@@ -13,7 +13,6 @@ from PyPoE.poe.file.dat.value import DatValue
 
 if TYPE_CHECKING:
     from PyPoE.poe.file.dat.reader import DatReader
-    from PyPoE.poe.file.dat.value import DatValue as DatValueType
 
 
 class CastTypes(IntEnum):
