@@ -68,6 +68,7 @@ class JsonExportStrategy(ExportStrategy):
         ]
 
         # Build output object
+        out_obj: dict[str, Any]
         if use_object_format:
             # Get column names from table_columns (dict keys)
             columns_data = list(dat_file.reader.table_columns.keys())  # type: ignore[attr-defined]
@@ -98,7 +99,7 @@ class JsonExportStrategy(ExportStrategy):
         if include_record_length:
             record_length = dat_file.reader.table_record_length
             if record_length is not None:
-                out_obj["record_length"] = int(record_length)
+                out_obj["record_length"] = int(record_length)  # type: ignore[assignment]
 
         # Write to file
         console(f'Dumping data to "{output_path}"...')
