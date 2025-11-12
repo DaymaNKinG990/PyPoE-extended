@@ -395,7 +395,7 @@ class SkillParserShared(parser.BaseParser):
             data["stats"] = {}
 
             for j, stats in enumerate(tr.found_ids):
-                values = list(tr.values[j])
+                values = list(tr.values[j]) if isinstance(tr.values[j], (list, tuple)) else [tr.values[j]]
                 stats = list(stats)
                 values_parsed = list(tr.values_parsed[j])
                 # Skip zero stats again, since some translations might
@@ -521,13 +521,19 @@ class SkillParserShared(parser.BaseParser):
 
             # Quality stat data
             stat_ids = [r["Id"] for r in row["StatsKeys"]]
-            qtr = tf.get_translation(
+            qtr_result = tf.get_translation(
                 tags=stat_ids,
                 # Offset Q1000
                 values=[v // 50 for v in row["StatsValuesPermille"]],
                 full_result=True,
                 lang=config.get_option("language"),
             )
+            # Type narrowing: when full_result=True, get_translation returns TranslationResult
+            from PyPoE.poe.file.translations.results import TranslationResult
+
+            if not isinstance(qtr_result, TranslationResult):
+                raise TypeError(f"Expected TranslationResult, got {type(qtr_result)}")
+            qtr = qtr_result
 
             lines = []
             for i, ts in enumerate(qtr.string_instances):
