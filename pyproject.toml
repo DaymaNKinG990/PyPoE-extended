@@ -135,6 +135,12 @@ check_untyped_defs = true
 module = "PyPoE.ui.*"
 disable_error_code = ["attr-defined"]
 
+# re.Scanner was removed in Python 3.11+, but code still uses it
+# These files use re.Scanner which is not available in type stubs
+[[tool.mypy.overrides]]
+module = ["PyPoE.poe.text", "PyPoE.cli.exporter.wiki.parser.utils"]
+disable_error_code = ["attr-defined"]
+
 # TODO: Fix Union types properly instead of suppressing errors
 # The following overrides were removed to address real typing issues:
 # - PyPoE.poe.file.bundle (complex dict[int, bytes] | bytes unions)
