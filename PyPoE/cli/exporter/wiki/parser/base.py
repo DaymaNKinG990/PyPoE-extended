@@ -89,6 +89,7 @@ class BaseParser:
 
     _files: list[str] = []
     _translations: list[str] = []
+    _img_path: str | None = None
 
     def __init__(
         self,
@@ -349,10 +350,19 @@ class BaseParser:
             stats, values, full_result=True, lang=self.lang
         )
 
+        # Type narrowing: when full_result=True, get_translation returns TranslationResult
+        from PyPoE.poe.file.translations.results import TranslationResult
+
+        if not isinstance(result, TranslationResult):
+            raise TypeError(f"Expected TranslationResult, got {type(result)}")
+
         if mod and mod["Domain"] == MOD_DOMAIN.MONSTER:
-            default = self.tc["stat_descriptions.txt"].get_translation(
+            default_result = self.tc["stat_descriptions.txt"].get_translation(
                 result.source_ids, result.source_values, full_result=True, lang=self.lang
             )
+            if not isinstance(default_result, TranslationResult):
+                raise TypeError(f"Expected TranslationResult, got {type(default_result)}")
+            default = default_result
             temp_ids = []
             temp_trans = []
 
