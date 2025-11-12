@@ -73,7 +73,19 @@ class ModWikiCondition(WikiCondition):
 
 
 class ModsHandler(ExporterHandler):
-    def __init__(self, sub_parser):
+    """
+    Handler for mod export commands.
+
+    Sets up command-line interface for mod data export.
+    """
+
+    def __init__(self, sub_parser: Any) -> None:
+        """
+        Initialize ModsHandler.
+
+        Args:
+            sub_parser: Argument parser subparser to add commands to
+        """
         self.parser = sub_parser.add_parser("mods", help="Mods Exporter")
         self.parser.set_defaults(func=lambda args: self.parser.print_help())
         lua_sub = self.parser.add_subparsers()
@@ -121,13 +133,26 @@ class ModsHandler(ExporterHandler):
             wiki=False,
         )
 
-    def add_default_parsers(self, *args, **kwargs):
+    def add_default_parsers(self, *args: Any, **kwargs: Any) -> None:
+        """
+        Add default parsers and mod-specific arguments.
+
+        Args:
+            *args: Positional arguments passed to parent
+            **kwargs: Keyword arguments including 'parser'
+        """
         super().add_default_parsers(*args, **kwargs)
         parser = kwargs["parser"]
         self.add_format_argument(parser)
 
 
 class ModParser(BaseParser):
+    """
+    Parser for exporting mod data to wiki format.
+
+    Handles export of mods (affixes) including their stats, tiers, and properties.
+    """
+
     # Load files in advance
     _files = [
         "Mods.dat",
@@ -145,7 +170,17 @@ class ModParser(BaseParser):
         error_msg="Several areas have not been found:\n%s",
     )
 
-    def _append_effect(self, result, mylist, heading):
+    def _append_effect(self, result: Any, mylist: list[str], heading: str) -> None:
+        """
+        Append effect description to list.
+
+        Formats translation result lines and missing stats for wiki output.
+
+        Args:
+            result: TranslationResult object
+            mylist: List to append formatted lines to
+            heading: Heading text to prepend
+        """
         mylist.append(heading)
 
         for line in result.lines:
@@ -156,23 +191,59 @@ class ModParser(BaseParser):
                 value = "({} to {})".format(*tuple(value))
             mylist.append(f"* {stat_id} {value}")
 
-    def by_rowid(self, parsed_args):
+    def by_rowid(self, parsed_args: Any) -> Any:
+        """
+        Export mods by row ID range.
+
+        Args:
+            parsed_args: Parsed arguments containing start and end row IDs
+
+        Returns:
+            Export result object
+        """
         return self._export(
             parsed_args,
             self.rr["Mods.dat"][parsed_args.start : parsed_args.end],
         )
 
-    def by_id(self, parsed_args):
+    def by_id(self, parsed_args: Any) -> Any:
+        """
+        Export mods by ID.
+
+        Args:
+            parsed_args: Parsed arguments containing mod ID(s)
+
+        Returns:
+            Export result object
+        """
         return self._export(
             parsed_args, self._mod_column_index_filter(column_id="Id", arg_list=parsed_args.id)
         )
 
-    def by_name(self, parsed_args):
+    def by_name(self, parsed_args: Any) -> Any:
+        """
+        Export mods by name.
+
+        Args:
+            parsed_args: Parsed arguments containing mod name(s)
+
+        Returns:
+            Export result object
+        """
         return self._export(
             parsed_args, self._mod_column_index_filter(column_id="Name", arg_list=parsed_args.name)
         )
 
-    def filter(self, args):
+    def filter(self, args: Any) -> Any:
+        """
+        Filter and export mods by domain and/or generation type.
+
+        Args:
+            args: Parsed arguments containing domain and/or generation_type filters
+
+        Returns:
+            Export result object
+        """
         mods = []
 
         filters = []
@@ -201,7 +272,17 @@ class ModParser(BaseParser):
 
         return self._export(args, mods)
 
-    def _export(self, parsed_args, mods):
+    def _export(self, parsed_args: Any, mods: list[Any]) -> Any:
+        """
+        Export mods to wiki format.
+
+        Args:
+            parsed_args: Parsed command-line arguments
+            mods: List of Mods.dat rows to export
+
+        Returns:
+            ExporterResult instance
+        """
         r = ExporterResult()
 
         if mods:
