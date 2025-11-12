@@ -38,21 +38,9 @@ class ItemsParser(SkillParserShared):  # type: ignore[misc]
     # === Class attributes from mixins ===
 
     # From conflicts.py
-    @property
-    def _conflict_resolver_map(self):
-        return {
-            "Active Skill Gem": self._conflict_active_skill_gems,
-            "QuestItem": self._conflict_quest_items,
-            "HideoutDoodad": self._conflict_hideout_doodad,
-            "Map": self._conflict_maps,
-            "MapFragment": self._conflict_map_fragments,
-            "DivinationCard": self._conflict_divination_card,
-            "LabyrinthMapItem": self._conflict_labyrinth_map_item,
-            "MiscMapItem": self._conflict_misc_map_item,
-            "DelveSocketableCurrency": self._conflict_delve_socketable_currency,
-            "DelveStackableSocketableCurrency": self._conflict_delve_stackable_socketable_currency,
-            "AtlasRegionUpgradeItem": self._conflict_atlas_region_upgrade,
-        }
+    # Note: _conflict_resolver_map is now created in __init__ after _conflict_resolver is created
+    # It's initialized as empty dict here, then populated in __init__
+    _conflict_resolver_map: dict[str, Any] = {}
 
     # From extras.py
     _type_currency = _type_factory(
@@ -1633,6 +1621,38 @@ class ItemsParser(SkillParserShared):  # type: ignore[misc]
             format_map_name=self._format_map_name,
         )
 
+        # Create conflict resolver map with wrapper methods that delegate to _conflict_resolver
+        # The wrapper methods match the signature expected by ItemDataExtractor:
+        # resolver(self, infobox, base_item_type_lang, rr, language)
+        def create_conflict_wrapper(item_type: str):
+            def wrapper(
+                extractor: Any,
+                infobox: dict[str, Any],
+                base_item_type: Any,
+                rr: Any,
+                language: str,
+            ) -> str | None:
+                return self._conflict_resolver.resolve_conflict(item_type, infobox, base_item_type)
+
+            return wrapper
+
+        # Override the property with actual map
+        self._conflict_resolver_map = {
+            "Active Skill Gem": create_conflict_wrapper("Active Skill Gem"),
+            "QuestItem": create_conflict_wrapper("QuestItem"),
+            "HideoutDoodad": create_conflict_wrapper("HideoutDoodad"),
+            "Map": create_conflict_wrapper("Map"),
+            "MapFragment": create_conflict_wrapper("MapFragment"),
+            "DivinationCard": create_conflict_wrapper("DivinationCard"),
+            "LabyrinthMapItem": create_conflict_wrapper("LabyrinthMapItem"),
+            "MiscMapItem": create_conflict_wrapper("MiscMapItem"),
+            "DelveSocketableCurrency": create_conflict_wrapper("DelveSocketableCurrency"),
+            "DelveStackableSocketableCurrency": create_conflict_wrapper(
+                "DelveStackableSocketableCurrency"
+            ),
+            "AtlasRegionUpgradeItem": create_conflict_wrapper("AtlasRegionUpgradeItem"),
+        }
+
         # 2. ItemWikiExporter
         self._wiki_exporter = ItemWikiExporter(
             relational_reader=self.rr,
@@ -1692,3 +1712,198 @@ class ItemsParser(SkillParserShared):  # type: ignore[misc]
             write_dds=self._write_dds,
             img_path=self._img_path,
         )
+
+    # =============================================================================
+    # Internal methods (used by specialized classes)
+    # =============================================================================
+
+    def _process_base_item_type(self, base_item_type: Any, infobox: dict[str, Any], not_new_map: bool = True) -> None:
+        """
+        Process base item type information.
+
+        This method is used by multiple specialized classes and should remain in ItemsParser.
+        """
+        from PyPoE.cli.exporter.wiki import parser
+        from PyPoE.poe.file.ot import OTFile
+
+        m_id = base_item_type["Id"]
+
+        infobox["rarity_id"] = "normal"
+
+        # BaseItemTypes.dat
+        infobox["name"] = base_item_type["Name"]
+        infobox["class_id"] = base_item_type["ItemClassesKey"]["Id"]
+        infobox["size_x"] = base_item_type["Width"]
+        infobox["size_y"] = base_item_type["Height"]
+        if base_item_type["FlavourTextKey"]:
+            infobox["flavour_text"] = parser.parse_and_handle_description_tags(
+                rr=self.rr,
+                text=base_item_type["FlavourTextKey"]["Text"],
+            )
+
+        if (
+            base_item_type["ItemClassesKey"]["Id"] not in self._IGNORE_DROP_LEVEL_CLASSES
+            and m_id not in self._IGNORE_DROP_LEVEL_ITEMS_BY_ID
+        ):
+            infobox["drop_level"] = base_item_type["DropLevel"]
+
+        base_ot = OTFile(parent_or_file_system=self.file_system)
+        base_ot.read(self.file_system.get_file(base_item_type["InheritsFrom"] + ".ot"))
+        try:
+            ot = self.ot[m_id + ".ot"]
+        except FileNotFoundError:
+            pass
+        else:
+            base_ot.merge(ot)
+        finally:
+            ot = base_ot
+
+        if "enable_rarity" in ot["Mods"]:
+            infobox["drop_rarities_ids"] = ", ".join(ot["Mods"]["enable_rarity"])
+
+        tags = [t["Id"] for t in base_item_type["TagsKeys"]]
+        infobox["tags"] = ", ".join(tags + list(ot["Base"]["tag"]))
+
+        if not_new_map:
+            infobox["metadata_id"] = m_id
+
+        description = ot["Stack"].get("function_text")
+        if description:
+            infobox["description"] = self.rr["ClientStrings.dat"].index["Id"][description]["Text"]
+
+        help_text = ot["Base"].get("description_text")
+        if help_text:
+            infobox["help_text"] = self.rr["ClientStrings.dat"].index["Id"][help_text]["Text"]
+
+        for i, mod in enumerate(base_item_type["Implicit_ModsKeys"]):
+            infobox["implicit%s" % (i + 1)] = mod["Id"]
+
+    def _process_purchase_costs(self, source: Any, infobox: dict[str, Any]) -> None:
+        """
+        Process purchase costs for items.
+
+        This method is used by multiple specialized classes and should remain in ItemsParser.
+        """
+        from PyPoE.poe.constants import RARITY
+
+        for rarity in RARITY:
+            if rarity.id >= 5:  # type: ignore[attr-defined]
+                break
+            for i, (item, cost) in enumerate(
+                source[rarity.name_upper + "Purchase"], start=1  # type: ignore[attr-defined]
+            ):
+                prefix = f"purchase_cost_{rarity.name_lower}{i}"  # type: ignore[attr-defined]
+                infobox[prefix + "_name"] = item["Name"]
+                infobox[prefix + "_amount"] = cost
+
+    def _format_map_name(self, base_item_type: Any, map_series: Any | None, language: str | None = None) -> str:
+        """
+        Format map name.
+
+        This method is used by multiple specialized classes and should remain in ItemsParser.
+        """
+        if language is None:
+            language = self._language
+        if "Harbinger" in base_item_type["Id"]:
+            return "{} ({}) ({})".format(
+                base_item_type["Name"],
+                self._LANG[language][re.sub(r"^.*Harbinger", "", base_item_type["Id"])],
+                map_series["Name"] if map_series else "",
+            )
+        else:
+            return "{} ({})".format(base_item_type["Name"], map_series["Name"] if map_series else "")
+
+    def _get_map_series(self, parsed_args: Any) -> Any | bool:
+        """
+        Get map series from parsed arguments.
+
+        This method is used by export methods and should remain in ItemsParser.
+        """
+        from PyPoE.cli.core import Msg, console
+
+        self.rr["MapSeries.dat"].build_index("Id")
+        self.rr["MapSeries.dat"].build_index("Name")
+        if parsed_args.map_series_id is not None:
+            try:
+                map_series = self.rr["MapSeries.dat"].index["Id"][parsed_args.map_series_id]
+            except (IndexError, KeyError):
+                console("Invalid map series id", msg=Msg.error)
+                return False
+        elif parsed_args.map_series is not None:
+            try:
+                map_series = self.rr["MapSeries.dat"].index["Name"][parsed_args.map_series][0]
+            except (IndexError, KeyError):
+                console("Invalid map series name", msg=Msg.error)
+                return False
+        else:
+            map_series = self.rr["MapSeries.dat"][-1]
+            console(
+                'No map series specified. Using latest series "{}".'.format(map_series["Name"]),
+                msg=Msg.warning,
+            )
+
+        return map_series
+
+    def _type_map(self, infobox: dict[str, Any], base_item_type: Any) -> None:
+        """
+        Apply map-specific type information.
+
+        This method is used by export methods and should remain in ItemsParser.
+        """
+        # This is a callback used by _type_map factory method
+        # The actual implementation is in _type_map factory method
+        pass
+
+    # =============================================================================
+    # Public methods (delegated to specialized classes)
+    # =============================================================================
+
+    def by_rowid(self, parsed_args: Any) -> Any:
+        """Export items by row ID range."""
+        return self._data_extractor.export_items(
+            parsed_args,
+            self.rr["BaseItemTypes.dat"][parsed_args.start : parsed_args.end],
+        )
+
+    def by_id(self, parsed_args: Any) -> Any:
+        """Export items by ID."""
+        return self._data_extractor.export_items(
+            parsed_args,
+            self._item_column_index_filter(column_id="Id", arg_list=parsed_args.id),
+        )
+
+    def by_name(self, parsed_args: Any) -> Any:
+        """Export items by name."""
+        return self._data_extractor.export_items(
+            parsed_args,
+            self._item_column_index_filter(column_id="Name", arg_list=parsed_args.name),
+        )
+
+    def by_filter(self, parsed_args: Any) -> Any:
+        """Export items by filter (regex)."""
+        if parsed_args.re_name:
+            parsed_args.re_name = re.compile(parsed_args.re_name, flags=re.UNICODE)
+        if parsed_args.re_id:
+            parsed_args.re_id = re.compile(parsed_args.re_id, flags=re.UNICODE)
+
+        items = []
+        for item in self.rr["BaseItemTypes.dat"]:
+            if parsed_args.re_name and not parsed_args.re_name.match(item["Name"]):
+                continue
+            if parsed_args.re_id and not parsed_args.re_id.match(item["Id"]):
+                continue
+            items.append(item)
+
+        return self._data_extractor.export_items(parsed_args, items)
+
+    def export_map_icons(self, parsed_args: Any) -> Any:
+        """Export map icons."""
+        return self._wiki_exporter.export_map_icons(parsed_args)
+
+    def export_map(self, parsed_args: Any) -> Any:
+        """Export map data."""
+        return self._wiki_exporter.export_map(parsed_args)
+
+    def _skill_gem(self, infobox: dict[str, Any], base_item_type: Any) -> bool:
+        """Process skill gem item."""
+        return self._skill_handler.process_skill_gem(infobox, base_item_type)
