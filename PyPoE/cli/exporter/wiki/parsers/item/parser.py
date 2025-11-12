@@ -35,6 +35,26 @@ from PyPoE.cli.exporter.wiki.parsers.skill import SkillParserShared
 
 
 class ItemsParser(SkillParserShared):  # type: ignore[misc]
+    """
+    Parser for exporting items to wiki format (Facade pattern).
+
+    This class coordinates specialized components for item export:
+    - ItemConflictResolver: Resolves naming conflicts
+    - ItemWikiExporter: Handles wiki export operations
+    - ItemSkillHandler: Processes skill gems
+    - ItemTypeParser: Parses item type information
+    - ItemDataExtractor: Extracts and processes item data
+
+    The class uses composition instead of inheritance, making it easier
+    to test and maintain.
+
+    Attributes:
+        _conflict_resolver: ItemConflictResolver instance
+        _wiki_exporter: ItemWikiExporter instance
+        _skill_handler: ItemSkillHandler instance
+        _type_parser: ItemTypeParser instance
+        _data_extractor: ItemDataExtractor instance
+    """
     # === Class attributes from mixins ===
 
     # From conflicts.py
@@ -1761,7 +1781,13 @@ class ItemsParser(SkillParserShared):  # type: ignore[misc]
         """
         Process purchase costs for items.
 
-        This method is used by multiple specialized classes and should remain in ItemsParser.
+        Extracts purchase cost information for different rarities and adds them
+        to the infobox. This method is used by multiple specialized classes and
+        should remain in ItemsParser.
+
+        Args:
+            source: Source data object containing purchase cost information
+            infobox: Infobox dictionary to populate
         """
         from PyPoE.poe.constants import RARITY
 
@@ -1777,9 +1803,18 @@ class ItemsParser(SkillParserShared):  # type: ignore[misc]
 
     def _format_map_name(self, base_item_type: Any, map_series: Any | None, language: str | None = None) -> str:
         """
-        Format map name.
+        Format map name for wiki output.
 
+        Formats map name with series information. Handles special case for Harbinger maps.
         This method is used by multiple specialized classes and should remain in ItemsParser.
+
+        Args:
+            base_item_type: Base item type data
+            map_series: Map series data (optional)
+            language: Language code (optional, uses instance language if None)
+
+        Returns:
+            Formatted map name string
         """
         if language is None:
             language = self._language
@@ -1796,7 +1831,14 @@ class ItemsParser(SkillParserShared):  # type: ignore[misc]
         """
         Get map series from parsed arguments.
 
+        Retrieves map series by ID or name, or uses the latest series if not specified.
         This method is used by export methods and should remain in ItemsParser.
+
+        Args:
+            parsed_args: Parsed arguments containing map_series_id or map_series
+
+        Returns:
+            Map series data object, or False if invalid
         """
         from PyPoE.cli.core import Msg, console
 
@@ -1838,28 +1880,62 @@ class ItemsParser(SkillParserShared):  # type: ignore[misc]
     # =============================================================================
 
     def by_rowid(self, parsed_args: Any) -> Any:
-        """Export items by row ID range."""
+        """
+        Export items by row ID range.
+
+        Args:
+            parsed_args: Parsed arguments containing start and end row IDs
+
+        Returns:
+            Export result object
+        """
         return self._data_extractor.export_items(
             parsed_args,
             self.rr["BaseItemTypes.dat"][parsed_args.start : parsed_args.end],
         )
 
     def by_id(self, parsed_args: Any) -> Any:
-        """Export items by ID."""
+        """
+        Export items by ID.
+
+        Args:
+            parsed_args: Parsed arguments containing item ID
+
+        Returns:
+            Export result object
+        """
         return self._data_extractor.export_items(
             parsed_args,
             self._item_column_index_filter(column_id="Id", arg_list=parsed_args.id),
         )
 
     def by_name(self, parsed_args: Any) -> Any:
-        """Export items by name."""
+        """
+        Export items by name.
+
+        Args:
+            parsed_args: Parsed arguments containing item name(s)
+
+        Returns:
+            Export result object
+        """
         return self._data_extractor.export_items(
             parsed_args,
             self._item_column_index_filter(column_id="Name", arg_list=parsed_args.name),
         )
 
     def by_filter(self, parsed_args: Any) -> Any:
-        """Export items by filter (regex)."""
+        """
+        Export items by filter (regex).
+
+        Filters items by regex patterns matching name and/or ID.
+
+        Args:
+            parsed_args: Parsed arguments containing regex patterns (re_name, re_id)
+
+        Returns:
+            Export result object
+        """
         if parsed_args.re_name:
             parsed_args.re_name = re.compile(parsed_args.re_name, flags=re.UNICODE)
         if parsed_args.re_id:
@@ -1876,15 +1952,40 @@ class ItemsParser(SkillParserShared):  # type: ignore[misc]
         return self._data_extractor.export_items(parsed_args, items)
 
     def export_map_icons(self, parsed_args: Any) -> Any:
-        """Export map icons."""
+        """
+        Export map icons.
+
+        Args:
+            parsed_args: Parsed arguments for map icon export
+
+        Returns:
+            Export result object
+        """
         return self._wiki_exporter.export_map_icons(parsed_args)
 
     def export_map(self, parsed_args: Any) -> Any:
-        """Export map data."""
+        """
+        Export map data.
+
+        Args:
+            parsed_args: Parsed arguments for map export
+
+        Returns:
+            Export result object
+        """
         return self._wiki_exporter.export_map(parsed_args)
 
     def _skill_gem(self, infobox: dict[str, Any], base_item_type: Any) -> bool:
-        """Process skill gem item."""
+        """
+        Process skill gem item.
+
+        Args:
+            infobox: Infobox dictionary to populate
+            base_item_type: Base item type data
+
+        Returns:
+            True if successful, False otherwise
+        """
         return self._skill_handler.process_skill_gem(infobox, base_item_type)
 
     def export(self, parsed_args: Any) -> Any:
