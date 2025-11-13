@@ -137,17 +137,12 @@ class DirectoryNodeExtended(DirectoryNode):
               print('{blank:>{width}}{name}'.format(
                 name=name, width=depth, blank=''))
 
-        Parameters
-        ----------
-        max_depth : int
-            how many levels of children to walk
-        _depth : int
-            current depth (internal use)
+        Args:
+            max_depth: How many levels of children to walk (-1 for unlimited)
+            _depth: Current depth (internal use, default: 0)
 
-        Yields
-        ------
-        tuple
-            (DirectoryNodeExtended, depth)
+        Yields:
+            Tuple of (DirectoryNodeExtended, depth) for each node in the tree
         """
         # only continue if not past maximum depth
         if max_depth == -1 or _depth <= max_depth:
