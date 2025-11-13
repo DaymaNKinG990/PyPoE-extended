@@ -80,8 +80,19 @@ class CustomOpenAction(GGPKOpenAction):
         self._thread.finished.connect(self._update_ggpk_model)
         self._thread.start()
 
-    def _ggpk_sort(self, node, depth, **kwargs):
-        def sorter(obj):
+    def _ggpk_sort(self, node: Any, depth: int, **kwargs: Any) -> None:
+        """
+        Sort GGPK directory nodes.
+
+        Sorts children so that files come before directories,
+        then alphabetically by name.
+
+        Args:
+            node: DirectoryNode to sort
+            depth: Current depth in tree (unused)
+            **kwargs: Additional keyword arguments (unused)
+        """
+        def sorter(obj: Any) -> tuple[bool, str]:
             return (
                 isinstance(getattr(obj, "record", None), FileRecord),
                 getattr(obj, "name", str(obj)),
@@ -95,7 +106,12 @@ class CustomOpenAction(GGPKOpenAction):
         elif isinstance(node.children, list):
             node.children = sorted(node.children, key=sorter)
 
-    def _update_ggpk_model(self):
+    def _update_ggpk_model(self) -> None:
+        """
+        Update GGPK model after file loading completes.
+
+        Sorts directory tree and updates the view model.
+        """
         p = self._main_window()
 
         p._write_log(self.tr("Sorting GGPK directory..."))
@@ -111,10 +127,19 @@ class CustomOpenAction(GGPKOpenAction):
 
 class FileMenu(QMenu):
     """
-    Create file menu and handle related actions
+    File menu for GGPK Viewer.
+
+    Provides file-related actions like opening GGPK files.
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        """
+        Initialize file menu.
+
+        Args:
+            *args: Positional arguments passed to QMenu
+            **kwargs: Keyword arguments passed to QMenu
+        """
         QMenu.__init__(self, *args, **kwargs)
 
         self.action_open = CustomOpenAction(self)
@@ -126,10 +151,19 @@ class FileMenu(QMenu):
 
 class ViewMenu(QMenu):
     """
-    Create view menu and handle related actions
+    View menu for GGPK Viewer.
+
+    Provides view-related actions like toggling toolbars.
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        """
+        Initialize view menu.
+
+        Args:
+            *args: Positional arguments passed to QMenu
+            **kwargs: Keyword arguments passed to QMenu
+        """
         QMenu.__init__(self, *args, **kwargs)
 
         self.action_toggle_toolbar = QAction(
@@ -143,17 +177,29 @@ class ViewMenu(QMenu):
         self.setTitle(self.tr("View"))
         self.parent().menuBar().addMenu(self)
 
-    def _toggle_view_toolbar(self):
+    def _toggle_view_toolbar(self) -> None:
+        """
+        Toggle context toolbar visibility.
+        """
         tb = self.parent().context_toolbar
         tb.setVisible(not tb.isVisible())
 
 
 class MiscMenu(QMenu):
     """
-    Create misc menu and handle related actions
+    Miscellaneous menu for GGPK Viewer.
+
+    Provides miscellaneous actions like reloading specifications.
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        """
+        Initialize misc menu.
+
+        Args:
+            *args: Positional arguments passed to QMenu
+            **kwargs: Keyword arguments passed to QMenu
+        """
         QMenu.__init__(self, *args, **kwargs)
 
         self.action_reload_specifications = QAction(
@@ -168,7 +214,13 @@ class MiscMenu(QMenu):
         self.setTitle(self.tr("Misc"))
         self.parent().menuBar().addMenu(self)
 
-    def _reload_specifications(self):
+    def _reload_specifications(self) -> None:
+        """
+        Reload DAT file specifications.
+
+        Reloads specifications for the current game version and updates
+        the ViewModel and main window references.
+        """
         p = self.parent()
 
         v = p.s_general.version

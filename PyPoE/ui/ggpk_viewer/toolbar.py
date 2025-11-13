@@ -54,10 +54,26 @@ __all__ = ["ContextToolbar"]
 
 class ContextToolbar(QToolBar):
     """
-    Context-related toolbar
+    Context toolbar for GGPK Viewer.
+
+    Provides actions for file extraction, search, and path copying.
+    Actions are enabled/disabled based on selection state.
+
+    Attributes:
+        action_extract: Action for extracting selected files/folders
+        action_search: Action for searching in selected folder
+        action_copy_path: Action for copying file path
+        regex_search: Dialog for regex search functionality
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        """
+        Initialize context toolbar.
+
+        Args:
+            *args: Positional arguments passed to QToolBar
+            **kwargs: Keyword arguments passed to QToolBar
+        """
         QToolBar.__init__(self, *args, **kwargs)
 
         # self.setAllowedAreas(Qt.LeftToolBarArea | Qt.RightToolBarArea)
@@ -91,23 +107,37 @@ class ContextToolbar(QToolBar):
 
         self.regex_search = RegExSearchDialog(self)
 
-    def _adjust_view(self, visibility):
+    def _adjust_view(self, visibility: bool) -> None:
+        """
+        Adjust view when toolbar visibility changes.
+
+        Args:
+            visibility: Whether toolbar is visible
+        """
         self.parent().menu_view.action_toggle_toolbar.setChecked(visibility)
 
-    def _get_node(self):
+    def _get_node(self) -> Any | None:
         """
-        Returns
-        -------
-        DirectoryNode
+        Get currently selected node from GGPK view.
+
+        Returns:
+            DirectoryNode or FileRecord node, or None if nothing selected
         """
         # returns list of columns
         indexes = self.parent().ggpk_view.selectedIndexes()
         # Shouldn't happen... TODO log
         if not indexes:
-            return
+            return None
         return indexes[0].internalPointer()
 
-    def _toolbar_extract_dds(self, path, node):
+    def _toolbar_extract_dds(self, path: str, node: Any) -> None:
+        """
+        Extract and decompress DDS file.
+
+        Args:
+            path: Path to DDS file
+            node: DirectoryNode or FileRecord node
+        """
         from PyPoE.shared.file_utils import read_file, write_file
 
         self.parent()._write_log(path)
@@ -127,7 +157,13 @@ class ContextToolbar(QToolBar):
 
         write_file(path, data)
 
-    def _toolbar_extract(self):
+    def _toolbar_extract(self) -> None:
+        """
+        Extract selected file or folder to directory.
+
+        Prompts user for target directory and extracts files.
+        Optionally decompresses DDS files if enabled in settings.
+        """
         node = self._get_node()
         if node is None:
             return
@@ -155,7 +191,13 @@ class ContextToolbar(QToolBar):
 
         p._write_log(self.tr("Done."))
 
-    def _toolbar_search(self):
+    def _toolbar_search(self) -> None:
+        """
+        Search for files in selected directory using regex.
+
+        Opens regex search dialog and searches for matching files.
+        Results are displayed in the log area.
+        """
         node = self._get_node()
         if node is None:
             return
