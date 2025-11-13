@@ -44,25 +44,25 @@ __all__ = ["TagHandler"]
 
 class TagHandler:
     """
-    Provides tag handlers for use with :func:`parse_description_tags`
+    Provides tag handlers for use with parse_description_tags.
 
-    Parameters
-    ----------
-    tag_handlers : dict[str, callable]
-        dictionary containing tags and a callable function for passing to
-        :func:`parse_description_tags`
+    Attributes:
+        _IL_FORMAT: Format string for item links
+        _C_FORMAT: Format string for color tags
+        rr: RelationalReader instance for item lookups
+        tag_handlers: Dictionary of tag handlers keyed by tag name
     """
 
     _IL_FORMAT = "{{il|%s|html=}}"
     _C_FORMAT = "{{c|%s|%s}}"
 
-    def __init__(self, rr):
+    def __init__(self, rr: Any) -> None:
         """
-        Parameters
-        ----------
-        rr : RelationalReader
-            RelationalReader instance to use when looking up whether items are
-            'real' for linking purposes
+        Initialize TagHandler with RelationalReader.
+
+        Args:
+            rr: RelationalReader instance to use when looking up whether items
+                are 'real' for linking purposes
         """
         self.rr = rr
         self.rr["BaseItemTypes.dat"].build_index("Name")
@@ -72,7 +72,16 @@ class TagHandler:
         for key, func in self.__class__.tag_handlers.items():
             self.tag_handlers[key] = partial(func, self)  # type: ignore[misc, operator, arg-type]
 
-    def _check_link(self, string):
+    def _check_link(self, string: str) -> str:
+        """
+        Check if string should be formatted as a link and format it.
+
+        Args:
+            string: String to check and format
+
+        Returns:
+            Formatted string with appropriate link formatting
+        """
         items = self.rr["BaseItemTypes.dat"].index["Name"][string]
         if items:
             if items[0]["ItemClassesKey"]["Name"] == "Maps":
@@ -83,16 +92,59 @@ class TagHandler:
                 string = self._IL_FORMAT % string
         return string
 
-    def _basic_handler(self, hstr, parameter, tid):
+    def _basic_handler(self, hstr: str, parameter: str, tid: str) -> str:
+        """
+        Basic tag handler that formats string with color tag.
+
+        Args:
+            hstr: String to format
+            parameter: Parameter (unused)
+            tid: Tag ID for color formatting
+
+        Returns:
+            Formatted string with color tag
+        """
         return self._C_FORMAT % (tid, hstr)
 
-    def _default_handler(self, hstr, parameter, tid):
+    def _default_handler(self, hstr: str, parameter: str, tid: str) -> str:
+        """
+        Default tag handler that checks link and formats with color tag.
+
+        Args:
+            hstr: String to format
+            parameter: Parameter (unused)
+            tid: Tag ID for color formatting
+
+        Returns:
+            Formatted string with link check and color tag
+        """
         return self._C_FORMAT % (tid, self._check_link(hstr))
 
-    def _link_handler(self, hstr, parameter, tid):
+    def _link_handler(self, hstr: str, parameter: str, tid: str) -> str:
+        """
+        Link handler that formats string as wiki link with color tag.
+
+        Args:
+            hstr: String to format as link
+            parameter: Parameter (unused)
+            tid: Tag ID for color formatting
+
+        Returns:
+            Formatted string with wiki link and color tag
+        """
         return self._C_FORMAT % (tid, f"[[{hstr}]]")
 
-    def _unique_handler(self, hstr, parameter):
+    def _unique_handler(self, hstr: str, parameter: str) -> str:
+        """
+        Unique item handler that formats unique items appropriately.
+
+        Args:
+            hstr: String to format
+            parameter: Parameter (unused)
+
+        Returns:
+            Formatted string with unique item formatting
+        """
         words = self.rr["Words.dat"].index["Text"][hstr]
         if words and words[0]["WordlistsKey"] == WORDLISTS.UNIQUE_ITEM:
             # Check whether unique item name clashes with base item name
@@ -102,14 +154,34 @@ class TagHandler:
             hstr = self._check_link(hstr)
         return self._C_FORMAT % ("unique", hstr)
 
-    def _currency_handler(self, hstr, parameter):
+    def _currency_handler(self, hstr: str, parameter: str) -> str:
+        """
+        Currency handler that formats currency items with quantity support.
+
+        Args:
+            hstr: String to format (may contain "x " for quantity)
+            parameter: Parameter (unused)
+
+        Returns:
+            Formatted string with currency formatting
+        """
         if "x " in hstr:
             s = hstr.split("x ", maxsplit=1)
             return self._C_FORMAT % ("currency", f"{s[0]}x {self._check_link(s[1])}")
         else:
             return self._default_handler(hstr, parameter, "currency")
 
-    def _pass_through_handler(self, hstr, parameter):
+    def _pass_through_handler(self, hstr: str, parameter: str) -> str:
+        """
+        Pass-through handler that returns string unchanged.
+
+        Args:
+            hstr: String to return
+            parameter: Parameter (unused)
+
+        Returns:
+            Original string unchanged
+        """
         return hstr
 
     tag_handlers = {

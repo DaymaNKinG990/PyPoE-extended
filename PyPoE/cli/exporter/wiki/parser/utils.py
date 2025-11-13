@@ -63,7 +63,16 @@ __all__ = [
 _MAX_RE = 97
 
 
-def _make_inter_wiki_re():
+def _make_inter_wiki_re() -> dict[str, list[Any]]:
+    """
+    Create regex patterns for inter-wiki link matching.
+
+    Splits the inter-wiki mapping into chunks of _MAX_RE items per regex
+    to avoid regex compilation limits.
+
+    Returns:
+        Dictionary mapping language codes to lists of compiled regex patterns
+    """
     out: dict[str, list[Any]] = {}
     for language, _inter_wiki_mapping in _inter_wiki_map.items():
         out[language] = []
@@ -92,25 +101,20 @@ _inter_wiki_re = _make_inter_wiki_re()
 # =============================================================================
 
 
-def format_result_rows(parsed_args, ordered_dict, template_name, indent=DEFAULT_INDENT):
+def format_result_rows(
+    parsed_args: Any, ordered_dict: OrderedDict[str, Any], template_name: str, indent: int = DEFAULT_INDENT
+) -> str:
     """
-    Formats the given result rows as mediawiki template or module.
+    Format result rows as MediaWiki template or module.
 
-    Parameters
-    ----------
-    parsed_args
-        argument parser argument containing the format argument
-    ordered_dict : OrderedDict
-        OrderedDict instance of the rows to format
-    template_name : str
-        name of the template
-    indent : int
-        number of spaces to use for indentation/padding up to the given size
+    Args:
+        parsed_args: Argument parser containing the format argument
+        ordered_dict: OrderedDict instance of the rows to format
+        template_name: Name of the template
+        indent: Number of spaces to use for indentation/padding
 
-    Returns
-    -------
-    out : str
-        formatted string
+    Returns:
+        Formatted string as MediaWiki template or Lua module
     """
     if parsed_args.format == "template":
         out = [f"{{{{{template_name}\n"]
@@ -129,20 +133,15 @@ def format_result_rows(parsed_args, ordered_dict, template_name, indent=DEFAULT_
     return "".join(out)
 
 
-def make_inter_wiki_links(string):
+def make_inter_wiki_links(string: str) -> str:
     """
-    Formats the given string according to the predefined inter wiki formatting
-    rules and returns it.
+    Format string with inter-wiki links according to predefined rules.
 
-    Parameters
-    ----------
-    string : str
-        String to format
+    Args:
+        string: String to format
 
-    Returns
-    -------
-    str
-        String formatted with inter wiki links
+    Returns:
+        String formatted with inter-wiki links
     """
 
     _inter_wiki = _inter_wiki_re.get(config.get_option("language"))
@@ -175,31 +174,19 @@ def make_inter_wiki_links(string):
     return string
 
 
-def find_template(wikitext, template_name):
+def find_template(wikitext: str, template_name: str) -> dict[str, Any]:
     """
-    Finds a template within wikitext and parses the arguments.
+    Find a template within wikitext and parse its arguments.
 
-    Parameters
-    ----------
-    wikitext: string
-        wiktext
-    template_name: string
-        Name of the template to find
+    Args:
+        wikitext: Wiki text to search
+        template_name: Name of the template to find
 
-    Returns
-    -------
-    dict[str, object]
-        returns a dictionary containing 3 keys:
-
-        texts: list[str]
-            text not included in the template itself; each template call
-            inbetween
-        args: list[str]
-            positional arguments passed to the template
-        kwargs: OrderedDict[str, str]
-            keyword arguments passed to the template in the order they
-            appeared in the wikitext
-
+    Returns:
+        Dictionary containing:
+            - texts: List of text segments not included in the template
+            - args: List of positional arguments passed to the template
+            - kwargs: OrderedDict of keyword arguments in order of appearance
     """
 
     def f(scanner, result, tid):
@@ -292,21 +279,16 @@ def find_template(wikitext, template_name):
     return {"texts": texts, "args": arguments, "kwargs": kw_arguments}
 
 
-def parse_and_handle_description_tags(rr, text):
+def parse_and_handle_description_tags(rr: Any, text: str) -> str:
     """
-    Parses and handles description texts
+    Parse and handle description text tags.
 
-    Parameters
-    ----------
-    rr : RelationalReader
-        RelationalReader instance to pass to TagHandler when parsing
-    text : str
-        Text which to parse
+    Args:
+        rr: RelationalReader instance to pass to TagHandler when parsing
+        text: Text to parse
 
-    Returns
-    -------
-    str
-        Parsed texts with wiki templates/links
+    Returns:
+        Parsed text with wiki templates/links, with newlines replaced by <br>
     """
     return (
         parse_description_tags(text)
