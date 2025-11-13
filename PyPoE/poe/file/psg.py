@@ -130,54 +130,44 @@ class GraphGroup(ReprMixin):
 
 class GraphGroupNode(ReprMixin):
     """
-    Representation of a single node in a :class:`GraphGroup`.
+    Representation of a single node in a GraphGroup.
 
     A node contains the actual information about the passive skill value it
     holds and the connection as well the as the position within the group.
 
-    .. warning::
-        If the parent :class:`PSGFile` was instantiated with a valid
-        'PassiveSkills.dat' :class:`PyPoE.poe.file.dat.DatFile` instance, the
-        passive_skill and connections variables contain references to the
-        respective row (i.e. a `PyPoE.poe.file.dat.DatRecord` instance) instead
+    Warning:
+        If the parent PSGFile was instantiated with a valid 'PassiveSkills.dat'
+        DatFile instance, the passive_skill and connections variables contain
+        references to the respective row (i.e. a DatRecord instance) instead
         of the integer id.
 
-    Parameters
-    ----------
-    parent :  GraphGroup
-        parent :class:`GraphGroup` this node belongs to
-
-    passive_skill : int or DatRecord
-        passive skill node of this node
-
-    radius :  int
-        radius from the parent's x,y-position
-
-    position : int
-        position of the node in the group; together with the radius this creates
-        a clockwise rotation from 0 to 11
-
-    connections : list[int] or list[DatRecord]
-        list of passive skill nodes this node is connected to
+    Attributes:
+        parent: Parent GraphGroup this node belongs to
+        passive_skill: Passive skill node (int or DatRecord)
+        radius: Radius from the parent's x,y-position
+        position: Position within the group (0-11, clockwise rotation)
+        connections: List of connected node IDs or DatRecords
     """
 
     __slots__ = ["parent", "passive_skill", "radius", "position", "connections"]
 
-    def __init__(self, parent, passive_skill, radius, position, connections):
+    def __init__(
+        self,
+        parent: GraphGroup,
+        passive_skill: int | Any,
+        radius: int,
+        position: int,
+        connections: list[int] | list[Any],
+    ) -> None:
         """
-        Parameters
-        ----------
-        parent :  GraphGroup
-            parent :class:`GraphGroup` this node belongs to
-        passive_skill :  int
-            passive skill node id of this node
-        radius :  int
-            radius from the parent's x,y-position
-        position :  int
-            position of the node in the group; together with the radius this
-            creates a clockwise rotation from 0 to 11
-        connections : list[int]
-            list of passive skill nodes ids this node is connected to
+        Initialize graph group node.
+
+        Args:
+            parent: Parent GraphGroup this node belongs to
+            passive_skill: Passive skill node (int or DatRecord)
+            radius: Radius from the parent's x,y-position
+            position: Position within the group (0-11, clockwise rotation)
+            connections: List of connected node IDs or DatRecords
         """
         self.parent = parent
         self.passive_skill = passive_skill
@@ -185,14 +175,12 @@ class GraphGroupNode(ReprMixin):
         self.position = position
         self.connections = connections
 
-    def _update_connections(self, dat_reader):
+    def _update_connections(self, dat_reader: Any) -> None:
         """
-        Updates the stored connections using the given dat_reader instance.
+        Update stored connections using the given dat_reader instance.
 
-        Parameters
-        ----------
-        dat_reader:  DatReader
-            :class:`PyPoE.poe.file.dat.DatReader` instance
+        Args:
+            dat_reader: DatReader instance to use for updating connections
         """
         self.passive_skill = dat_reader.index[PSG_COL][self.passive_skill]
         for i, connection in enumerate(self.connections):
