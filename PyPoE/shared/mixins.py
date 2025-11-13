@@ -60,32 +60,20 @@ __all__ = ["ReprMixin"]
 
 class ReprMixin:
     """
-    Add to a class to get semi-universal repr of the form:
+    Mixin to provide semi-universal __repr__ method.
 
+    Generates repr of the form:
     ClassName<memoryaddr>(arg1=val1, ..., argn=valn, extrakey1=extraval1, ...,
     extrakeyn=extravaln)
 
-
-    :cvar _REPR_PRIVATE_ATTRIBUTES: If set, also consider attributes with _
-    :type _REPR_PRIVATE_ATTRIBUTES: bool
-
-    :cvar _REPR_ARGUMENTS_IGNORE_MISSING: Whether to ignore missing attributes
-    if _REPR_ARGUMENTS_TO_ATTRIBUTES is specified
-    :type _REPR_ARGUMENTS_IGNORE_MISSING: bool
-
-    :cvar _REPR_ARGUMENTS_TO_ATTRIBUTES: Match arguments against this directory
-    and if found as key, use the value to determine the instance attribute
-    to retrieve the value for the attribute
-    :type _REPR_ARGUMENTS_TO_ATTRIBUTES: dict[str, str]
-
-    :cvar _REPR_ARGUMENTS_IGNORE: Ignore these arguments entirely
-    :type _REPR_ARGUMENTS_IGNORE: set
-
-    :cvar _REPR_EXTRA_ATTRIBUTES: Adds those extra attributes, even if they are
-    not __init__ arguments.
-    The keys are used for the name displayed, the values for retrieving the
-    attribute from the instance. If the value is None, the key is used instead.
-    :type _REPR_EXTRA_ATTRIBUTES: OrderedDict[str, str]
+    Class attributes for customization:
+        _REPR_PRIVATE_ATTRIBUTES: If True, also consider attributes with _
+        _REPR_ARGUMENTS_IGNORE_MISSING: If True, ignore missing attributes
+            when _REPR_ARGUMENTS_TO_ATTRIBUTES is specified
+        _REPR_ARGUMENTS_TO_ATTRIBUTES: Map argument names to attribute names
+        _REPR_ARGUMENTS_IGNORE: Set of argument names to ignore
+        _REPR_EXTRA_ATTRIBUTES: OrderedDict of extra attributes to include
+            (keys are display names, values are attribute names or None to use key)
     """
 
     _REPR_PRIVATE_ATTRIBUTES = False
@@ -94,18 +82,34 @@ class ReprMixin:
     _REPR_ARGUMENTS_IGNORE: set[str] = set()
     _REPR_EXTRA_ATTRIBUTES: OrderedDict[str, Any] = OrderedDict()
 
-    def __get_repr_obj(self, name, test_private):
+    def __get_repr_obj(self, name: str, test_private: bool) -> str | None:
+        """
+        Get string representation of attribute.
+
+        Args:
+            name: Attribute name
+            test_private: If True, try private attribute if public not found
+
+        Returns:
+            String representation or None if attribute not found
+        """
         if not hasattr(self, name):
             if test_private and self._REPR_PRIVATE_ATTRIBUTES:
                 name = "_" + name
                 if not hasattr(self, name):
-                    return
+                    return None
             else:
-                return
+                return None
 
         return repr(getattr(self, name))
 
-    def __repr__(self):
+    def __repr__(self) -> str:
+        """
+        Generate string representation of object.
+
+        Returns:
+            String representation in format: ClassName<addr>(args...)
+        """
         args = []
         for name, parameter in inspect.signature(self.__init__).parameters.items():  # type: ignore[misc]
             if parameter.kind == inspect.Parameter.POSITIONAL_ONLY:
