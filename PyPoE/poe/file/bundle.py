@@ -63,6 +63,7 @@ import struct
 from enum import IntEnum
 from io import BytesIO
 from tempfile import TemporaryDirectory
+from typing import Any
 
 # 3rd party
 from fnvhash import fnv1a_64  # type: ignore[import-untyped]
