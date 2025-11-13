@@ -105,7 +105,17 @@ class ItemWikiExporter:
         map_series: Any | None,
         language: str | None = None,
     ) -> str:
-        """Default implementation of format_map_name."""
+        """
+        Default implementation of format_map_name.
+
+        Args:
+            base_item_type: Base item type data
+            map_series: Map series data (optional)
+            language: Language code (optional, unused in default implementation)
+
+        Returns:
+            Formatted map name (defaults to item name)
+        """
         return str(base_item_type["Name"])  # type: ignore[no-any-return]
 
     def export_map_icons(self, parsed_args: Any) -> ExporterResult:

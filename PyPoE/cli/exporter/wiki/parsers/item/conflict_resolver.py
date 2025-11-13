@@ -87,7 +87,16 @@ class ItemConflictResolver:
         return None
 
     def _default_format_map_name(self, base_item_type: Any, map_series: Any | None) -> str:
-        """Default implementation of format_map_name."""
+        """
+        Default implementation of format_map_name.
+
+        Args:
+            base_item_type: Base item type data
+            map_series: Map series data (optional)
+
+        Returns:
+            Formatted map name (defaults to item name)
+        """
         # This should be implemented by the caller or injected
         return str(base_item_type["Name"])  # type: ignore[no-any-return]
 
@@ -96,7 +105,19 @@ class ItemConflictResolver:
         infobox: dict[str, Any],
         base_item_type: Any,
     ) -> str | None:
-        """Resolve conflict for quest items."""
+        """
+        Resolve conflict for quest items.
+
+        Handles special naming for quest items including skill books,
+        descent books, bandit respec items, and firefly items.
+
+        Args:
+            infobox: Infobox dictionary to update
+            base_item_type: Base item type data
+
+        Returns:
+            Resolved name string or None if no special handling needed
+        """
         qid = base_item_type["Id"].replace("Metadata/Items/QuestItems/", "")
         match = re.match(r"(?:SkillBooks|Act[0-9]+)/Book-(?P<id>.*)", qid)
         if match:
@@ -152,7 +173,18 @@ class ItemConflictResolver:
         infobox: dict[str, Any],
         base_item_type: Any,
     ) -> str | None:
-        """Resolve conflict for hideout doodads."""
+        """
+        Resolve conflict for hideout doodads.
+
+        Handles special naming for hideout decorations and totem poles.
+
+        Args:
+            infobox: Infobox dictionary to update
+            base_item_type: Base item type data
+
+        Returns:
+            Resolved name string or None if no special handling needed
+        """
         try:
             ho = self.rr["HideoutDoodads.dat"].index["BaseItemTypesKey"][base_item_type.rowid]
         except KeyError:
@@ -185,7 +217,18 @@ class ItemConflictResolver:
         infobox: dict[str, Any],
         base_item_type: Any,
     ) -> str | None:
-        """Resolve conflict for maps."""
+        """
+        Resolve conflict for maps.
+
+        Handles special naming for maps including legacy maps and map series.
+
+        Args:
+            infobox: Infobox dictionary to update
+            base_item_type: Base item type data
+
+        Returns:
+            Resolved name string with map series information
+        """
         map_id = base_item_type["Id"].replace("Metadata/Items/Maps/", "")
         # Legacy maps
         map_series = None
@@ -209,7 +252,16 @@ class ItemConflictResolver:
         infobox: dict[str, Any],
         base_item_type: Any,
     ) -> str | None:
-        """Resolve conflict for map fragments."""
+        """
+        Resolve conflict for map fragments.
+
+        Args:
+            infobox: Infobox dictionary to update
+            base_item_type: Base item type data
+
+        Returns:
+            Resolved name string
+        """
         return str(base_item_type["Name"])  # type: ignore[no-any-return]
 
     def _resolve_divination_card(
@@ -217,7 +269,16 @@ class ItemConflictResolver:
         infobox: dict[str, Any],
         base_item_type: Any,
     ) -> str | None:
-        """Resolve conflict for divination cards."""
+        """
+        Resolve conflict for divination cards.
+
+        Args:
+            infobox: Infobox dictionary to update
+            base_item_type: Base item type data
+
+        Returns:
+            Resolved name string with item class suffix
+        """
         return "{} ({})".format(
             base_item_type["Name"],
             base_item_type["ItemClassesKey"]["Name"].lower(),
@@ -228,7 +289,16 @@ class ItemConflictResolver:
         infobox: dict[str, Any],
         base_item_type: Any,
     ) -> str | None:
-        """Resolve conflict for labyrinth map items."""
+        """
+        Resolve conflict for labyrinth map items.
+
+        Args:
+            infobox: Infobox dictionary to update
+            base_item_type: Base item type data
+
+        Returns:
+            Resolved name string
+        """
         return str(base_item_type["Name"])  # type: ignore[no-any-return]
 
     def _resolve_misc_map_item(
@@ -236,7 +306,16 @@ class ItemConflictResolver:
         infobox: dict[str, Any],
         base_item_type: Any,
     ) -> str | None:
-        """Resolve conflict for misc map items."""
+        """
+        Resolve conflict for misc map items.
+
+        Args:
+            infobox: Infobox dictionary to update
+            base_item_type: Base item type data
+
+        Returns:
+            Resolved name string
+        """
         return str(base_item_type["Name"])  # type: ignore[no-any-return]
 
     def _resolve_delve_socketable_currency(
@@ -244,7 +323,16 @@ class ItemConflictResolver:
         infobox: dict[str, Any],
         base_item_type: Any,
     ) -> str | None:
-        """Resolve conflict for delve socketable currency."""
+        """
+        Resolve conflict for delve socketable currency.
+
+        Args:
+            infobox: Infobox dictionary to update
+            base_item_type: Base item type data
+
+        Returns:
+            None (no special handling needed)
+        """
         return None
 
     def _resolve_delve_stackable_socketable_currency(
@@ -252,7 +340,16 @@ class ItemConflictResolver:
         infobox: dict[str, Any],
         base_item_type: Any,
     ) -> str | None:
-        """Resolve conflict for delve stackable socketable currency."""
+        """
+        Resolve conflict for delve stackable socketable currency.
+
+        Args:
+            infobox: Infobox dictionary to update
+            base_item_type: Base item type data
+
+        Returns:
+            Resolved name string
+        """
         return str(base_item_type["Name"])  # type: ignore[no-any-return]
 
     def _resolve_atlas_region_upgrade(
@@ -260,7 +357,16 @@ class ItemConflictResolver:
         infobox: dict[str, Any],
         base_item_type: Any,
     ) -> str | None:
-        """Resolve conflict for atlas region upgrade items."""
+        """
+        Resolve conflict for atlas region upgrade items.
+
+        Args:
+            infobox: Infobox dictionary to update
+            base_item_type: Base item type data
+
+        Returns:
+            Resolved name string
+        """
         return str(base_item_type["Name"])  # type: ignore[no-any-return]
 
     def _resolve_active_skill_gems(
@@ -268,7 +374,16 @@ class ItemConflictResolver:
         infobox: dict[str, Any],
         base_item_type: Any,
     ) -> str | None:
-        """Resolve conflict for active skill gems."""
+        """
+        Resolve conflict for active skill gems.
+
+        Args:
+            infobox: Infobox dictionary to update
+            base_item_type: Base item type data
+
+        Returns:
+            None (no special handling needed)
+        """
         # Implementation from ConflictsMixin (if exists)
         return None
 

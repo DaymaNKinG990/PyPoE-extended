@@ -95,12 +95,13 @@ class PatchProtocolParser:
         """
         Extract variable length string from data stream.
 
-        String length is first byte of data.
+        String length is first byte of data. String is encoded as UTF-16.
 
-        Returns
-        -------
-        str
+        Returns:
             Extracted variable length string
+
+        Raises:
+            EOFError: If the TCP stream ends unexpectedly
         """
         # First bytes tells length of string
         varchar_length = struct.unpack("B", self.read(1))[0]
