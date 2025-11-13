@@ -30,6 +30,7 @@ See PyPoE/LICENSE
 # =============================================================================
 
 # Python
+from typing import Any
 
 # self
 from PyPoE.cli.core import Msg, console
@@ -75,7 +76,16 @@ class DatExportHandler:
             default=None,
         )
 
-    def handle(self, args):
+    def handle(self, args: Any) -> None:
+        """
+        Handle DAT export command.
+
+        Validates and processes file list, loads specifications,
+        and prepares arguments for export operations.
+
+        Args:
+            args: Parsed command-line arguments
+        """
         ver = config.get_option("version")
 
         if ver != VERSION.DEFAULT:
@@ -107,7 +117,20 @@ class DatExportHandler:
 
         args.spec = spec
 
-    def _read_dat_files(self, args, prefix=""):
+    def _read_dat_files(self, args: Any, prefix: str = "") -> dict[str, Any]:
+        """
+        Read DAT files from file system.
+
+        Loads DAT files from the game's file system, handling language
+        subdirectories and missing files gracefully.
+
+        Args:
+            args: Parsed command-line arguments
+            prefix: Prefix for console messages
+
+        Returns:
+            Dictionary mapping file names to DatFile instances
+        """
         path = get_content_path()
 
         console(prefix + "Loading file system...")

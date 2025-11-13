@@ -65,21 +65,56 @@ __all__ = [
 
 class BaseHandler:
     """
-    Other handlers should inherit this one.
+    Base class for CLI command handlers.
+
+    Provides common functionality for command handlers including
+    help display, error handling, and output formatting.
     """
 
-    def __init__(self, sub_parser, *args, **kwargs):
+    def __init__(self, sub_parser: Any, *args: Any, **kwargs: Any) -> None:
+        """
+        Initialize base handler.
+
+        Args:
+            sub_parser: Argument parser subparser
+            *args: Additional positional arguments (unused)
+            **kwargs: Additional keyword arguments (unused)
+        """
         pass
 
-    def _help(self, *args):
+    def _help(self, *args: Any) -> int:
+        """
+        Display help message.
+
+        Args:
+            *args: Additional arguments (unused)
+
+        Returns:
+            Exit code (0 for success)
+        """
         self.parser.print_help()  # type: ignore[attr-defined]
         return 0
 
-    def _show_error(self, e):
+    def _show_error(self, e: Exception) -> int:
+        """
+        Display error message.
+
+        Args:
+            e: Exception to display
+
+        Returns:
+            Exit code (-1 for error)
+        """
         console("{}: {}".format(e.__class__.__name__, "".join(e.args)), msg=Msg.error)
         return -1
 
-    def print_sep(self, char="-"):
+    def print_sep(self, char: str = "-") -> None:
+        """
+        Print separator line.
+
+        Args:
+            char: Character to use for separator (default: "-")
+        """
         console(char * 70)
 
 
