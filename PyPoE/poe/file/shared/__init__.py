@@ -115,6 +115,8 @@ __all__ = [
 
 class ParserError(Exception):
     """
+    Exception raised when general errors related to file parsing occur.
+
     This exception or subclasses of this exception are raised when general
     errors related to the parsing of files occur, such as malformed files.
     """
@@ -124,9 +126,11 @@ class ParserError(Exception):
 
 class ParserWarning(UserWarning):
     """
+    Warning emitted during file parsing when issues are not severe enough to fail.
+
     This warning or subclasses of this warning are emitted when during the
     parsing process there are cases where issues are not severe enough to
-    entirely fail the passing, but could pose serious problems.
+    entirely fail the parsing, but could pose serious problems.
     """
 
     pass
@@ -156,44 +160,42 @@ class AbstractFileReadOnly(ReprMixin):
         :mod:`PyPoE.poe.file.shared.protocols` for Protocol interfaces
     """
 
-    def _read(self, buffer, *args, **kwargs):
+    def _read(self, buffer: BytesIO, *args: Any, **kwargs: Any) -> Any:
         """
-        Parameters
-        ----------
-        buffer : io.BytesIO
-            The file/byte buffer
+        Read file from buffer (abstract method).
+
+        Args:
+            buffer: The file/byte buffer
+            *args: Additional positional arguments
+            **kwargs: Additional keyword arguments
+
+        Returns:
+            Result of the read operation
+
+        Raises:
+            NotImplementedError: Must be implemented by subclasses
         """
         raise NotImplementedError()
 
     def get_read_buffer(
-        self, file_path_or_raw: BytesIO | bytes | str, function: Callable, *args, **kwargs
+        self, file_path_or_raw: BytesIO | bytes | str, function: Callable, *args: Any, **kwargs: Any
     ) -> Any:
         """
-        Will attempt to open the given file_path_or_raw in read mode and pass
-        the buffer to the specified function.
+        Open file_path_or_raw in read mode and pass buffer to function.
+
         The function must accept at least one keyword argument called 'buffer'.
 
-        Parameters
-        ----------
-        file_path_or_raw
-            file path, bytes or buffer to read from
-        function
-            function that will be called with the buffer keyword argument
-        args
-            Additional positional arguments to pass to the specified function
-        kwargs
-            Additional keyword arguments to pass to the specified function
+        Args:
+            file_path_or_raw: File path, bytes or buffer to read from
+            function: Function that will be called with the buffer keyword argument
+            *args: Additional positional arguments to pass to the specified function
+            **kwargs: Additional keyword arguments to pass to the specified function
 
-
-        Returns
-        -------
+        Returns:
             Result of the function
 
-
-        Raises
-        ------
-        TypeError
-            if file_path_or_raw has an invalid type
+        Raises:
+            TypeError: If file_path_or_raw has an invalid type
         """
         if isinstance(file_path_or_raw, BytesIO):
             return function(*args, buffer=file_path_or_raw, **kwargs)
@@ -205,37 +207,27 @@ class AbstractFileReadOnly(ReprMixin):
         else:
             raise TypeError("file_path_or_raw must be a file path or bytes object")
 
-    def read(self, file_path_or_raw: BytesIO | bytes | str, *args, **kwargs) -> Any:
+    def read(self, file_path_or_raw: BytesIO | bytes | str, *args: Any, **kwargs: Any) -> Any:
         """
+        Read file contents from specified path or buffer.
+
         Reads the file contents into the specified path or buffer. This will
         also reset any existing contents of the file.
 
         If a buffer or bytes was given, the data will be read from the buffer
-        or bytes object.
+        or bytes object. If a file path was given, the resulting data will be
+        read from the specified file.
 
-        If a file path was given, the resulting data will be read from the
-        specified file.
+        Args:
+            file_path_or_raw: File path, bytes or buffer to read from
+            *args: Additional positional arguments
+            **kwargs: Additional keyword arguments
 
-        Parameters
-        ----------
-        file_path_or_raw
-            file path, bytes or buffer to read from
-        args
-            Additional positional arguments
-        kwargs
-            Additional keyword arguments
+        Returns:
+            Result of the read operation, if any
 
-
-        Returns
-        -------
-        object
-            result of the read operation, if any
-
-
-        Raises
-        ------
-        TypeError
-            if file_path_or_raw has an invalid type
+        Raises:
+            TypeError: If file_path_or_raw has an invalid type
         """
         return self.get_read_buffer(file_path_or_raw, self._read, *args, **kwargs)
 
@@ -259,43 +251,42 @@ class AbstractFile(AbstractFileReadOnly):
         :mod:`PyPoE.poe.file.shared.protocols` for Protocol interfaces
     """
 
-    def _write(self, buffer, *args, **kwargs):
+    def _write(self, buffer: BytesIO, *args: Any, **kwargs: Any) -> Any:
         """
-        Parameters
-        ----------
-        buffer : io.BytesIO
-            The file/byte buffer
+        Write file to buffer (abstract method).
+
+        Args:
+            buffer: The file/byte buffer
+            *args: Additional positional arguments
+            **kwargs: Additional keyword arguments
+
+        Returns:
+            Result of the write operation
+
+        Raises:
+            NotImplementedError: Must be implemented by subclasses
         """
         raise NotImplementedError()
 
     def get_write_buffer(
-        self, file_path_or_raw: BytesIO | bytes | str, function: Callable, *args, **kwargs
+        self, file_path_or_raw: BytesIO | bytes | str, function: Callable, *args: Any, **kwargs: Any
     ) -> Any:
         """
-        Will attempt to open the given file_path_or_raw in write mode and pass
-        the buffer to the specified function.
+        Open file_path_or_raw in write mode and pass buffer to function.
+
         The function must accept at least one keyword argument called 'buffer'.
 
-        Parameters
-        ----------
-        file_path_or_raw
-            file path, bytes or buffer to write to
-        args
-            Additional positional arguments to pass to the specified function
-        kwargs
-            Additional keyword arguments to pass to the specified function
+        Args:
+            file_path_or_raw: File path, bytes or buffer to write to
+            function: Function that will be called with the buffer keyword argument
+            *args: Additional positional arguments to pass to the specified function
+            **kwargs: Additional keyword arguments to pass to the specified function
 
-
-        Returns
-        -------
-        object
+        Returns:
             Result of the function
 
-
-        Raises
-        ------
-        TypeError
-            if file_path_or_raw has an invalid type
+        Raises:
+            TypeError: If file_path_or_raw has an invalid type
         """
         if isinstance(file_path_or_raw, BytesIO):
             return function(*args, buffer=file_path_or_raw, **kwargs)
@@ -307,41 +298,40 @@ class AbstractFile(AbstractFileReadOnly):
         else:
             raise TypeError("file_path_or_raw must be a file path or bytes object")
 
-    def write(self, file_path_or_raw: BytesIO | bytes | str, *args, **kwargs) -> Any:
+    def write(self, file_path_or_raw: BytesIO | bytes | str, *args: Any, **kwargs: Any) -> Any:
         """
-        Write the contents of file to the specified path or buffer.
+        Write file contents to specified path or buffer.
 
-        If a buffer or bytes was given, a buffer object with the new data should
-        be returned.
-
+        Write the contents of file to the specified path or buffer. If a buffer
+        or bytes was given, a buffer object with the new data should be returned.
         If a file path was given, the resulting data should be written to the
         specified file.
 
-        Parameters
-        ----------
-        file_path_or_raw
-            file path, bytes or buffer to write to
-        args
-            Additional positional arguments
-        kwargs
-            Additional keyword arguments
+        Args:
+            file_path_or_raw: File path, bytes or buffer to write to
+            *args: Additional positional arguments
+            **kwargs: Additional keyword arguments
 
+        Returns:
+            Result of the write operation, if any
 
-        Returns
-        -------
-        object
-            result of the write operation, if any
-
-
-        Raises
-        ------
-        TypeError
-            if file_path_or_raw has an invalid type
+        Raises:
+            TypeError: If file_path_or_raw has an invalid type
         """
         return self.get_write_buffer(file_path_or_raw, self._write, *args, **kwargs)
 
 
 class FILE_SYSTEM_TYPES(IntEnum):
+    """
+    File system types for file system nodes.
+
+    Attributes:
+        ROOT: Root file system type (-1)
+        DISK: Disk file system type (0)
+        BUNDLE: Bundle file system type (1)
+        GGPK: GGPK file system type (2)
+    """
+
     ROOT = -1
     DISK = 0
     BUNDLE = 1
@@ -349,11 +339,31 @@ class FILE_SYSTEM_TYPES(IntEnum):
 
 
 class AbstractFileSystemNode(ReprMixin):
+    """
+    Abstract base class for file system nodes.
+
+    Represents a file or directory in the file system tree structure.
+
+    Attributes:
+        parent: Parent node (None for root)
+        file_system_type: Type of file system (FILE_SYSTEM_TYPES)
+        is_file: True if this is a file, False if directory
+        children: Dictionary of child nodes (keyed by name)
+    """
+
     __slots__ = ["parent", "file_system_type", "is_file", "children"]
 
     def __init__(
-        self, parent: "AbstractFileSystemNode", file_system_type: FILE_SYSTEM_TYPES, is_file: bool
-    ):
+        self, parent: "AbstractFileSystemNode | None", file_system_type: FILE_SYSTEM_TYPES, is_file: bool
+    ) -> None:
+        """
+        Initialize file system node.
+
+        Args:
+            parent: Parent node (None for root)
+            file_system_type: Type of file system (FILE_SYSTEM_TYPES)
+            is_file: True if this is a file, False if directory
+        """
         self.parent: AbstractFileSystemNode = parent
         self.file_system_type: FILE_SYSTEM_TYPES = file_system_type
         self.is_file: bool = is_file
@@ -361,35 +371,28 @@ class AbstractFileSystemNode(ReprMixin):
 
     def __getitem__(self, item: str) -> "AbstractFileSystemNode":
         """
-        Return the the specified file or directory path.
+        Return the specified file or directory path.
 
         The path will accept valid paths for the current operating system,
-        however I suggest using forward slashes ( / ) as they are supported on
+        however forward slashes ( / ) are recommended as they are supported on
         both Windows and Linux.
 
-        Since the each node supports the same syntax, all these calls are
-        equivalent:
+        Since each node supports the same syntax, all these calls are equivalent:
 
-        .. code-block:: python
+        Example:
+            >>> self['directory1']['directory2']['file.ext']
+            >>> self['directory1']['directory2/file.ext']
+            >>> self['directory1/directory2']['file.ext']
+            >>> self['directory1/directory2/file.ext']
 
-            self['directory1']['directory2']['file.ext']
-            self['directory1']['directory2/file.ext']
-            self['directory1/directory2']['file.ext']
-            self['directory1/directory2/file.ext']
+        Args:
+            item: File path or file name
 
-        Parameters
-        ----------
-        item
-            file path or file name
+        Returns:
+            AbstractFileSystemNode of the specified item
 
-        Returns
-        -------
-            returns the :class:`AbstractFileSystemNode` of the specified item
-
-        Raises
-        ------
-        FileNotFoundError
-            if the specified item is not found
+        Raises:
+            FileNotFoundError: If the specified item is not found
         """
         item = item.strip("/\\")
         if not item:
@@ -418,70 +421,72 @@ class AbstractFileSystemNode(ReprMixin):
     @property
     def data(self) -> bytes:
         """
-        Returns the data contained within this object
+        Get data contained within this object.
+
+        Returns:
+            File data as bytes
+
+        Raises:
+            NotImplementedError: Must be implemented by subclasses
         """
         raise NotImplementedError
 
     @property
     def name(self) -> str:
         """
-        Returns the name associated with the stored record.
+        Get name associated with the stored record.
 
-        Returns
-        -------
-            name of the file/directory
+        Returns:
+            Name of the file/directory
+
+        Raises:
+            NotImplementedError: Must be implemented by subclasses
         """
         raise NotImplementedError
 
     @property
     def files(self) -> list["AbstractFileSystemNode"]:
         """
-        Returns a list of nodes which belong to files
+        Get list of child nodes which are files.
 
-        Returns
-        -------
-            list of :class:`AbstractFileSystemNode` instances which reference
-            a file
+        Returns:
+            List of AbstractFileSystemNode instances which reference a file
         """
         return [child for child in self.children.values() if child.is_file]
 
     @property
     def directories(self) -> list["AbstractFileSystemNode"]:
         """
-        Returns a list of nodes which belong to directories
+        Get list of child nodes which are directories.
 
-        Returns
-        -------
-            list of :class:`AbstractFileSystemNode` instances which reference
-            a directory
+        Returns:
+            List of AbstractFileSystemNode instances which reference a directory
         """
         return [child for child in self.children.values() if child.is_directory]
 
     @property
     def is_directory(self) -> bool:
         """
-        Whether this node references a directory or file.
+        Check if this node references a directory.
+
+        Returns:
+            True if this is a directory, False if it's a file
         """
         return not self.is_file
 
     def search(
-        self, regex: re.Pattern, search_files: bool = True, search_directories: bool = True
+        self, regex: re.Pattern[str] | str, search_files: bool = True, search_directories: bool = True
     ) -> list["AbstractFileSystemNode"]:
         """
+        Search for nodes matching the given regex pattern.
 
-        Parameters
-        ----------
-        regex
-            compiled regular expression to use
-        search_files
-            Whether file instances should be searched
-        search_directories
-            Whether directory instances should be searched
+        Args:
+            regex: Compiled regular expression or string pattern to use
+            search_files: Whether file instances should be searched (default: True)
+            search_directories: Whether directory instances should be searched (default: True)
 
-
-        Returns
-        -------
-            List of matching :class:`AbstractFileSystemNode` instances
+        Returns:
+            List of matching AbstractFileSystemNode instances
         """
         if isinstance(regex, str):
             regex = re.compile(regex)
@@ -508,41 +513,33 @@ class AbstractFileSystemNode(ReprMixin):
 
     def get_path(self) -> str:
         """
-        Returns the full path
+        Get the full path from root to this node.
 
-        Returns
-        -------
-            Full path
+        Returns:
+            Full path as a string (using forward slashes)
         """
         return "/".join([n.name for n in self.get_parent(make_list=True)])  # type: ignore[attr-defined]
 
     def get_parent(
         self,
         n: int = -1,
-        stop_at: Union["AbstractFileSystemNode", None] = None,
+        stop_at: "AbstractFileSystemNode | None" = None,
         make_list: bool = False,
-    ) -> "AbstractFileSystemNode":
+    ) -> "AbstractFileSystemNode | list[AbstractFileSystemNode]":
         """
-        Gets the n-th parent or returns root parent if at top level.
+        Get the n-th parent or return root parent if at top level.
+
         Negative values for n will iterate until the root is found.
-
         If the make_list keyword is set to True, a list of Nodes in the
-        following form will be returned:
+        following form will be returned: [n-th parent, (n-1)-th parent, ..., self]
 
-        [n-th parent, (n-1)-th parent, ..., self]
+        Args:
+            n: Up to which depth to go to (default: -1, goes to root)
+            stop_at: AbstractFileSystemNode instance to stop the iteration at
+            make_list: Return a list of AbstractFileSystemNode instances instead of parent
 
-        Parameters
-        ----------
-        n
-            Up to which depth to go to.
-        stop_at
-            :class:`AbstractFileSystemNode` instance to stop the iteration at
-        make_list
-            Return a list of :class:`AbstractFileSystemNode` instances instead of parent
-
-        Returns
-        -------
-            Returns parent or root :class:`AbstractFileSystemNode` instance
+        Returns:
+            Parent or root AbstractFileSystemNode instance, or list if make_list=True
         """
         nodes: list[AbstractFileSystemNode] = []
         node = self

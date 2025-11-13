@@ -66,16 +66,18 @@ __all__ = ["AbstractFileCache"]
 
 class AbstractFileCache(ReprMixin):
     """
-    Attributes
-    ----------
+    Abstract base class for file caches.
 
-    'is_unpacked' : bool
+    Provides caching and lazy loading of file instances from the file system.
 
-    'files' : dict[str, AbstractFileReadOnly]
-        Dictionary of loaded file instances and their related path
+    Attributes:
+        file_system: FileSystem instance
+        files: Dictionary of loaded file instances and their related path
+        instance_options: Options to pass to file's __init__ method
+        read_options: Options to pass to file instance's read method
     """
 
-    FILE_TYPE = None
+    FILE_TYPE: type[AbstractFileReadOnly] | None = None
 
     def __init__(
         self,
@@ -84,30 +86,21 @@ class AbstractFileCache(ReprMixin):
         files_shortcut: bool = True,
         instance_options: dict[str, Any] | None = None,
         read_options: dict[str, Any] | None = None,
-    ):
+    ) -> None:
         """
-        Parameters
-        ----------
-        path_or_file_system
-            The root path (i.e. relative to content.ggpk) where the files are
-            stored or a :class:`PyPoE.poe.file.ggpk.GGPKFile` instance
-        files
-            Iterable of files that will be loaded right away
-        files_shortcut
-            Whether to use the shortcut function, i.e. self.__getitem__
-        instance_options
-            options to pass to the file's __init__ method
-        read_options
-            options to pass to the file instance's read method
+        Initialize file cache.
 
+        Args:
+            path_or_file_system: The root path (relative to content.ggpk) where
+                the files are stored or a FileSystem instance
+            files: Iterable of files that will be loaded right away
+            files_shortcut: Whether to use the shortcut function (self.__getitem__)
+            instance_options: Options to pass to the file's __init__ method
+            read_options: Options to pass to the file instance's read method
 
-        Raises
-        ------
-        TypeError
-            if path_or_ggpk not specified or invalid type
-        ValueError
-            if a :class:`PyPoE.poe.file.ggpk.GGPKFile` was passed, but it was
-            not parsed
+        Raises:
+            TypeError: If path_or_file_system is not specified or invalid type
+            ValueError: If a FileSystem was passed, but it was not properly initialized
         """
 
         self.file_system: FileSystem
@@ -127,62 +120,48 @@ class AbstractFileCache(ReprMixin):
             for file in files:
                 read_func(file)
 
-    def __getitem__(self, item: str) -> Any:
+    def __getitem__(self, item: str) -> IReadable:
         """
-        Shortcut.
+        Shortcut for get_file().
 
-        Equivalent:
+        Equivalent: AbstractFileCache[item] <==> AbstractFileCache.get_file(item)
 
-        * AbstractFileCache[item] <==> AbstractFileCache.read_file(item)
+        Args:
+            item: Item to retrieve
 
-        Parameters
-        ----------
-        item : str
-            item to retrieve
-
-        Returns
-        -------
-        IReadable
-            instance (implements IReadable Protocol)
+        Returns:
+            File instance (implements IReadable Protocol)
         """
         return self.get_file(item)
 
-    def _get_file_instance_args(self, file_name: str, *args, **kwargs) -> dict[str, Any]:
+    def _get_file_instance_args(self, file_name: str, *args: Any, **kwargs: Any) -> dict[str, Any]:
         """
-        Returns a dictionary of keyword arguments to pass to the file's
-        __init__ method upon initial reading.
+        Get dictionary of keyword arguments to pass to file's __init__ method.
 
-        Parameters
-        ----------
-        file_name
-            Name of the file
+        Args:
+            file_name: Name of the file
+            *args: Additional positional arguments (unused)
+            **kwargs: Additional keyword arguments (unused)
 
-
-        Returns
-        -------
-        dict[str, object]
+        Returns:
             Dictionary of keyword arguments
         """
         options = dict(self.instance_options)
         return options
 
-    def _get_read_args(self, file_name: str, *args, **kwargs) -> dict[str, Any]:
+    def _get_read_args(self, file_name: str, *args: Any, **kwargs: Any) -> dict[str, Any]:
         """
-        Returns a dictionary of keyword arguments to pass to the file's
-        read method upon initial reading.
+        Get dictionary of keyword arguments to pass to file's read method.
 
         In particular it sets file_path_or_raw based on how the cache was
         instantiated.
 
-        Parameters
-        ----------
-        file_name :  str
-            Name of the file
+        Args:
+            file_name: Name of the file
+            *args: Additional positional arguments (unused)
+            **kwargs: Additional keyword arguments (unused)
 
-
-        Returns
-        -------
-        dict[str, object]
+        Returns:
             Dictionary of keyword arguments
         """
         options = dict(self.read_options)
