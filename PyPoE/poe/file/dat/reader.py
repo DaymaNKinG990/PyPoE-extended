@@ -203,7 +203,6 @@ class DatReader(ReprMixin):
 
         Yields:
             List of values for each column
-            Values per column
         """
         for ci, _column in enumerate(self.table_columns):
             yield [item[ci] for item in self]
