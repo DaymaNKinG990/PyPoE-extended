@@ -134,11 +134,11 @@ def method_name(self, param: Type) -> ReturnType:
 
 ## 📈 Прогресс
 
-**Текущий прогресс:** ~64% (325/500 docstrings)
+**Текущий прогресс:** ~69% (345/500 docstrings)
 
 **Приоритет 1 (Public API):** 0% (0/150) - большинство уже имеют docstrings
 **Приоритет 2 (Классы/Методы):** 100% (250/250) ✅ ЗАВЕРШЕНО
-**Приоритет 3 (Внутренние):** 30% (75/250) - в процессе
+**Приоритет 3 (Внутренние):** 38% (95/250) - в процессе
   - ✅ BaseParser: 100% (9 методов)
   - ✅ ItemsParser: 100% (12 методов)
   - ✅ SkillParserShared: 100% (3 метода)
@@ -230,6 +230,8 @@ def method_name(self, param: Type) -> ReturnType:
   - ✅ DirectoryRecord: 100% (3 метода)
   - ✅ FileRecord: 100% (5 методов)
   - ✅ FreeRecord: 100% (класс)
+  - ✅ DatRecord: 100% (3 метода)
+  - ✅ DatIndexer: 100% (1 метод)
 
 ---
 
