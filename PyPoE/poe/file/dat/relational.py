@@ -80,12 +80,19 @@ class RelationalReader(AbstractFileCache):
 
     def __getitem__(self, item: str) -> Any:
         """
-        Shortcut that also appends Data/ if missing.
+        Get DAT file reader by name (shortcut method).
 
-        The following calls are equivalent:
+        Automatically appends "Data/" prefix if missing. The following calls
+        are equivalent:
 
         * self['DF.dat'] <==> read_file('Data/DF.dat').reader
         * self['Data/DF.dat'] <==> read_file('Data/DF.dat').reader
+
+        Args:
+            item: File name (with or without "Data/" prefix)
+
+        Returns:
+            DatReader instance for the specified file
         """
         if not item.startswith("Data/"):
             item = "Data/" + self._language + item
@@ -192,24 +199,25 @@ class RelationalReader(AbstractFileCache):
 
     def get_file(self, file_name: str) -> DatFile:
         """
-        Attempts to return a dat file from the cache and if it isn't available,
-        reads it in.
+        Get DAT file from cache or read it if not available.
 
         During the process any relations (i.e. fields that have a "key" to
         other .dat files specified) will be read. This will result in the
         appropriate fields being replaced by the related row.
-        Note that a related row may be "None" if no key was specified in the
-        read dat file.
 
-        Parameters
-        ----------
-        file_name : str
-            The name of the .dat to read. Extension is required.
+        Note:
+            A related row may be "None" if no key was specified in the
+            read dat file.
 
-        Returns
-        -------
-        DatFile
-            Returns the given DatFile instance
+        Args:
+            file_name: The name of the .dat to read (extension is required)
+
+        Returns:
+            DatFile instance with relations processed
+
+        Raises:
+            SpecificationError: If relation processing fails and
+                raise_error_on_missing_relation is True
         """
         if file_name in self.files:
             cached_file = self.files[file_name]
