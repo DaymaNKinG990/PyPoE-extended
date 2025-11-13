@@ -169,20 +169,17 @@ class AbstractFileCache(ReprMixin):
 
         return options
 
-    def _create_instance(self, file_name: str, *args, **kwargs) -> Any:
+    def _create_instance(self, file_name: str, *args: Any, **kwargs: Any) -> AbstractFileReadOnly:
         """
-        Creates a new instance for the given file name
+        Create a new instance for the given file name.
 
-        Parameters
-        ----------
-        file_name :  str
-            Name to the file to pass on
+        Args:
+            file_name: Name of the file
+            *args: Additional positional arguments (unused)
+            **kwargs: Additional keyword arguments (unused)
 
-
-        Returns
-        -------
-
-            File instance
+        Returns:
+            New file instance
         """
         f = self.FILE_TYPE(  # type: ignore[misc]
             **self._get_file_instance_args(file_name=file_name, *args, **kwargs)  # type: ignore[misc]
@@ -190,23 +187,20 @@ class AbstractFileCache(ReprMixin):
         f.read(**self._get_read_args(file_name=file_name, *args, **kwargs))  # type: ignore[misc]
         return f  # type: ignore[no-any-return]
 
-    def get_file(self, file_name: str, *args, **kwargs) -> IReadable:
+    def get_file(self, file_name: str, *args: Any, **kwargs: Any) -> IReadable:
         """
-        Returns the the specified file from the cache.
+        Get the specified file from the cache.
 
         If the file does not exist, read it from the path specified on cache
         creation, add it to the cache and then return it.
 
-        Parameters
-        ----------
-        file_name :  str
-            File to retrieve
+        Args:
+            file_name: File to retrieve
+            *args: Additional positional arguments (unused)
+            **kwargs: Additional keyword arguments (unused)
 
-
-        Returns
-        -------
-        IReadable
-            read file instance (implements IReadable Protocol)
+        Returns:
+            Read file instance (implements IReadable Protocol)
 
         Note:
             Returns IReadable Protocol instead of AbstractFileReadOnly
