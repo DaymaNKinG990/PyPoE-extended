@@ -134,10 +134,10 @@ def method_name(self, param: Type) -> ReturnType:
 
 ## 📈 Прогресс
 
-**Текущий прогресс:** ~20% (100/500 docstrings)
+**Текущий прогресс:** ~26% (130/500 docstrings)
 
 **Приоритет 1 (Public API):** 0% (0/150) - большинство уже имеют docstrings
-**Приоритет 2 (Классы/Методы):** 40% (100/250)
+**Приоритет 2 (Классы/Методы):** 52% (130/250)
   - ✅ BaseParser: 100% (9 методов)
   - ✅ ItemsParser: 100% (12 методов)
   - ✅ SkillParserShared: 100% (3 метода)
@@ -158,6 +158,15 @@ def method_name(self, param: Type) -> ReturnType:
   - ✅ LuaFormatter: 100% (4 метода)
   - ✅ GenericLuaParser: 100% (1 метод)
   - ✅ LuaHandler: 100% (1 метод)
+  - ✅ GGPKViewerMainWindow: 100% (1 метод)
+  - ✅ DatModelShared: 100% (1 метод)
+  - ✅ DatTableModel: 100% (4 метода)
+  - ✅ DatDataModel: 100% (1 метод)
+  - ✅ GGPKModel: 100% (3 метода)
+  - ✅ FileDataManager: 100% (1 метод)
+  - ✅ ContextToolbar: 100% (6 методов)
+  - ✅ CustomOpenAction: 100% (5 методов)
+  - ✅ FileMenu, ViewMenu, MiscMenu: 100% (3 метода)
 **Приоритет 3 (Внутренние):** 0% (0/100)
 
 ---
