@@ -48,7 +48,6 @@ See PyPoE/LICENSE
 # Python
 import sys
 from collections.abc import Iterable
-from typing import Any
 
 # 3rd party
 from configobj import ConfigObj  # type: ignore[import-untyped]

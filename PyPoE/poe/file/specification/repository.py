@@ -19,7 +19,7 @@ from __future__ import annotations
 import json
 import sqlite3
 from pathlib import Path
-from typing import Protocol
+from typing import Any, Protocol
 
 from PyPoE.poe.constants import VERSION
 from PyPoE.poe.file.specification.fields import Field, File, Specification, VirtualField

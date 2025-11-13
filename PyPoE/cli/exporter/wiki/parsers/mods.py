@@ -483,7 +483,7 @@ class ModParser(BaseParser):
                 else:
                     # Fallback: use first value if list, or 0 if not
                     converted_values.append(int(val[0]) if isinstance(val, list) and val else 0)  # type: ignore[arg-type]
-            
+
             t = tf.get_translation(
                 stat_ids, converted_values, full_result=True, lang=config.get_option("language")
             )

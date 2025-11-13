@@ -65,9 +65,6 @@ class DatFile(AbstractFileReadOnly):
         Raises:
             ValueError: If specification is not provided
         """
-        from PyPoE.poe.file.dat.caster import DatCaster
-        from PyPoE.poe.file.dat.indexer import DatIndexer
-        from PyPoE.poe.file.dat.parser import DatParser
 
         # Get specification from kwargs
         specification = kwargs.get("specification")

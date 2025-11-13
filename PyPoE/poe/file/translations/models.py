@@ -37,7 +37,7 @@ from collections import OrderedDict, defaultdict
 from collections.abc import Callable
 from enum import IntEnum
 from string import ascii_letters
-from typing import TYPE_CHECKING, Any, Union
+from typing import TYPE_CHECKING, Any
 
 from PyPoE.poe.file.translations.exceptions import TranslationWarning
 from PyPoE.shared.mixins import ReprMixin

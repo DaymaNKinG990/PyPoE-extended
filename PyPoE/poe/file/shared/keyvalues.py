@@ -86,7 +86,7 @@ import contextlib
 import re
 import warnings
 from collections import OrderedDict, defaultdict
-from typing import Any, Union
+from typing import Any
 
 from PyPoE.poe.file.file_system import FileSystem
 from PyPoE.poe.file.shared import AbstractFile, ParserError, ParserWarning
