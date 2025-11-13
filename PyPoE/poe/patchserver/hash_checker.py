@@ -49,21 +49,9 @@ def node_check_hash(
     Returns:
         List of tuples (node, node_hash, matched) where matched indicates
         if the hash matches the expected value
-    """
-        If set, check folders
-    bufsize : int
-        The size of the buffer to use for computing each hash
 
-    Returns
-    -------
-    list[tuple]
-        List of tuples: (DirectoryNodeExtended, sha256sum, bool)
-        True if folder bytes hash == expected hash
-
-    Raises
-    ------
-    ValueError
-        One of either ggpk or folder_path must be given
+    Raises:
+        ValueError: If neither ggpk nor folder_path is specified, or both are specified
     """
     if bool(folder_path) == bool(ggpk):
         raise ValueError("Must specify either folder_path or ggpk")

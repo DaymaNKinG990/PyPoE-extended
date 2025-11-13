@@ -116,15 +116,12 @@ class PatchProtocolParser:
         """
         Parse file list header from protocol.
 
-        Returns
-        -------
-        tuple[str, int]
+        Returns:
             Tuple of (folder_name, item_count)
 
-        Raises
-        ------
-        KeyError
-            If the patch server sends data not understood
+        Raises:
+            KeyError: If the patch server sends data not understood
+            EOFError: If the TCP stream ends unexpectedly
         """
         query_header = struct.unpack("2s", self.read(2))[0]
         if query_header != PatchProtocolParser._PROTO_HEADER2:
@@ -139,15 +136,12 @@ class PatchProtocolParser:
         """
         Parse a file item from protocol.
 
-        Returns
-        -------
-        tuple[str, int, int]
+        Returns:
             Tuple of (name, size, sha256sum)
 
-        Raises
-        ------
-        KeyError
-            If the patch server sends data not understood
+        Raises:
+            KeyError: If the patch server sends data not understood
+            EOFError: If the TCP stream ends unexpectedly
         """
         header = struct.unpack("2s", self.read(2))[0]
         if header != b"\x00\x00":
@@ -168,15 +162,12 @@ class PatchProtocolParser:
         """
         Parse a directory item from protocol.
 
-        Returns
-        -------
-        tuple[str, int]
+        Returns:
             Tuple of (name, sha256sum)
 
-        Raises
-        ------
-        KeyError
-            If the patch server sends data not understood
+        Raises:
+            KeyError: If the patch server sends data not understood
+            EOFError: If the TCP stream ends unexpectedly
         """
         header = struct.unpack("2s", self.read(2))[0]
         if header != b"\x01\x00":
