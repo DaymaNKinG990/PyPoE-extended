@@ -49,13 +49,24 @@ int32 = 0xFFFFFFFF
 # =============================================================================
 
 
-def murmur2_32(byte_data, seed=DEFAULT_SEED):
+def murmur2_32(byte_data: bytes, seed: int = DEFAULT_SEED) -> int:
     """
-    Creates a murmur2 32 bit integer hash from the given byte_data and seed.
+    Create MurmurHash2 32-bit hash from byte data.
 
-    :param bytes byte_data: the bytes to hash
-    :param int seed: seed to initialize this with
-    :return int: 32 bit hash
+    Pure Python implementation of MurmurHash2 algorithm by Austin Appleby.
+    See: https://code.google.com/p/smhasher/wiki/MurmurHash
+
+    Args:
+        byte_data: Bytes to hash
+        seed: Seed value for hash initialization (default: 0)
+
+    Returns:
+        32-bit hash value
+
+    Example:
+        >>> data = b"hello world"
+        >>> hash_value = murmur2_32(data, seed=0)
+        >>> print(f"Hash: {hash_value}")
     """
 
     length = len(byte_data)
