@@ -543,10 +543,24 @@ class AbstractKeyValueFile(AbstractFile, defaultdict):
 
 
 class AbstractKeyValueFileCache(AbstractFileCache):
+    """Cache for AbstractKeyValueFile instances."""
+
     FILE_TYPE = AbstractKeyValueFile  # type: ignore[assignment]
 
-    @doc(doc=AbstractFileCache._get_file_instance_args)
-    def _get_file_instance_args(self, file_name):
+    def _get_file_instance_args(self, file_name: str, *args: Any, **kwargs: Any) -> dict[str, Any]:
+        """
+        Get dictionary of keyword arguments to pass to file's __init__ method.
+
+        Adds parent_or_file_system from file_system to options.
+
+        Args:
+            file_name: Name of the file
+            *args: Additional positional arguments (unused)
+            **kwargs: Additional keyword arguments (unused)
+
+        Returns:
+            Dictionary of keyword arguments including parent_or_file_system
+        """
         options = super()._get_file_instance_args(file_name)
         options["parent_or_file_system"] = self.file_system
 
