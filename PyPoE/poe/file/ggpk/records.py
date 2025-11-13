@@ -13,6 +13,7 @@ This module contains all record types used in GGPK files:
 import io
 import os
 import struct
+from typing import Any, BinaryIO
 
 from PyPoE.shared.decorators import doc
 from PyPoE.shared.mixins import ReprMixin
@@ -56,73 +57,89 @@ class BaseRecord(ReprMixin):
     """
     Base class for all GGPK record types.
 
-    Attributes
-    ----------
-    _container : GGPKFile
-        Parent GGPKFile
-    length : int
-        Record length
-    offset : int
-        Starting offset in ggpk file
+    Attributes:
+        _container: Parent GGPKFile instance
+        length: Record length in bytes
+        offset: Starting offset in GGPK file
+        tag: Record tag (4 bytes, class attribute)
     """
 
     tag: str | None = None
 
     __slots__ = ["_container", "length", "offset"]
 
-    def __init__(self, container, length, offset):
+    def __init__(self, container: Any, length: int, offset: int) -> None:
+        """
+        Initialize base record.
+
+        Args:
+            container: Parent GGPKFile instance
+            length: Record length in bytes
+            offset: Starting offset in GGPK file
+        """
         self._container = container
         self.length = length
         self.offset = offset
 
-    def read(self, ggpkfile):
+    def read(self, ggpkfile: BinaryIO) -> None:
         """
         Read this record's header from the GGPK file.
 
-        Parameters
-        ----------
-        ggpkfile : BinaryIO
-            GGPK file stream
+        Args:
+            ggpkfile: Binary file stream
         """
         pass
 
-    def write(self, ggpkfile):
+    def write(self, ggpkfile: BinaryIO) -> None:
         """
         Write this record's header to the GGPK file.
 
-        Parameters
-        ----------
-        ggpkfile : BinaryIO
-            GGPK file stream
+        Args:
+            ggpkfile: Binary file stream
         """
         ggpkfile.write(struct.pack("<i", self.length))
         ggpkfile.write(self.tag.encode() if isinstance(self.tag, str) else self.tag)
 
 
 class MixinRecord:
-    """Mixin for records that have a name."""
+    """
+    Mixin for records that have a name.
 
-    def __init__(self, *args, **kwargs):
+    Provides name property with automatic length calculation.
+    """
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        """
+        Initialize mixin record.
+
+        Args:
+            *args: Additional positional arguments
+            **kwargs: Additional keyword arguments
+        """
         super().__init__(*args, **kwargs)
         self._name = ""
         self._name_length = 0
 
     @property
-    def name(self):
+    def name(self) -> str:
         """
-        Returns and sets the name of the file/directory.
+        Get the name of the file/directory.
 
-        If setting, it also takes care of adjusting name_length accordingly.
-
-        Returns
-        -------
-        str
-            name of the file/directory
+        Returns:
+            Name of the file/directory
         """
         return self._name
 
     @name.setter
-    def name(self, name):
+    def name(self, name: str) -> None:
+        """
+        Set the name of the file/directory.
+
+        Automatically adjusts name_length to account for null bytes.
+
+        Args:
+            name: Name to set
+        """
         self._name = name
         # Account for null bytes
         self._name_length = len(name) + 1
@@ -142,10 +159,8 @@ class GGPKRecord(BaseRecord):
     - First is the root directory
     - Second is a FreeRecord
 
-    Attributes
-    ----------
-    offsets : list[int]
-        List of offsets for records
+    Attributes:
+        offsets: List of offsets for records referenced by this record
     """
 
     tag = "GGPK"
@@ -153,7 +168,13 @@ class GGPKRecord(BaseRecord):
     __slots__ = BaseRecord.__slots__.copy() + ["offsets"]
 
     @doc(doc=BaseRecord.read)
-    def read(self, ggpkfile):
+    def read(self, ggpkfile: BinaryIO) -> None:
+        """
+        Read GGPK record from file.
+
+        Args:
+            ggpkfile: Binary file stream
+        """
         # Should be 2, TODO?
         records = struct.unpack("<i", ggpkfile.read(4))[0]
         self.offsets = []
@@ -161,7 +182,13 @@ class GGPKRecord(BaseRecord):
             self.offsets.append(struct.unpack("<q", ggpkfile.read(8))[0])
 
     @doc(doc=BaseRecord.write)
-    def write(self, ggpkfile):
+    def write(self, ggpkfile: BinaryIO) -> None:
+        """
+        Write GGPK record to file.
+
+        Args:
+            ggpkfile: Binary file stream
+        """
         # Write length & tag
         super().write(ggpkfile)
         # Should always be 2
@@ -174,22 +201,21 @@ class DirectoryRecordEntry(ReprMixin):
     """
     Entry within a DirectoryRecord.
 
-    Attributes
-    ----------
-    hash : int
-        murmur2 32bit hash
-    offset : int
-        offset in GGPKFile
+    Represents a single entry in a directory record, containing a hash
+    and offset to the actual record.
+
+    Attributes:
+        hash: Murmur2 32-bit hash
+        offset: Offset in GGPKFile
     """
 
-    def __init__(self, hash, offset):
+    def __init__(self, hash: int, offset: int) -> None:
         """
-        Parameters
-        ----------
-        hash : int
-            murmur2 32bit hash
-        offset : int
-            offset in GGPKFile
+        Initialize directory record entry.
+
+        Args:
+            hash: Murmur2 32-bit hash
+            offset: Offset in GGPKFile
         """
         self.hash = hash
         self.offset = offset
@@ -200,18 +226,12 @@ class DirectoryRecord(MixinRecord, BaseRecord):
     """
     Represents a directory in the virtual GGPKFile file tree.
 
-    Attributes
-    ----------
-    _name : str
-        Name of directory
-    _name_length : int
-        Length of name
-    entries_length : int
-        Number of directory entries
-    hash : bytes
-        SHA256 hash of file contents (32 bytes)
-    entries : list[DirectoryRecordEntry]
-        List of directory entries
+    Attributes:
+        _name: Name of directory
+        _name_length: Length of name (including null terminator)
+        entries_length: Number of directory entries
+        hash: SHA256 hash of directory contents (32 bytes)
+        entries: List of DirectoryRecordEntry instances
     """
 
     tag = "PDIR"
@@ -224,11 +244,24 @@ class DirectoryRecord(MixinRecord, BaseRecord):
         "entries",
     ]
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        """
+        Initialize directory record.
+
+        Args:
+            *args: Additional positional arguments for BaseRecord
+            **kwargs: Additional keyword arguments for BaseRecord
+        """
         super().__init__(*args, **kwargs)
 
     @doc(doc=BaseRecord.read)
-    def read(self, ggpkfile):
+    def read(self, ggpkfile: BinaryIO) -> None:
+        """
+        Read directory record from file.
+
+        Args:
+            ggpkfile: Binary file stream
+        """
         self._name_length = struct.unpack("<i", ggpkfile.read(4))[0]
         self.entries_length = struct.unpack("<i", ggpkfile.read(4))[0]
         self.hash = ggpkfile.read(32)
@@ -246,7 +279,16 @@ class DirectoryRecord(MixinRecord, BaseRecord):
             )
 
     @doc(doc=BaseRecord.write)
-    def write(self, ggpkfile):
+    def write(self, ggpkfile: BinaryIO) -> None:
+        """
+        Write directory record to file.
+
+        Args:
+            ggpkfile: Binary file stream
+
+        Raises:
+            ValueError: If hash is not 32 bytes or entries length mismatch
+        """
         # Error Checking & variable preparation
         if len(self.hash) != 32:
             raise ValueError(f"Hash must be 32 bytes, was {len(self.hash)} bytes")
@@ -272,18 +314,12 @@ class FileRecord(MixinRecord, BaseRecord):
     """
     Represents a file in the virtual GGPKFile file tree.
 
-    Attributes
-    ----------
-    _name : str
-        Name of file
-    _name_length : int
-        Length of name
-    hash : bytes
-        SHA256 hash of file contents (32 bytes)
-    data_start : int
-        starting offset of data
-    data_length : int
-        length of data
+    Attributes:
+        _name: Name of file
+        _name_length: Length of name (including null terminator)
+        hash: SHA256 hash of file contents (32 bytes)
+        data_start: Starting offset of file data
+        data_length: Length of file data in bytes
     """
 
     tag = "FILE"
@@ -296,23 +332,26 @@ class FileRecord(MixinRecord, BaseRecord):
         "data_length",
     ]
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        """
+        Initialize file record.
+
+        Args:
+            *args: Additional positional arguments for BaseRecord
+            **kwargs: Additional keyword arguments for BaseRecord
+        """
         super().__init__(*args, **kwargs)
 
-    def extract(self, buffer=None):
+    def extract(self, buffer: BinaryIO | None = None) -> io.BytesIO:
         """
-        Extracts this file contents into a memory file object.
+        Extract this file contents into a memory file object.
 
-        Parameters
-        ----------
-        buffer : io.BytesIO or None
-            GGPKFile Buffer to use; if None, open the parent GGPKFile and use
-            it as buffer.
+        Args:
+            buffer: GGPKFile buffer to use; if None, opens the parent
+                GGPKFile and uses it as buffer
 
-        Returns
-        -------
-        io.BytesIO
-            memory file buffer object
+        Returns:
+            BytesIO memory file buffer object containing file data
         """
         if buffer is None:
             return self._container.get_read_buffer(
@@ -328,16 +367,13 @@ class FileRecord(MixinRecord, BaseRecord):
         memfile.seek(0)
         return memfile
 
-    def extract_to(self, directory, name=None):
+    def extract_to(self, directory: str, name: str | None = None) -> None:
         """
-        Extracts the file to the given directory.
+        Extract the file to the given directory.
 
-        Parameters
-        ----------
-        directory : str
-            the directory to extract the file to
-        name : str or None
-            the name of the file; if None use the file name as in the record.
+        Args:
+            directory: The directory to extract the file to
+            name: The name of the file; if None, uses the file name as in the record
         """
         name = self._name if name is None else name
         path = os.path.join(directory, name)
@@ -346,7 +382,13 @@ class FileRecord(MixinRecord, BaseRecord):
             exfile.write(self.extract().read())
 
     @doc(doc=BaseRecord.read)
-    def read(self, ggpkfile):
+    def read(self, ggpkfile: BinaryIO) -> None:
+        """
+        Read file record from file.
+
+        Args:
+            ggpkfile: Binary file stream
+        """
         self._name_length = struct.unpack("<i", ggpkfile.read(4))[0]
         self.hash = ggpkfile.read(32)
         # UTF-16 2-byte width
@@ -360,7 +402,16 @@ class FileRecord(MixinRecord, BaseRecord):
         ggpkfile.seek(self.data_length, os.SEEK_CUR)
 
     @doc(doc=BaseRecord.write)
-    def write(self, ggpkfile):
+    def write(self, ggpkfile: BinaryIO) -> None:
+        """
+        Write file record to file.
+
+        Args:
+            ggpkfile: Binary file stream
+
+        Raises:
+            ValueError: If hash is not 32 bytes
+        """
         # Error checking & variable preparation first
         if len(self.hash) != 32:
             raise ValueError(f"Hash must be 32 bytes, was {len(self.hash)} bytes")
