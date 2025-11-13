@@ -379,8 +379,21 @@ class AbstractKeyValueFile(AbstractFile, defaultdict):
         """
         return f'{self.__class__.__name__}(extends="{self.extends}", version="{self.version}", keys={defaultdict.__repr__(self)}'
 
-    @doc(doc=AbstractFile._read)
-    def _read(self, buffer, *args, **kwargs):
+    def _read(self, buffer: Any, *args: Any, **kwargs: Any) -> None:
+        """
+        Read and parse key-value file from buffer.
+
+        Parses file format, extracts sections and key-value pairs,
+        handles file extension/inheritance.
+
+        Args:
+            buffer: File buffer to read from
+            *args: Additional positional arguments (unused)
+            **kwargs: Additional keyword arguments (unused)
+
+        Raises:
+            ParserError: If file format is invalid or parent file not found
+        """
         data = buffer.read().decode("utf-16")
 
         match = self._re_header.match(data)
@@ -441,8 +454,18 @@ class AbstractKeyValueFile(AbstractFile, defaultdict):
                 )
             self.extends = extend
 
-    @doc(doc=AbstractFile._write)
-    def _write(self, buffer, *args, **kwargs):
+    def _write(self, buffer: Any, *args: Any, **kwargs: Any) -> None:
+        """
+        Write key-value file to buffer.
+
+        Formats sections and key-value pairs into file format,
+        including version and extends header.
+
+        Args:
+            buffer: File buffer to write to
+            *args: Additional positional arguments (unused)
+            **kwargs: Additional keyword arguments (unused)
+        """
         lines = [
             f"version {self.version}",
             'extends "%s"' % (self.extends if self.extends else "nothing"),
