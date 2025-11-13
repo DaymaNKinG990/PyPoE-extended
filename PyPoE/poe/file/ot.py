@@ -52,6 +52,7 @@ Documentation
 # =============================================================================
 
 # Python
+from typing import Any
 
 # 3rd-party
 
@@ -112,6 +113,17 @@ class StatsKeyValueSection(AbstractKeyValueSection):
 class OTFile(AbstractKeyValueFile):
     """
     Representation of a .ot file.
+
+    .ot files are generally used for server-side settings related to abstract
+    objects. Generally make sure to consider the context of the file when
+    interpreting the contents; there is a chance they're extended or embedded
+    though .dat files and the key/value pairs found are in relevance to the context.
+
+    Usually they're accompanied by .otc files which handle client-side settings.
+
+    Attributes:
+        SECTIONS: Dictionary mapping section names to section classes
+        EXTENSION: File extension (".ot")
     """
 
     SECTIONS = {
@@ -130,7 +142,14 @@ class OTFile(AbstractKeyValueFile):
 
     EXTENSION = ".ot"
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        """
+        Initialize OT file.
+
+        Args:
+            *args: Additional positional arguments for AbstractKeyValueFile
+            **kwargs: Additional keyword arguments for AbstractKeyValueFile
+        """
         super().__init__(*args, **kwargs)
 
 
@@ -138,6 +157,8 @@ class OTFile(AbstractKeyValueFile):
 class OTFileCache(AbstractKeyValueFileCache):
     """
     Cache for OTFile instances.
+
+    Provides caching and lazy loading of .ot files from the file system.
     """
 
     FILE_TYPE = OTFile
