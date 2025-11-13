@@ -76,43 +76,30 @@ class GraphGroup(ReprMixin):
     Representation of a group in the passive skill tree graph.
 
     Groups are a "circle" in the passive at a given position containing all the
-    relevant nodes.
+    relevant nodes. It is possible that a group only contains one node - this is
+    common for the highway/pathway nodes.
 
-    It is possible that a group only contains one node - this is common for the
-    highway/pathway nodes.
-
-    Parameters
-    ----------
-    x :  float
-        x coordinate in the passive skill tree
-    y :  float
-        y coordinate in the passive skill tree
-    id :  int
-        id (index in list) of the this group
-    nodes : list[GraphGroupNode]
-        list of child :class:`GraphGroupNode` instances
-    flag : bool
-        ?
+    Attributes:
+        x: X coordinate in the passive skill tree
+        y: Y coordinate in the passive skill tree
+        id: ID (index in list) of this group
+        nodes: List of child GraphGroupNode instances
+        flag: Unknown flag value
     """
 
     __slots__ = ["x", "y", "id", "nodes", "flag"]
 
     _REPR_EXTRA_ATTRIBUTES = OrderedDict((("nodes", None),))
 
-    def __init__(self, x, y, id, flag):
+    def __init__(self, x: float, y: float, id: int, flag: bool) -> None:
         """
-        Parameters
-        ----------
-        x :  float
-            x coordinate in the passive skill tree
-        y :  float
-            y coordinate in the passive skill tree
-        id :  int
-            id (index in list) of the this group
-        nodes : list[GraphGroupNode]
-            list of child :class:`GraphGroupNode` instances
-        flag : bool
-            ?
+        Initialize graph group.
+
+        Args:
+            x: X coordinate in the passive skill tree
+            y: Y coordinate in the passive skill tree
+            id: ID (index in list) of this group
+            flag: Unknown flag value
         """
         self.x = x
         self.y = y
@@ -121,25 +108,21 @@ class GraphGroup(ReprMixin):
         self.flag = flag
 
     @property
-    def point(self):
+    def point(self) -> tuple[float, float]:
         """
-        Returns a tuple containing the x and y coordinate.
+        Get point coordinates as tuple.
 
-        Returns
-        -------
-        tuple[int, int]
+        Returns:
             Tuple containing the x and y coordinate
         """
         return self.x, self.y
 
-    def _update_connections(self, dat_reader):
+    def _update_connections(self, dat_reader: Any) -> None:
         """
-        Updates the stored connections using the given dat_reader instance.
+        Update stored connections using the given dat_reader instance.
 
-        Parameters
-        ----------
-        dat_reader: DatReader
-            :class:`PyPoE.poe.file.dat.DatReader` instance
+        Args:
+            dat_reader: DatReader instance to use for updating connections
         """
         for node in self.nodes:
             node._update_connections(dat_reader)
@@ -224,19 +207,29 @@ class PSGFile(AbstractFileReadOnly):
     - IReadable: Provides read() method (inherited from AbstractFileReadOnly)
     - IBufferable: Provides get_read_buffer() method (inherited)
 
-    Parameters
-    ----------
-    _passive_skills : None or DatReader
-        reference to the :class:`PyPoE.poe.file.dat.DatReader` if specified
-    root_passives : list[int] or list[DatRecord]
-        list of root (starting class) passive nodes
-    groups : list[GraphGroup]
-        list of :class:`GraphGroup` instances
+    Attributes:
+        root_passives: List of root (starting class) passive nodes
+        groups: List of GraphGroup instances
+        _passive_skills: Reference to DatReader if specified (None otherwise)
     """
 
     EXTENSION = ".psg"
 
-    def __init__(self, passive_skills_dat_file=None, *args, **kwargs):
+    def __init__(
+        self, passive_skills_dat_file: DatFile | RelationalReader | None = None, *args: Any, **kwargs: Any
+    ) -> None:
+        """
+        Initialize PSG file.
+
+        Args:
+            passive_skills_dat_file: DatFile or RelationalReader instance
+                (optional, for resolving passive skill references)
+            *args: Additional positional arguments for AbstractFileReadOnly
+            **kwargs: Additional keyword arguments for AbstractFileReadOnly
+
+        Raises:
+            ValueError: If passive_skills_dat_file is not a valid type
+        """
         super().__init__(*args, **kwargs)
 
         self.root_passives = []
@@ -258,7 +251,15 @@ class PSGFile(AbstractFileReadOnly):
         if self._passive_skills:
             self._passive_skills.build_index("PassiveSkillGraphId")
 
-    def _read(self, buffer, *args, **kwargs):
+    def _read(self, buffer: Any, *args: Any, **kwargs: Any) -> None:
+        """
+        Read PSG file from buffer.
+
+        Args:
+            buffer: Binary file buffer
+            *args: Additional positional arguments
+            **kwargs: Additional keyword arguments
+        """
         data = buffer.read()
         offset = 0
 
@@ -320,11 +321,23 @@ class PSGFile(AbstractFileReadOnly):
                 group._update_connections(self._passive_skills)
 
     @property
-    def is_read(self):
+    def is_read(self) -> bool:
+        """
+        Check if PSG file has been read.
+
+        Returns:
+            True if file has been read (groups list is not empty)
+        """
         return bool(self.groups)
 
     @property
-    def passive_skills_dat_file(self):
+    def passive_skills_dat_file(self) -> Any:
+        """
+        Get passive skills dat file reader.
+
+        Returns:
+            DatReader instance or None if not specified
+        """
         return self._passive_skills
 
 
