@@ -43,6 +43,25 @@ __all__ = ["WikiCondition"]
 
 
 class WikiCondition:
+    """
+    Base class for wiki condition handlers.
+
+    Handles conditional output in wiki templates by finding and processing
+    template arguments from wiki pages.
+
+    Attributes:
+        COPY_KEYS: Tuple of keys to copy from template arguments
+        COPY_MATCH: Regex pattern for matching keys to copy
+        NAME: Template name (must be set by subclasses)
+        MATCH: Alternative template name to match (optional)
+        INDENT: Number of spaces for indentation (default: 33)
+        ADD_INCLUDE: Whether to add <onlyinclude> tags (default: False)
+        data: Data dictionary for template output
+        cmdargs: Command-line arguments
+        handler: Custom handler function (optional)
+        template_arguments: Parsed template arguments (cached)
+    """
+
     COPY_KEYS = ()
     COPY_MATCH = None
 
@@ -51,14 +70,38 @@ class WikiCondition:
     INDENT = 33
     ADD_INCLUDE = False
 
-    def __init__(self, data, cmdargs, handler=None):
+    def __init__(self, data: dict[str, Any], cmdargs: Any, handler: Any = None) -> None:
+        """
+        Initialize WikiCondition.
+
+        Args:
+            data: Data dictionary for template output
+            cmdargs: Command-line arguments
+            handler: Custom handler function (default: uses _handler)
+        """
         self.data = data
         self.cmdargs = cmdargs
         if handler is None:
             self.handler = self._handler
         self.template_arguments = None
 
-    def __call__(self, *args, **kwargs):
+    def __call__(self, *args: Any, **kwargs: Any) -> str | bool:
+        """
+        Process wiki condition when called.
+
+        Can be used as both a condition checker (returns bool) and a text
+        formatter (returns str) depending on whether page is provided.
+
+        Args:
+            *args: Positional arguments (unused)
+            **kwargs: Keyword arguments, may include:
+                - page: Wiki page object (optional)
+
+        Returns:
+            bool: If page is provided and template found, returns True/False
+            str: If page is provided and template found, returns formatted text
+            str: If page is not provided, returns formatted text
+        """
         page = kwargs.get("page")
 
         if page is not None:
@@ -94,10 +137,25 @@ class WikiCondition:
         else:
             return self.handler(self._get_text())
 
-    def _handler(self, text):
+    def _handler(self, text: str) -> str:
+        """
+        Default handler that returns text unchanged.
+
+        Args:
+            text: Text to process
+
+        Returns:
+            Text unchanged
+        """
         return text
 
-    def _get_text(self):
+    def _get_text(self) -> str:
+        """
+        Get formatted text for template output.
+
+        Returns:
+            Formatted string using format_result_rows
+        """
         return format_result_rows(
             parsed_args=self.cmdargs,
             template_name=self.NAME,

@@ -66,7 +66,13 @@ from PyPoE.shared.config.validator import IntEnumValidator
 # =============================================================================
 
 
-def setup_config():
+def setup_config() -> None:
+    """
+    Setup exporter configuration options and validators.
+
+    Registers validators for version and distributor enums, and adds config
+    options for version, distributor, ggpk_path, and language.
+    """
     config.validator.functions.update(
         {
             "is_version": IntEnumValidator(
@@ -89,9 +95,12 @@ def setup_config():
     )
 
 
-def main():
+def main() -> None:
     """
-    Entry point for the CLI PyPoE exporter
+    Entry point for the CLI PyPoE exporter.
+
+    Sets up argument parser, registers handlers for DAT and Wiki export,
+    configures setup and config handlers, then runs the CLI.
     """
     # Setup
     main_parser = argparse.ArgumentParser()

@@ -52,15 +52,18 @@ __all__ = [
 # =============================================================================
 
 
-def get_content_path():
+def get_content_path() -> str:
     """
-    Returns the path to the current content.ggpk based on the specified
-    config variables for the version & distributor.
+    Get path to the current content.ggpk based on config variables.
 
-    :return: Path of the content ggpk
-    :rtype: str
+    Uses version and distributor from config, or falls back to auto-detection
+    via PoEPath if ggpk_path is not set.
 
-    :raises SetupError: if no valid path was found.
+    Returns:
+        Path to the content.ggpk file
+
+    Raises:
+        SetupError: If no valid path was found
     """
     path = config.get_option("ggpk_path")
     if path == "":
@@ -76,6 +79,18 @@ def get_content_path():
 
 
 def fix_path(path: str) -> str:
+    """
+    Fix Windows path format for use in file systems that don't support colons.
+
+    Replaces colons in Windows absolute paths (e.g., "C:") with underscores
+    after the drive letter.
+
+    Args:
+        path: Path string to fix
+
+    Returns:
+        Fixed path string with colons replaced by underscores (except drive letter)
+    """
     if re.match("[a-zA-Z]:.*", path):
         return path[:2] + re.sub(r":", "_", path[2:])
     else:
