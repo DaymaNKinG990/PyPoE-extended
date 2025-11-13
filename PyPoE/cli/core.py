@@ -78,16 +78,14 @@ __all__ = ["Msg", "OutputHook", "run", "console"]
 
 class Msg(Enum):
     """
-    Used for :py:func`console` function.
+    Message types for console output.
 
-    Parameters
-    ----------
-    default
-        default
-    warning
-        yellow warning message
-    error
-        red error message
+    Used for :py:func:`console` function to specify message styling.
+
+    Attributes:
+        default: Default message style (no special formatting)
+        warning: Yellow warning message style
+        error: Red error message style
     """
 
     default = ""
@@ -98,15 +96,39 @@ class Msg(Enum):
 class OutputHook:
     """
     Warning hook to reformat / restyle warning messages properly.
+
+    Intercepts Python warnings and formats them using the console function
+    with appropriate styling.
     """
 
-    def __init__(self, show_warning):
+    def __init__(self, show_warning: Any) -> None:
+        """
+        Initialize output hook.
+
+        Args:
+            show_warning: Original show_warning function to preserve
+        """
         self._orig_show_warning = show_warning
         self._orig_format_warning = warnings.formatwarning
         warnings.formatwarning = self.format_warning
         warnings.showwarning = self.show_warning
 
-    def format_warning(self, message, category, filename, lineno, line=None):
+    def format_warning(
+        self, message: str, category: type[Warning], filename: str, lineno: int, line: str | None = None
+    ) -> str:
+        """
+        Format warning message with styling.
+
+        Args:
+            message: Warning message text
+            category: Warning category class
+            filename: Source filename
+            lineno: Line number
+            line: Source line (optional)
+
+        Returns:
+            Formatted warning message string
+        """
         kwargs = {
             "message": message,
             "category": category.__name__,
@@ -117,8 +139,14 @@ class OutputHook:
         f = "{filename}:{lineno}:\n{category}: {message}\n".format(**kwargs)
         return console(f, msg=Msg.warning, rtr=True)
 
-    #
-    def show_warning(self, *args, **kwargs):
+    def show_warning(self, *args: Any, **kwargs: Any) -> None:
+        """
+        Show warning using original function.
+
+        Args:
+            *args: Positional arguments for show_warning
+            **kwargs: Keyword arguments for show_warning
+        """
         self._orig_show_warning(*args, **kwargs)
 
 
@@ -127,7 +155,7 @@ class OutputHook:
 # =============================================================================
 
 
-def run(parser, config):
+def run(parser: Any, config: Any) -> None:
     """
     Run the CLI application with the given parser and config.
 
@@ -136,15 +164,12 @@ def run(parser, config):
 
     Saves config and exits the python client.
 
-    .. warning::
-        This function will exist the python client on completion
+    Warning:
+        This function will exit the python client on completion
 
-    Parameters
-    ----------
-    parser : argparse.ArgumentParser
-        assembled argument parser for argument handling
-    config : ConfigHelper
-        config object to use for the CLI application wide config
+    Args:
+        parser: Assembled argument parser for argument handling
+        config: Config object to use for the CLI application wide config
     """
     args = parser.parse_args()
     if hasattr(args, "func"):
@@ -162,25 +187,20 @@ def run(parser, config):
     sys.exit(code)
 
 
-def console(message, msg=Msg.default, rtr=False, raw=False):
+def console(message: str, msg: Msg = Msg.default, rtr: bool = False, raw: bool = False) -> str | None:
     """
-    Send the specified messge to console
+    Send the specified message to console.
 
-    Parameters
-    ----------
-    message : str
-        Message to send
-    msg : Msg
-        Message type
-    rtr : bool
-        Return message instead of printing
-    raw : bool
-        Skip timestamp/colour formatting
+    Formats and prints (or returns) a message with optional styling and timestamp.
 
-    Returns
-    -------
-    None or str
-        if rtr is specified returns formatted message, None otherwise
+    Args:
+        message: Message to send
+        msg: Message type for styling (default: Msg.default)
+        rtr: Return message instead of printing (default: False)
+        raw: Skip timestamp/colour formatting (default: False)
+
+    Returns:
+        Formatted message string if rtr is True, None otherwise
     """
     if raw:
         f = message

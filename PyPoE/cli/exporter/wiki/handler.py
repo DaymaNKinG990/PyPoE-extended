@@ -301,11 +301,45 @@ class WikiHandler:
 
 
 class ExporterHandler(BaseHandler):
-    def __init__(self, *args, **kwargs):
+    """
+    Handler for exporter operations.
+
+    Manages parsing, file writing, and wiki export operations.
+    Provides wrapper functions for common export workflows.
+    """
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        """
+        Initialize exporter handler.
+
+        Args:
+            *args: Additional positional arguments for BaseHandler
+            **kwargs: Additional keyword arguments for BaseHandler
+        """
         super().__init__(*args, **kwargs)
 
-    def get_wrap(self, cls, func, handler, wiki_handler):
-        def wrapper(pargs, *args, **kwargs):
+    def get_wrap(
+        self, cls: type, func: Any, handler: Any, wiki_handler: WikiHandler | None
+    ) -> Any:
+        """
+        Get wrapper function for export operations.
+
+        Creates a wrapper that handles:
+        - Directory validation
+        - Parser initialization
+        - Result processing (print/write)
+        - Wiki export (if enabled)
+
+        Args:
+            cls: Parser class to instantiate
+            func: Function to call for parsing
+            handler: Optional handler function
+            wiki_handler: Optional WikiHandler instance
+
+        Returns:
+            Wrapper function that processes export operations
+        """
+        def wrapper(pargs: Any, *args: Any, **kwargs: Any) -> int:
             # Check outdir, if specified:
             if hasattr(pargs, "outdir") and pargs.outdir:
                 out_dir = pargs.outdir
@@ -366,22 +400,23 @@ class ExporterHandler(BaseHandler):
 
         return wrapper
 
-    def add_default_subparser_filters(self, sub_parser, cls, *args, **kwargs):
+    def add_default_subparser_filters(self, sub_parser: Any, cls: type, *args: Any, **kwargs: Any) -> None:
         """
-        Adds default sub parsers for id, name and rowid.
+        Add default sub parsers for id, name and rowid.
 
-        Parameters
-        ----------
-        sub_parser
-        cls: object
-            Expected to have the methods:
-            by_id    - handling for id based searching
-            by_name  - handling for name based searching
-            by_rowid - handling for rowid based searching
+        Creates subparsers for common filtering operations:
+        - id: Extract via internal IDs
+        - name: Extract via visible names
+        - rowid: Extract via row IDs in primary dat file
 
-        Returns
-        -------
-
+        Args:
+            sub_parser: Argument parser subparser
+            cls: Parser class expected to have methods:
+                - by_id: Handling for ID-based searching
+                - by_name: Handling for name-based searching
+                - by_rowid: Handling for rowid-based searching
+            *args: Additional positional arguments
+            **kwargs: Additional keyword arguments
         """
         # By id
         a_id = sub_parser.add_parser("id", help="Extract via a list of internal ids.")
@@ -425,8 +460,32 @@ class ExporterHandler(BaseHandler):
         )
 
     def add_default_parsers(
-        self, parser, cls, func=None, handler=None, wiki=True, wiki_handler=None
-    ):
+        self,
+        parser: Any,
+        cls: type,
+        func: Any = None,
+        handler: Any = None,
+        wiki: bool = True,
+        wiki_handler: WikiHandler | None = None,
+    ) -> None:
+        """
+        Add default parsers for export operations.
+
+        Sets up common arguments for export commands including output directory,
+        print/write options, and wiki export options.
+
+        Args:
+            parser: Argument parser to add arguments to
+            cls: Parser class
+            func: Function to call for parsing (if handler is None)
+            handler: Optional handler function (if func is None)
+            wiki: Whether to enable wiki export options (default: True)
+            wiki_handler: Optional WikiHandler instance (creates new if None and wiki=True)
+
+        Raises:
+            ValueError: If both func and handler are None
+            TypeError: If wiki_handler is not a WikiHandler instance
+        """
         if handler is None:
             for item in (func,):
                 if item is None:
@@ -457,7 +516,15 @@ class ExporterHandler(BaseHandler):
             action="store_true",
         )
 
-    def add_image_arguments(self, parser):
+    def add_image_arguments(self, parser: Any) -> None:
+        """
+        Add image-related arguments to parser.
+
+        Adds arguments for storing and converting item 2D art images.
+
+        Args:
+            parser: Argument parser to add arguments to
+        """
         parser.add_argument(
             "-im",
             "--store-images",
@@ -476,7 +543,15 @@ class ExporterHandler(BaseHandler):
             dest="convert_images",
         )
 
-    def add_format_argument(self, parser):
+    def add_format_argument(self, parser: Any) -> None:
+        """
+        Add format argument to parser.
+
+        Adds argument for selecting output format (template or module).
+
+        Args:
+            parser: Argument parser to add arguments to
+        """
         parser.add_argument(
             "--format",
             help="Output format",
@@ -486,7 +561,30 @@ class ExporterHandler(BaseHandler):
 
 
 class ExporterResult(list):
-    def add_result(self, text=None, out_file=None, wiki_page=None, wiki_message="", **extra):
+    """
+    Result container for export operations.
+
+    Stores export results including text, output file, wiki page, and metadata.
+    """
+
+    def add_result(
+        self,
+        text: str | None = None,
+        out_file: str | None = None,
+        wiki_page: str | None = None,
+        wiki_message: str = "",
+        **extra: Any,
+    ) -> None:
+        """
+        Add a result entry to the export results.
+
+        Args:
+            text: Text content to export (can be callable)
+            out_file: Output file path
+            wiki_page: Wiki page name (can be string or list of page dicts)
+            wiki_message: Wiki edit message
+            **extra: Additional metadata to include in result
+        """
         data = {
             "text": text,
             "out_file": out_file,
@@ -503,7 +601,16 @@ class ExporterResult(list):
 # =============================================================================
 
 
-def add_parser_arguments(parser):
+def add_parser_arguments(parser: Any) -> None:
+    """
+    Add wiki-related parser arguments.
+
+    Adds command-line arguments for wiki export operations including
+    authentication, dry-run mode, and edit messages.
+
+    Args:
+        parser: Argument parser to add arguments to
+    """
     parser.add_argument(
         "-w",
         "--wiki",
