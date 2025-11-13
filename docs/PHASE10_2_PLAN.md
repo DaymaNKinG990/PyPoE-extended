@@ -134,11 +134,11 @@ def method_name(self, param: Type) -> ReturnType:
 
 ## 📈 Прогресс
 
-**Текущий прогресс:** ~92% (460/500 docstrings)
+**Текущий прогресс:** ~96% (480/500 docstrings)
 
 **Приоритет 1 (Public API):** 100% (150/150) ✅ ЗАВЕРШЕНО
 **Приоритет 2 (Классы/Методы):** 100% (250/250) ✅ ЗАВЕРШЕНО
-**Приоритет 3 (Внутренние):** 80% (200/250) - в процессе
+**Приоритет 3 (Внутренние):** 88% (220/250) - в процессе
   - ✅ BaseParser: 100% (9 методов)
   - ✅ ItemsParser: 100% (12 методов)
   - ✅ SkillParserShared: 100% (3 метода)
@@ -247,6 +247,7 @@ def method_name(self, param: Type) -> ReturnType:
   - ✅ TranslationFile: 100% (7 методов: _read, __eq__, _add_translation_hashed, copy, merge, get_translation, reverse_translation)
   - ✅ SQLiteSpecRepository: 100% (6 методов: conn, get_spec, get_file_spec, close, __enter__, __exit__)
   - ✅ CachedSpecRepository: 100% (3 метода: __init__, get_spec, get_file_spec, clear_cache)
+  - ✅ Translation models: 100% (30+ методов: Translation, TranslationLanguage, TranslationString, TranslationRange, TranslationQuantifierHandler, TranslationQuantifier, TQReminderString)
 
 ---
 

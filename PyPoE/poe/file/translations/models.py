@@ -349,19 +349,13 @@ class TranslationLanguage(TranslationReprMixin):
 
     def reverse_string(self, string: str) -> list[int] | None:
         """
-        Attempts to find a match for the given string and returns a list of
-        reversed values if a match is found for this language.
+        Find match for given string and return reversed values.
 
-        Parameters
-        ----------
-        string : str
-            String to match against
+        Args:
+            string: String to match against
 
-
-        Returns
-        -------
-        None or list
-            handled list of values or None if not found
+        Returns:
+            List of reversed values if match found, None otherwise
         """
         # TODO: Should only match one at a time. But may be not?
         for ts in self.strings:
@@ -913,7 +907,16 @@ class TranslationQuantifierHandler(TranslationReprMixin):
         """
         cls.regex = re.compile(r"({})(?!\_)".format("|".join(cls.handlers.keys())), re.UNICODE)
 
-    def diff(self, other: Any):
+    def diff(self, other: Any) -> None:
+        """
+        Compare this quantifier handler with another and print differences.
+
+        Args:
+            other: Other TranslationQuantifierHandler to compare with
+
+        Raises:
+            TypeError: If other is not a TranslationQuantifierHandler instance
+        """
         if not isinstance(other, TranslationQuantifierHandler):
             raise TypeError
 
