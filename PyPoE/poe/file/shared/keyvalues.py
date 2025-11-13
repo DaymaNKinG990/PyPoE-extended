@@ -124,11 +124,37 @@ class OverriddenKeyWarning(ParserWarning):
 
 
 class AbstractKeyValueSection(dict):
+    """
+    Abstract base class for key-value sections.
+
+    Represents a section in a key-value file format. Handles special key types
+    like APPEND_KEYS (for lists) and ORDERED_HASH_KEYS (for ordered dictionaries).
+
+    Attributes:
+        APPEND_KEYS: Set of keys that should be appended to (list behavior)
+        ORDERED_HASH_KEYS: Set of keys that should use OrderedDict behavior
+        NAME: Default name for this section type
+        parent: Parent AbstractKeyValueFile instance
+        name: Name of this section
+    """
+
     APPEND_KEYS: set[str] = set()
     ORDERED_HASH_KEYS: set[str] = set()
     NAME = ""
 
-    def __init__(self, parent, name=None, *args, **kwargs):
+    def __init__(self, parent: "AbstractKeyValueFile", name: str | None = None, *args: Any, **kwargs: Any) -> None:
+        """
+        Initialize key-value section.
+
+        Args:
+            parent: Parent AbstractKeyValueFile instance
+            name: Name of the section (if None, uses NAME class attribute)
+            *args: Additional positional arguments for dict
+            **kwargs: Additional keyword arguments for dict
+
+        Raises:
+            ParserError: If name is not provided and NAME is empty
+        """
         super().__init__(*args, **kwargs)
         self.parent: AbstractKeyValueFile = parent
         self.name: str
@@ -139,7 +165,14 @@ class AbstractKeyValueSection(dict):
         else:
             raise ParserError("Missing name for section")
 
-    def __setitem__(self, key, value):
+    def __setitem__(self, key: str, value: Any) -> None:
+        """
+        Set item with special handling for APPEND_KEYS and ORDERED_HASH_KEYS.
+
+        Args:
+            key: Key name
+            value: Value to set (handled specially for APPEND_KEYS and ORDERED_HASH_KEYS)
+        """
         # Equals "override" behaviour
         if key in self.ORDERED_HASH_KEYS:
             if not isinstance(value, OrderedDict):
@@ -158,7 +191,20 @@ class AbstractKeyValueSection(dict):
                 ]
         super().__setitem__(key, value)
 
-    def merge(self, other: "AbstractKeyValueSection"):
+    def merge(self, other: "AbstractKeyValueSection") -> None:
+        """
+        Merge another section into this section.
+
+        Handles special merging logic for APPEND_KEYS and ORDERED_HASH_KEYS.
+        Keys in ORDERED_HASH_KEYS are merged into OrderedDict.
+        Keys in APPEND_KEYS are appended to lists.
+
+        Args:
+            other: Another AbstractKeyValueSection to merge from
+
+        Raises:
+            TypeError: If other is not an AbstractKeyValueSection instance
+        """
         if not isinstance(other, AbstractKeyValueSection):
             raise TypeError(
                 f'Other must be a AbstractKeyValuesSection instance, got "{other.__class__.__name__}" '
@@ -200,22 +246,18 @@ class AbstractKeyValueSection(dict):
 
 class AbstractKeyValueFile(AbstractFile, defaultdict):
     """
-    Attributes
-    ----------
-    SECTIONS : dict[AbstractKeyValueSection]
-        Registered sections for this class
-    EXTENSION : str
-        File extension (if any) for this file class
-    _parent_dir : str
+    Abstract base class for key-value files.
 
-    _parent_ggpk : GGPKFile
+    Represents a file in key-value format (e.g., .ot files). Supports file
+    extension/inheritance and section-based structure.
 
-    _parent_file : AbstractKeyValueFile
-
-    version : None or int
-        File format version of the file
-    extends : None or str
-        Whether the file extends another file
+    Attributes:
+        SECTIONS: Dictionary mapping section names to section classes
+        EXTENSION: File extension (if any) for this file class
+        version: File format version number (None if not specified)
+        extends: Name of file this extends (None if not extending)
+        _parent_file: Parent AbstractKeyValueFile instance (if extending)
+        _parent_file_system: Parent FileSystem instance (if using file system)
     """
 
     version: int | None = None
@@ -253,11 +295,23 @@ class AbstractKeyValueFile(AbstractFile, defaultdict):
 
     def __init__(
         self,
-        parent_or_file_system: Union["AbstractKeyValueFile", FileSystem, None] = None,
+        parent_or_file_system: "AbstractKeyValueFile | FileSystem | None" = None,
         version: int | None = None,
         extends: str | None = None,
-        keys=None,
-    ):
+        keys: Any = None,
+    ) -> None:
+        """
+        Initialize key-value file.
+
+        Args:
+            parent_or_file_system: Parent file or file system instance
+            version: File format version number
+            extends: Name of file this extends
+            keys: Default keys for defaultdict
+
+        Raises:
+            TypeError: If parent_or_file_system is of invalid type
+        """
         AbstractFile.__init__(self)
         defaultdict.__init__(self, keys)
 
@@ -278,13 +332,28 @@ class AbstractKeyValueFile(AbstractFile, defaultdict):
     # Properties
     #
     @property
-    def parent_or_file_system(self) -> Union["AbstractKeyValueFile", FileSystem]:
+    def parent_or_file_system(self) -> "AbstractKeyValueFile | FileSystem":
+        """
+        Get parent file or file system.
+
+        Returns:
+            Parent AbstractKeyValueFile or FileSystem instance
+        """
         return self._parent_file or self._parent_file_system  # type: ignore[return-value]
 
     #
     # Special
     #
-    def __missing__(self, key) -> AbstractKeyValueSection:
+    def __missing__(self, key: str) -> AbstractKeyValueSection:
+        """
+        Create section when accessed via dict interface.
+
+        Args:
+            key: Section name
+
+        Returns:
+            New or existing AbstractKeyValueSection instance
+        """
         try:
             self[key] = self.SECTIONS[key](parent=self)
         except KeyError:
@@ -292,10 +361,22 @@ class AbstractKeyValueFile(AbstractFile, defaultdict):
 
         return self[key]  # type: ignore[no-any-return]
 
-    def __delitem__(self, key):
+    def __delitem__(self, key: str) -> None:
+        """
+        Delete item (not implemented).
+
+        Raises:
+            NotImplementedError: Always raised (deletion not supported)
+        """
         raise NotImplementedError()
 
     def __repr__(self) -> str:
+        """
+        Return string representation.
+
+        Returns:
+            String representation of the key-value file
+        """
         return f'{self.__class__.__name__}(extends="{self.extends}", version="{self.version}", keys={defaultdict.__repr__(self)}'
 
     @doc(doc=AbstractFile._read)
