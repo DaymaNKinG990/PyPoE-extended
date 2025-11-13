@@ -410,7 +410,7 @@ class TranslationFile(AbstractFileReadOnly):
         """
 
         if not isinstance(other, TranslationFile):
-            TypeError(f"Wrong type: {type(other)}")
+            raise TypeError(f"Wrong type: {type(other)}")
         self.translations += other.translations
         for trans_id in other.translations_hash:
             for trans in other.translations_hash[trans_id]:
