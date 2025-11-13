@@ -52,13 +52,19 @@ __all__ = []
 
 
 class DatExportHandler:
-    def add_default_arguments(self, parser):
+    """
+    Handler for exporting DAT files.
+
+    Provides command-line interface for exporting DAT files to various formats.
+    Handles file loading, validation, and export operations.
+    """
+
+    def add_default_arguments(self, parser: Any) -> None:
         """
+        Add default command-line arguments for DAT export.
 
-        :param parser:
-        :type parser: argparse.ArgumentParser
-
-        :return:
+        Args:
+            parser: ArgumentParser instance to add arguments to
         """
         parser.set_defaults(func=self.handle)
         parser.add_argument(

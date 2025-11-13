@@ -40,6 +40,7 @@ Documentation
 
 # Python
 import traceback
+from typing import Any
 
 # 3rd Party
 from validate import ValidateError  # type: ignore[import-untyped]
