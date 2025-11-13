@@ -134,11 +134,11 @@ def method_name(self, param: Type) -> ReturnType:
 
 ## 📈 Прогресс
 
-**Текущий прогресс:** ~57% (295/500 docstrings)
+**Текущий прогресс:** ~62% (315/500 docstrings)
 
 **Приоритет 1 (Public API):** 0% (0/150) - большинство уже имеют docstrings
 **Приоритет 2 (Классы/Методы):** 100% (250/250) ✅ ЗАВЕРШЕНО
-**Приоритет 3 (Внутренние):** 18% (45/250) - в процессе
+**Приоритет 3 (Внутренние):** 26% (65/250) - в процессе
   - ✅ BaseParser: 100% (9 методов)
   - ✅ ItemsParser: 100% (12 методов)
   - ✅ SkillParserShared: 100% (3 метода)
@@ -214,6 +214,13 @@ def method_name(self, param: Type) -> ReturnType:
   - ✅ AbstractKeyValueSection: 100% (3 метода)
   - ✅ AbstractKeyValueFile: 100% (5 методов)
   - ✅ WikiHandler: 100% (4 метода)
+  - ✅ ExporterHandler: 100% (6 методов)
+  - ✅ ExporterResult: 100% (1 метод)
+  - ✅ add_parser_arguments: 100% (1 функция)
+  - ✅ Msg: 100% (enum)
+  - ✅ OutputHook: 100% (3 метода)
+  - ✅ run: 100% (1 функция)
+  - ✅ console: 100% (1 функция)
 
 ---
 
