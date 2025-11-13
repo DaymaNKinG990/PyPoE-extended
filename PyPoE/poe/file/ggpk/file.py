@@ -38,12 +38,9 @@ class GGPKFile(AbstractFileReadOnly, metaclass=InheritedDocStringsMeta):
 
     Note: GGPKFile does NOT implement IWritable (read-only file format).
 
-    Attributes
-    ----------
-    directory : DirectoryNode | None
-        Root DirectoryNode instance
-    records : dict[int, BaseRecord]
-        Mapping of offset -> record instances (deprecated, use record_manager)
+    Attributes:
+        directory: Root DirectoryNode instance (None until build_directory() is called)
+        records: Mapping of offset -> record instances (deprecated, use record_manager)
 
     Example:
         >>> ggpk = GGPKFile()
