@@ -28,6 +28,7 @@ See PyPoE/LICENSE
 # =============================================================================
 
 import contextlib
+from typing import Any
 
 from PyPoE.cli.exporter.wiki.parser.utils import find_template, format_result_rows
 

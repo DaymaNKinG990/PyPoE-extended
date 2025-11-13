@@ -29,6 +29,8 @@ See PyPoE/LICENSE
 # Imports
 # =============================================================================
 
+from __future__ import annotations
+
 import re
 import warnings
 from collections import OrderedDict, defaultdict
