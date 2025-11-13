@@ -50,6 +50,7 @@ API for internal use, but still may be useful to work with more directly.
 # Python
 import struct
 from collections import OrderedDict
+from typing import Any
 
 from PyPoE.poe.file.dat import DatFile, RelationalReader
 from PyPoE.poe.file.shared import AbstractFileReadOnly
