@@ -29,6 +29,10 @@ See PyPoE/LICENSE
 # Imports
 # =============================================================================
 
+from __future__ import annotations
+
+from typing import Any
+
 # Default Imports
 from collections import OrderedDict
 from traceback import format_exc
