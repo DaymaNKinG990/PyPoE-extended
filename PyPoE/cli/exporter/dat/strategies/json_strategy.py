@@ -111,10 +111,20 @@ class JsonExportStrategy(ExportStrategy):
         console("Done.")
 
     def get_format_name(self) -> str:
-        """Get format name."""
+        """
+        Get the name of the export format.
+
+        Returns:
+            Format name ("JSON")
+        """
         return "JSON"
 
     def get_file_extension(self) -> str:
-        """Get file extension."""
+        """
+        Get the default file extension for this format.
+
+        Returns:
+            File extension without dot ("json")
+        """
         return "json"
 
