@@ -433,10 +433,11 @@ class FreeRecord(BaseRecord):
     """
     Represents free space in the GGPK file.
 
-    Attributes
-    ----------
-    next_free : int
-        offset of next FreeRecord
+    Free records mark unused space in the GGPK file and can be reused
+    for new records.
+
+    Attributes:
+        next_free: Offset of next FreeRecord in the chain
     """
 
     tag = "FREE"

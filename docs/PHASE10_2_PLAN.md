@@ -223,6 +223,13 @@ def method_name(self, param: Type) -> ReturnType:
   - ✅ console: 100% (1 функция)
   - ✅ ConfigHandler: 100% (5 методов)
   - ✅ SetupHandler: 100% (2 метода)
+  - ✅ BaseRecord: 100% (3 метода)
+  - ✅ MixinRecord: 100% (3 метода)
+  - ✅ GGPKRecord: 100% (2 метода)
+  - ✅ DirectoryRecordEntry: 100% (1 метод)
+  - ✅ DirectoryRecord: 100% (3 метода)
+  - ✅ FileRecord: 100% (5 методов)
+  - ✅ FreeRecord: 100% (класс)
 
 ---
 
