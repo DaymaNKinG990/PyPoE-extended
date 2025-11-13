@@ -63,6 +63,16 @@ class DatValue:
         parent: Union["DatReader", "DatValueType"] | None = None,
         specification: Any = None,
     ) -> None:
+        """
+        Initialize DatValue.
+
+        Args:
+            value: The value held by this DatValue
+            offset: Byte offset in the file (if applicable)
+            size: Size of the value in bytes (if applicable)
+            parent: Parent DatReader or DatValue instance
+            specification: Field specification (if applicable)
+        """
         self.value: Any = value
         self.size: int | None = size
         self.offset: int | None = offset
@@ -71,7 +81,13 @@ class DatValue:
         self.children: list[DatValue] | None = None
         self.child: DatValue | None = None
 
-    def __repr__(self):
+    def __repr__(self) -> str:
+        """
+        Return string representation of DatValue.
+
+        Returns:
+            String representation of the value (recursive for pointers/lists)
+        """
         # TODO: iterative vs recursive?
         if self.is_pointer:
             return repr(self.child)
@@ -80,37 +96,103 @@ class DatValue:
         else:
             return "DatValue(" + repr(self.value) + ")"
 
-    def __lt__(self, other):
+    def __lt__(self, other: Any) -> bool:
+        """
+        Compare DatValue with other value (less than).
+
+        Args:
+            other: Value to compare with
+
+        Returns:
+            True if this value is less than other
+
+        Raises:
+            TypeError: If types are not comparable
+        """
         if not isinstance(other, DatValue):
             return self.get_value() < other
 
         return self.get_value() < other.get_value()
 
-    def __le__(self, other):
+    def __le__(self, other: Any) -> bool:
+        """
+        Compare DatValue with other value (less than or equal).
+
+        Args:
+            other: Value to compare with
+
+        Returns:
+            True if this value is less than or equal to other
+
+        Raises:
+            TypeError: If types are not comparable
+        """
         if not isinstance(other, DatValue):
             return self.get_value() <= other
 
         return self.get_value() <= other.get_value()
 
-    def __eq__(self, other):
+    def __eq__(self, other: Any) -> bool:
+        """
+        Compare DatValue with other value (equal).
+
+        Args:
+            other: Value to compare with
+
+        Returns:
+            True if values are equal
+        """
         if not isinstance(other, DatValue):
             return self.get_value() == other
 
         return self.get_value() == other.get_value()
 
-    def __ne__(self, other):
+    def __ne__(self, other: Any) -> bool:
+        """
+        Compare DatValue with other value (not equal).
+
+        Args:
+            other: Value to compare with
+
+        Returns:
+            True if values are not equal
+        """
         if not isinstance(other, DatValue):
             return self.get_value() != other
 
         return self.get_value() != other.get_value()
 
-    def __gt__(self, other):
+    def __gt__(self, other: Any) -> bool:
+        """
+        Compare DatValue with other value (greater than).
+
+        Args:
+            other: Value to compare with
+
+        Returns:
+            True if this value is greater than other
+
+        Raises:
+            TypeError: If types are not comparable
+        """
         if not isinstance(other, DatValue):
             return self.get_value() > other
 
         return self.get_value() > other.get_value()
 
-    def __ge__(self, other):
+    def __ge__(self, other: Any) -> bool:
+        """
+        Compare DatValue with other value (greater than or equal).
+
+        Args:
+            other: Value to compare with
+
+        Returns:
+            True if this value is greater than or equal to other
+
+        Raises:
+            TypeError: If types are not comparable
+        """
         if not isinstance(other, DatValue):
             return self.get_value() >= other
 

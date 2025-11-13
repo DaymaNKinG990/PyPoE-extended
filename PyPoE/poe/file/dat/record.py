@@ -40,7 +40,20 @@ class DatRecord(list):
         self.parent = parent
         self.rowid = rowid
 
-    def __getitem__(self, item):
+    def __getitem__(self, item: str | int) -> Any:
+        """
+        Get item by column name or index.
+
+        Args:
+            item: Column name (str) or index (int)
+
+        Returns:
+            Value for the column/index
+
+        Raises:
+            KeyError: If column name not found
+            IndexError: If index out of range
+        """
         if isinstance(item, str):
             if item in self.parent.table_columns:
                 value = list.__getitem__(self, self.parent.table_columns[item]["index"])
@@ -57,11 +70,23 @@ class DatRecord(list):
                 raise KeyError(item)
         return list.__getitem__(self, item)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
+        """
+        Return string representation of DatRecord.
+
+        Returns:
+            String representation showing all column values
+        """
         stuff = [f"{{{k}: {self[i]}}}" for i, k in enumerate(self.parent.table_columns)]
         return "[{}]".format(", ".join(stuff))
 
-    def __hash__(self):  # type: ignore[override]
+    def __hash__(self) -> int:  # type: ignore[override]
+        """
+        Return hash of DatRecord.
+
+        Returns:
+            Hash based on file name and rowid
+        """
         return hash((self.parent.file_name, self.rowid))
 
     def iter(self):
