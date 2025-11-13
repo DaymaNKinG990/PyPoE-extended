@@ -64,25 +64,23 @@ __all__ = ["IntEnumValidator", "is_directory", "is_file", "functions"]
 
 class IntEnumValidator:
     """
-    Class to create a dynamic validator for IntEnum classes
+    Validator for IntEnum classes.
+
+    Creates a dynamic validator function for configobj that validates
+    values against an IntEnum class.
     """
 
-    def __init__(self, enum, default=None):
+    def __init__(self, enum: type[IntEnum], default: IntEnum | int | None = None) -> None:
         """
+        Initialize IntEnum validator.
 
-        Parameters
-        ----------
-        enum : :py:class:`enum.IntEnum`
-            base enum class for this validator
-        default : :py:class:`enum.IntEnum` | int | None
-            default attribute of the enum
-        Raises
-        ------
-        TypeError
-            if enum is not an :py:class:`enum.IntEnum` class
-        TypeError
-            if default parameter is of invalid type
+        Args:
+            enum: Base enum class for this validator
+            default: Default attribute of the enum (IntEnum instance, int, or None)
 
+        Raises:
+            TypeError: If enum is not an IntEnum subclass
+            TypeError: If default parameter is of invalid type
         """
         if not issubclass(enum, IntEnum):
             raise TypeError("enum must be an IntEnum subclass")
@@ -98,22 +96,18 @@ class IntEnumValidator:
             raise TypeError("default must be a subtype of default")
         self._default = None
 
-    def _get_enum_from_val(self, value):
+    def _get_enum_from_val(self, value: int | str) -> IntEnum:
         """
-        Parameters
-        ----------
-        value : object
-            the value to pass to the enum class from class creation
+        Get IntEnum instance from value.
 
-        Returns
-        -------
-        IntEnum
-            IntEnum instance based on the class upon class creation
+        Args:
+            value: The value to pass to the enum class
 
-        Raises
-        ------
-        ValidateError
-            if the the value isn't a member of the IntEnum class
+        Returns:
+            IntEnum instance based on the class
+
+        Raises:
+            ValidateError: If the value isn't a member of the IntEnum class
         """
         try:
             return self._enum(value)
@@ -122,22 +116,18 @@ class IntEnumValidator:
                 f"{self._enum.__name__} The value is not accepted by the enum."
             ) from e
 
-    def __call__(self, value):
+    def __call__(self, value: int | str | IntEnum | None) -> IntEnum | None:
         """
-        Parameters
-        ----------
-        value : object
-            The value to validate
+        Validate value against IntEnum.
 
-        Returns
-        -------
-        IntEnum
-            the int enum instance if successfully validated or None
+        Args:
+            value: The value to validate (int, str, IntEnum instance, or None)
 
-        Raises
-        ------
-        ValidateError
-            if the the value can't be validated
+        Returns:
+            IntEnum instance if successfully validated, or default if value is None
+
+        Raises:
+            ValidateError: If the value can't be validated
         """
         if isinstance(value, str):
             try:
@@ -173,7 +163,17 @@ class IntEnumValidator:
 # =============================================================================
 
 
-def _exists(value, exists):
+def _exists(value: str, exists: bool) -> None:
+    """
+    Check if path exists (internal helper).
+
+    Args:
+        value: Path to check
+        exists: Whether path must exist
+
+    Raises:
+        ValidateError: If path doesn't exist when required
+    """
     if not isinstance(exists, bool):
         # Raises VdtTypeError on fail
         exists = is_boolean(exists)
@@ -181,29 +181,24 @@ def _exists(value, exists):
         raise ValidateError(f'Path "{value}" does not exist.')
 
 
-def is_file(value, *args, exists=True, allow_empty=False, **kwargs):
+def is_file(value: str, *args: Any, exists: bool = True, allow_empty: bool = False, **kwargs: Any) -> str:
     """
-    Checks whether the value is a valid file path (and optionally whether it
-    exists).
+    Check whether the value is a valid file path.
 
-    Parameters
-    ----------
-    value : object
-        The value to validate
-    exists : bool
-        whether the file is required to exist to pass the validation check
-    allow_empty : bool
-        whether empty strings are allowed
+    Optionally checks whether the file exists.
 
-    Returns
-    -------
-    IntEnum
-        the int enum instance if successfully validated or None
+    Args:
+        value: The value to validate
+        *args: Additional positional arguments (unused)
+        exists: Whether the file is required to exist to pass validation (default: True)
+        allow_empty: Whether empty strings are allowed (default: False)
+        **kwargs: Additional keyword arguments (unused)
 
-    Raises
-    ------
-    ValidateError
-        if the the value can't be validated
+    Returns:
+        Validated file path string
+
+    Raises:
+        ValidateError: If the value can't be validated or is not a file
     """
     if allow_empty and value == "":
         return ""
@@ -214,29 +209,24 @@ def is_file(value, *args, exists=True, allow_empty=False, **kwargs):
         return value
 
 
-def is_directory(value, *args, exists=True, allow_empty=False, **kwargs):
+def is_directory(value: str, *args: Any, exists: bool = True, allow_empty: bool = False, **kwargs: Any) -> str:
     """
-    Checks whether the value is a valid directory path (and optionally whether
-    it exists).
+    Check whether the value is a valid directory path.
 
-    Parameters
-    ----------
-    value : object
-        The value to validate
-    exists : bool
-        whether the directory is required to exist to pass the validation check
-    allow_empty : bool
-        whether empty strings are allowed
+    Optionally checks whether the directory exists.
 
-    Returns
-    -------
-    IntEnum
-        the int enum instance if successfully validated or None
+    Args:
+        value: The value to validate
+        *args: Additional positional arguments (unused)
+        exists: Whether the directory is required to exist to pass validation (default: True)
+        allow_empty: Whether empty strings are allowed (default: False)
+        **kwargs: Additional keyword arguments (unused)
 
-    Raises
-    ------
-    ValidateError
-        if the the value can't be validated
+    Returns:
+        Validated directory path string
+
+    Raises:
+        ValidateError: If the value can't be validated or is not a directory
     """
     if allow_empty and value == "":
         return ""
