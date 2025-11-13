@@ -71,26 +71,22 @@ __all__ = ["IDTFile", "TextureRecord", "CoordinateRecord"]
 
 class CoordinateRecord(Record):
     """
-    Object that represents a single coordinate with the relevant attributes
+    Object that represents a single coordinate with the relevant attributes.
 
-    Attributes
-    ----------
-    x :  int
-        x-coordinate
-    y :  int
-        y-coordinate
+    Attributes:
+        x: X-coordinate
+        y: Y-coordinate
     """
 
     __slots__ = ["x", "y"]
 
-    def __init__(self, x, y):
+    def __init__(self, x: int, y: int) -> None:
         """
-        Parameters
-        ----------
-        x :  int
-            x-coordinate
-        y :  int
-            y-coordinate
+        Initialize coordinate record.
+
+        Args:
+            x: X-coordinate
+            y: Y-coordinate
         """
         self.x = int(x)
         self.y = int(y)
@@ -98,7 +94,7 @@ class CoordinateRecord(Record):
 
 class CoordinateList(TypedList, metaclass=TypedContainerMeta):
     """
-    A list that only accepts :class:`CoordinateRecord` instances.
+    A list that only accepts CoordinateRecord instances.
     """
 
     ACCEPTED_TYPES = CoordinateRecord  # type: ignore[assignment]
@@ -106,36 +102,26 @@ class CoordinateList(TypedList, metaclass=TypedContainerMeta):
 
 class TextureRecord(Record):
     """
-    Object that represents a single texture with the relevant attributes
+    Object that represents a single texture with the relevant attributes.
 
-    Attributes
-    ----------
-    'name' :  str
-        name (internal path) of the texture
-    'records' : CoordinateList[CoordinateRecord]
-        :class:`CoordinateList` of :class:`CoordinateRecord` instances for this
-        texture.
+    Attributes:
+        name: Name (internal path) of the texture
+        records: CoordinateList of CoordinateRecord instances for this texture
     """
 
     __slots__ = ["name", "records"]
 
-    def __init__(self, name, records=None):
+    def __init__(self, name: str, records: CoordinateList | list | None = None) -> None:
         """
-        Parameters
-        ----------
-        name :  str
-            name (internal path) of the texture
-        records : None or CoordinateList[CoordinateRecord]
-            :class:`CoordinateList` of :class:`CoordinateRecord` instances for
-            this texture. If None, an empty :class:`CoordinateList` will be
-            created.
+        Initialize texture record.
 
-        Raises
-        ------
-        TypeError
-            If records is of invalid type
-        TypeError
-            If the containing types of records are invalid
+        Args:
+            name: Name (internal path) of the texture
+            records: CoordinateList of CoordinateRecord instances for this texture.
+                If None, an empty CoordinateList will be created.
+
+        Raises:
+            TypeError: If records is of invalid type or contains invalid types
         """
         self.name = name
         if records is None:
@@ -159,6 +145,13 @@ class TextureList(TypedList, metaclass=TypedContainerMeta):
 class IDTFile(AbstractFile):
     """
     Encapsulated in-memory representation of .idt files.
+
+    .idt files are generally used to link the inventory texture to an object.
+
+    Attributes:
+        version: File version number
+        image: Image file path
+        records: TextureList of TextureRecord instances
     """
 
     # complete match
@@ -192,26 +185,21 @@ class IDTFile(AbstractFile):
 
     EXTENSION = ".idt"
 
-    def __init__(self, data=None):
+    def __init__(self, data: dict | None = None) -> None:
         """
-        Creates a new IDTFile instance.
+        Create a new IDTFile instance.
 
         Optionally data can be specified to initialize the object in memory
         with the given data. The same can be achieved by simply setting the
-        relevant attributes.
-        Note that :meth:`IDTFile.read` will override any initial data.
+        relevant attributes. Note that read() will override any initial data.
 
-        Parameters
-        ----------
-        data : dict or None
-            Take a dict containing the data to create this object and it's
-            attributes with. The dict should match the structure of the classes
-            attributes and the respective sub attributes.
+        Args:
+            data: Dictionary containing the data to create this object with.
+                The dict should match the structure of the class attributes
+                and the respective sub attributes.
 
-        Raises
-        ------
-        TypeError
-            if dict contains data of invalid types
+        Raises:
+            TypeError: If dict contains data of invalid types
         """
         if data is None:
             self.version = 0
@@ -270,25 +258,21 @@ class IDTFile(AbstractFile):
 
     records = property(fget=_get_records, fset=_set_records)
 
-    def _get_image(self):
+    def _get_image(self) -> str | None:
         """
-        Get image path
+        Get image path.
 
-        Returns
-        -------
-        str
-            image path relative to content.ggpk root
+        Returns:
+            Image path relative to content.ggpk root
         """
         return self._image
 
-    def _set_image(self, value):
+    def _set_image(self, value: str) -> None:
         """
-        Set image path
+        Set image path.
 
-        Parameters
-        ----------
-        value : str
-            image path relative to content.ggpk root
+        Args:
+            value: Image path relative to content.ggpk root
         """
         self._image = value.replace("\\", "/")
 
@@ -296,7 +280,13 @@ class IDTFile(AbstractFile):
 
     # Private
 
-    def _write(self, buffer):
+    def _write(self, buffer: Any) -> None:
+        """
+        Write IDT file to buffer.
+
+        Args:
+            buffer: Binary file buffer to write to
+        """
         out = []
 
         out.append(f"version {self.version}\n")
@@ -312,7 +302,18 @@ class IDTFile(AbstractFile):
 
         buffer.write(codecs.BOM_UTF16_LE + "".join(out).encode("utf-16_le"))
 
-    def _read(self, buffer, *args, **kwargs):
+    def _read(self, buffer: Any, *args: Any, **kwargs: Any) -> None:
+        """
+        Read IDT file from buffer.
+
+        Args:
+            buffer: Binary file buffer to read from
+            *args: Additional positional arguments
+            **kwargs: Additional keyword arguments
+
+        Raises:
+            ParserError: If file format is invalid or malformed
+        """
         # Should detect little endian byte order accordingly and remove the BOM
         data = buffer.read().decode("utf-16")
         match = self._regex_parse.match(data)
