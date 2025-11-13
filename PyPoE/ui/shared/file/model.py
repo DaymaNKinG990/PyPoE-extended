@@ -54,10 +54,27 @@ __all__ = [
 
 class DatModelShared(QAbstractTableModel):
     """
-    TODO: master should be a DatFrame... but circular dependencies
+    Shared base class for DAT file models.
+
+    Provides common functionality for displaying DAT file data in Qt views.
+    Note: master should be a DatFrame, but circular dependencies prevent this.
+
+    Attributes:
+        _dat_file: DatFile instance to display
     """
 
-    def __init__(self, dat_file, *args, **kwargs):
+    def __init__(self, dat_file: Any, *args: Any, **kwargs: Any) -> None:
+        """
+        Initialize shared DAT model.
+
+        Args:
+            dat_file: DatFile instance to display
+            *args: Positional arguments passed to QAbstractTableModel
+            **kwargs: Keyword arguments passed to QAbstractTableModel
+
+        Raises:
+            TypeError: If dat_file is not a DatFile instance
+        """
         QAbstractTableModel.__init__(self, *args, **kwargs)
         if not isinstance(dat_file, DatFile):
             raise TypeError("datfile must be a DatFile instance")
@@ -65,7 +82,23 @@ class DatModelShared(QAbstractTableModel):
 
 
 class DatTableModel(DatModelShared):
-    def __init__(self, *args, **kwargs):
+    """
+    Table model for displaying DAT file data.
+
+    Displays DAT file records in a table format with columns for each field.
+    """
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        """
+        Initialize DAT table model.
+
+        Args:
+            *args: Positional arguments passed to DatModelShared
+            **kwargs: Keyword arguments passed to DatModelShared
+
+        Raises:
+            ValueError: If DatFile.reader is None (file must be read first)
+        """
         DatModelShared.__init__(self, *args, **kwargs)
 
         if self._dat_file.reader is None:
@@ -74,13 +107,41 @@ class DatTableModel(DatModelShared):
             (id, item["section"]) for id, item in self._dat_file.reader.table_columns.items()
         ]
 
-    def rowCount(self, parent=QModelIndex()):
+    def rowCount(self, parent: QModelIndex = QModelIndex()) -> int:
+        """
+        Return number of rows in the model.
+
+        Args:
+            parent: Parent model index (unused for table models)
+
+        Returns:
+            Number of rows (records) in the DAT file
+        """
         return len(self._dat_file.reader.table_data)  # type: ignore[union-attr]
 
-    def columnCount(self, parent=QModelIndex()):
+    def columnCount(self, parent: QModelIndex = QModelIndex()) -> int:
+        """
+        Return number of columns in the model.
+
+        Args:
+            parent: Parent model index (unused for table models)
+
+        Returns:
+            Number of columns (fields + rowid column)
+        """
         return len(self._dat_file.reader.table_columns) + 1  # type: ignore[union-attr]
 
-    def data(self, index, role=Qt.DisplayRole):
+    def data(self, index: QModelIndex, role: int = Qt.DisplayRole) -> Any:
+        """
+        Return data for the given index and role.
+
+        Args:
+            index: Model index
+            role: Data role (DisplayRole, etc.)
+
+        Returns:
+            Data value or None if invalid
+        """
         if not index.isValid():
             return None
         if role != Qt.DisplayRole:
@@ -92,7 +153,18 @@ class DatTableModel(DatModelShared):
         else:
             return self._dat_file.reader.table_data[index.row()][c - 1]  # type: ignore[union-attr]
 
-    def headerData(self, section, orientation, role=Qt.DisplayRole):
+    def headerData(self, section: int, orientation: Qt.Orientation, role: int = Qt.DisplayRole) -> Any:
+        """
+        Return header data for the given section and role.
+
+        Args:
+            section: Section (column) index
+            orientation: Orientation (Horizontal or Vertical)
+            role: Data role (DisplayRole, ToolTipRole, etc.)
+
+        Returns:
+            Header text or None if invalid
+        """
         if orientation != Qt.Horizontal:
             return None
 
@@ -115,7 +187,20 @@ class DatTableModel(DatModelShared):
 
 
 class DatDataModel(DatModelShared):
-    def __init__(self, *args, **kwargs):
+    """
+    Data model for displaying raw DAT file data.
+
+    Shows offset, size, and raw data for each data section in the DAT file.
+    """
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        """
+        Initialize DAT data model.
+
+        Args:
+            *args: Positional arguments passed to DatModelShared
+            **kwargs: Keyword arguments passed to DatModelShared
+        """
         DatModelShared.__init__(self, *args, **kwargs)
         self._sections = [
             (self.tr("Offset\nStart"), self._show_start_offset),

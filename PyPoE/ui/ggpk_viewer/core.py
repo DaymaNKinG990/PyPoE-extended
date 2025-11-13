@@ -66,9 +66,31 @@ from PyPoE.ui.shared.settings import BoolSetting, ComboBoxSetting, SettingFrame
 
 
 class GGPKViewerMainWindow(SharedMainWindow):
+    """
+    Main window for GGPK Viewer application.
+
+    Implements MVVM pattern with ViewModel for business logic separation.
+    Handles UI initialization, signal connections, and user interactions.
+
+    Attributes:
+        viewmodel: GGPKViewModel instance for business logic
+        _file_data_manager: FileDataManager for file handling
+        menu_file: File menu
+        menu_view: View menu
+        menu_misc: Miscellaneous menu
+        context_toolbar: Context toolbar for actions
+    """
+
     NAME = "GGPK Viewer"
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        """
+        Initialize GGPK Viewer main window.
+
+        Args:
+            *args: Positional arguments passed to SharedMainWindow
+            **kwargs: Keyword arguments passed to SharedMainWindow
+        """
         super().__init__(*args, app_name=self.NAME, **kwargs)
 
         self.s_general = GeneralSettingsFrame(parent=self)
