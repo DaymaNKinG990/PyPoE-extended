@@ -28,6 +28,7 @@ See PyPoE/LICENSE
 # =============================================================================
 
 from functools import partial
+from typing import Any
 
 from PyPoE.poe.constants import WORDLISTS
 
