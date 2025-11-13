@@ -134,11 +134,11 @@ def method_name(self, param: Type) -> ReturnType:
 
 ## 📈 Прогресс
 
-**Текущий прогресс:** ~85% (425/500 docstrings)
+**Текущий прогресс:** ~88% (440/500 docstrings)
 
 **Приоритет 1 (Public API):** 100% (150/150) ✅ ЗАВЕРШЕНО
 **Приоритет 2 (Классы/Методы):** 100% (250/250) ✅ ЗАВЕРШЕНО
-**Приоритет 3 (Внутренние):** 70% (175/250) - в процессе
+**Приоритет 3 (Внутренние):** 76% (190/250) - в процессе
   - ✅ BaseParser: 100% (9 методов)
   - ✅ ItemsParser: 100% (12 методов)
   - ✅ SkillParserShared: 100% (3 метода)
@@ -242,6 +242,8 @@ def method_name(self, param: Type) -> ReturnType:
   - ✅ WikiCondition: 100% (4 метода)
   - ✅ Exporter util: 100% (2 функции)
   - ✅ Exporter core: 100% (2 функции)
+  - ✅ DatValue: 100% (10 методов сравнения и инициализации)
+  - ✅ DatRecord: 100% (4 метода: __getitem__, __repr__, __hash__, iter, keys)
 
 ---
 
