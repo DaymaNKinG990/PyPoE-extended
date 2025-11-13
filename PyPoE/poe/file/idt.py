@@ -52,6 +52,7 @@ Internal API
 # Python
 import codecs
 import re
+from typing import Any
 
 from PyPoE.poe.file.shared import AbstractFile, ParserError
 
