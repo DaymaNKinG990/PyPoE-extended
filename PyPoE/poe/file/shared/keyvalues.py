@@ -463,32 +463,48 @@ class AbstractKeyValueFile(AbstractFile, defaultdict):
         buffer.write("\n".join(lines).encode("utf-16le"))
 
     @doc(prepend=AbstractFile.write)
-    def write(self, *args, **kwargs):
+    def write(self, *args: Any, **kwargs: Any) -> Any:
         """
-        Warning
-        -------
+        Write file to path or buffer.
+
+        Warning:
             The current values held by the file instance will be written. This
             means values inherited from parent files will also be written.
+
+        Args:
+            *args: Additional positional arguments (passed to AbstractFile.write)
+            **kwargs: Additional keyword arguments (passed to AbstractFile.write)
+
+        Returns:
+            Result of write operation
         """
         return super().write(*args, **kwargs)
 
-    def _get_write_line(self, key, value):
+    def _get_write_line(self, key: str, value: Any) -> str:
+        """
+        Format a key-value pair for writing.
+
+        Args:
+            key: Key name
+            value: Value to format
+
+        Returns:
+            Formatted line string
+        """
         return f'\t{key} = "{value}"'
 
-    def merge(self, other: "AbstractKeyValueFile"):
+    def merge(self, other: "AbstractKeyValueFile") -> None:
         """
         Merge with other file.
 
-        Parameters
-        ----------
-        other : AbstractKeyValueFile
-            Instance of the other file to merge with
+        Merges sections from another file into this file. If a section exists
+        in both files, the sections are merged using AbstractKeyValueSection.merge().
 
+        Args:
+            other: Instance of the other file to merge with
 
-        Raises
-        ------
-        ValueError
-            if other has a different type then this instance
+        Raises:
+            ValueError: If other has a different type than this instance
         """
         if not isinstance(other, self.__class__):
             raise ValueError(
