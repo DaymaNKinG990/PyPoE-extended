@@ -70,7 +70,20 @@ WIKIS = {
 
 
 class WikiHandler:
-    def add_arguments(self, parser):
+    """
+    Handler for wiki export operations.
+
+    Manages wiki page editing, including authentication, page creation/editing,
+    and error handling with retry logic.
+    """
+
+    def add_arguments(self, parser: Any) -> None:
+        """
+        Add command-line arguments for wiki export.
+
+        Args:
+            parser: ArgumentParser instance to add arguments to
+        """
         add_parser_arguments(parser)
         parser.add_argument(
             "-w-mt",
@@ -99,7 +112,17 @@ class WikiHandler:
             default=0,
         )
 
-    def _error_catcher(self, *args, **kwargs):
+    def _error_catcher(self, *args: Any, **kwargs: Any) -> None:
+        """
+        Catch and retry errors when handling wiki pages.
+
+        Handles APIError and HTTPError exceptions with retry logic.
+        For HTTP 429 (rate limit), waits 30 seconds before retrying.
+
+        Args:
+            *args: Positional arguments passed to handle_page
+            **kwargs: Keyword arguments passed to handle_page
+        """
         fail = 1
         while fail > 0:
             try:
@@ -118,7 +141,17 @@ class WikiHandler:
                     console(f"HTTPError occurred. Retrying - total attempts: {fail}", msg=Msg.error)
                     fail += 1
 
-    def handle_page(self, *a, row):
+    def handle_page(self, *a: Any, row: dict[str, Any]) -> None:
+        """
+        Handle editing a single wiki page.
+
+        Finds the appropriate wiki page, checks conditions, and edits it.
+        Supports multiple page candidates and conditional editing.
+
+        Args:
+            *a: Additional positional arguments (unused)
+            row: Dictionary containing wiki_page, text, wiki_message, and other data
+        """
         if isinstance(row["wiki_page"], str):
             pages = [
                 {"page": row["wiki_page"], "condition": None},
@@ -215,7 +248,20 @@ class WikiHandler:
                 msg=Msg.error,
             )
 
-    def handle(self, *a, mwclient, result, cmdargs, parser):
+    def handle(self, *a: Any, mwclient: Any, result: Any, cmdargs: Any, parser: Any) -> None:
+        """
+        Handle wiki export command.
+
+        Authenticates with wiki, processes results, and edits pages.
+        Supports multi-threaded editing if wiki_threads > 1.
+
+        Args:
+            *a: Additional positional arguments (unused)
+            mwclient: mwclient module
+            result: Iterable of result rows to process
+            cmdargs: Parsed command-line arguments
+            parser: Parser instance
+        """
         # First row is handled separately to prompt the user for his password
         url = WIKIS.get(config.get_option("language"))
         if url is None:
