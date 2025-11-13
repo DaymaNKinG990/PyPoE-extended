@@ -134,10 +134,10 @@ def method_name(self, param: Type) -> ReturnType:
 
 ## 📈 Прогресс
 
-**Текущий прогресс:** ~34% (180/500 docstrings)
+**Текущий прогресс:** ~36% (190/500 docstrings)
 
 **Приоритет 1 (Public API):** 0% (0/150) - большинство уже имеют docstrings
-**Приоритет 2 (Классы/Методы):** 72% (180/250)
+**Приоритет 2 (Классы/Методы):** 76% (190/250)
   - ✅ BaseParser: 100% (9 методов)
   - ✅ ItemsParser: 100% (12 методов)
   - ✅ SkillParserShared: 100% (3 метода)
@@ -181,6 +181,9 @@ def method_name(self, param: Type) -> ReturnType:
   - ✅ murmur2_32: 100% (1 функция)
   - ✅ DatExportHandler: 100% (3 метода)
   - ✅ BaseHandler: 100% (4 метода)
+  - ✅ JSONExportHandler: 100% (2 метода)
+  - ✅ DatFile: 100% (2 метода)
+  - ✅ DatReader: 100% (6 методов)
 **Приоритет 3 (Внутренние):** 0% (0/100)
 
 ---
