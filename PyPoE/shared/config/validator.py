@@ -46,6 +46,7 @@ See PyPoE/LICENSE
 # Python
 import os
 from enum import IntEnum
+from typing import Any
 
 # 3rd Party
 from validate import ValidateError, is_boolean  # type: ignore[import-untyped]
