@@ -134,10 +134,10 @@ def method_name(self, param: Type) -> ReturnType:
 
 ## 📈 Прогресс
 
-**Текущий прогресс:** ~44% (230/500 docstrings)
+**Текущий прогресс:** ~45% (235/500 docstrings)
 
 **Приоритет 1 (Public API):** 0% (0/150) - большинство уже имеют docstrings
-**Приоритет 2 (Классы/Методы):** 92% (230/250)
+**Приоритет 2 (Классы/Методы):** 94% (235/250)
   - ✅ BaseParser: 100% (9 методов)
   - ✅ ItemsParser: 100% (12 методов)
   - ✅ SkillParserShared: 100% (3 метода)
@@ -193,6 +193,8 @@ def method_name(self, param: Type) -> ReturnType:
   - ✅ CoordinateRecord: 100% (1 метод)
   - ✅ TextureRecord: 100% (1 метод)
   - ✅ IDTFile: 100% (7 методов)
+  - ✅ OTFile: 100% (1 метод)
+  - ✅ OTFileCache: 100% (0 методов, класс)
 **Приоритет 3 (Внутренние):** 0% (0/100)
 
 ---
