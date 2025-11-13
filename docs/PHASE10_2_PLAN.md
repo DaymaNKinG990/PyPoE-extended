@@ -134,10 +134,10 @@ def method_name(self, param: Type) -> ReturnType:
 
 ## 📈 Прогресс
 
-**Текущий прогресс:** ~28% (145/500 docstrings)
+**Текущий прогресс:** ~30% (155/500 docstrings)
 
 **Приоритет 1 (Public API):** 0% (0/150) - большинство уже имеют docstrings
-**Приоритет 2 (Классы/Методы):** 58% (145/250)
+**Приоритет 2 (Классы/Методы):** 62% (155/250)
   - ✅ BaseParser: 100% (9 методов)
   - ✅ ItemsParser: 100% (12 методов)
   - ✅ SkillParserShared: 100% (3 метода)
@@ -171,6 +171,9 @@ def method_name(self, param: Type) -> ReturnType:
   - ✅ ItemSocket: 100% (3 метода)
   - ✅ Monster: 100% (5 методов)
   - ✅ MonsterFactory: 100% (2 метода)
+  - ✅ DeprecationDecorator: 100% (2 метода)
+  - ✅ DocStringDecorator: 100% (3 метода)
+  - ✅ ReprMixin: 100% (2 метода)
 **Приоритет 3 (Внутренние):** 0% (0/100)
 
 ---
