@@ -90,7 +90,14 @@ class SQLiteSpecRepository:
 
     @property
     def conn(self) -> sqlite3.Connection:
-        """Lazy database connection."""
+        """
+        Get lazy database connection.
+
+        Creates connection on first access and reuses it.
+
+        Returns:
+            SQLite connection with Row factory
+        """
         if self._conn is None:
             self._conn = sqlite3.connect(self.db_path)
             self._conn.row_factory = sqlite3.Row
@@ -229,17 +236,37 @@ class SQLiteSpecRepository:
             virtual_fields=tuple(virtual_fields) if virtual_fields else None,
         )
 
-    def close(self):
-        """Close database connection."""
+    def close(self) -> None:
+        """
+        Close database connection.
+
+        Safe to call multiple times. Connection will be recreated on next access.
+        """
         if self._conn:
             self._conn.close()
             self._conn = None
             logger.debug("sqlite_connection_closed")
 
-    def __enter__(self):
+    def __enter__(self) -> "SQLiteSpecRepository":
+        """
+        Enter context manager.
+
+        Returns:
+            Self for use in 'with' statement
+        """
         return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    def __exit__(self, exc_type: Any, exc_val: Any, exc_tb: Any) -> None:
+        """
+        Exit context manager.
+
+        Closes database connection automatically.
+
+        Args:
+            exc_type: Exception type (if any)
+            exc_val: Exception value (if any)
+            exc_tb: Exception traceback (if any)
+        """
         self.close()
 
 
@@ -259,14 +286,28 @@ class CachedSpecRepository:
         >>> spec2 = cached_repo.get_spec(VERSION.STABLE)  # From cache
     """
 
-    def __init__(self, repository: SpecificationProvider):
+    def __init__(self, repository: SpecificationProvider) -> None:
+        """
+        Initialize cached repository.
+
+        Args:
+            repository: Underlying specification repository to wrap
+        """
         self._repo = repository
         self._cache: dict[VERSION, Specification] = {}
         self._file_cache: dict[tuple[str, VERSION], File] = {}
         logger.debug("cached_spec_repository_initialized")
 
     def get_spec(self, version: VERSION) -> Specification:
-        """Get specification with caching."""
+        """
+        Get specification with caching.
+
+        Args:
+            version: Game version
+
+        Returns:
+            Cached specification (loaded from DB on first call)
+        """
         if version not in self._cache:
             logger.debug("cache_miss_spec", version=version.name)
             self._cache[version] = self._repo.get_spec(version)
@@ -275,7 +316,16 @@ class CachedSpecRepository:
         return self._cache[version]
 
     def get_file_spec(self, filename: str, version: VERSION) -> File:
-        """Get file specification with caching."""
+        """
+        Get file specification with caching.
+
+        Args:
+            filename: Name of .dat file
+            version: Game version
+
+        Returns:
+            Cached file specification (loaded from DB on first call)
+        """
         key = (filename, version)
         if key not in self._file_cache:
             logger.debug("cache_miss_file", filename=filename, version=version.name)
@@ -284,8 +334,12 @@ class CachedSpecRepository:
             logger.debug("cache_hit_file", filename=filename, version=version.name)
         return self._file_cache[key]
 
-    def clear_cache(self):
-        """Clear all caches."""
+    def clear_cache(self) -> None:
+        """
+        Clear all caches.
+
+        Forces reload of specifications from database on next access.
+        """
         self._cache.clear()
         self._file_cache.clear()
         logger.info("cache_cleared")

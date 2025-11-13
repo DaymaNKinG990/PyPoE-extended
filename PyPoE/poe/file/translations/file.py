@@ -166,7 +166,22 @@ class TranslationFile(AbstractFileReadOnly):
             for path in file_path:
                 self.merge(TranslationFile(path))
 
-    def _read(self, buffer, *args, **kwargs):
+    def _read(self, buffer: Any, *args: Any, **kwargs: Any) -> None:
+        """
+        Read and parse translation file from buffer.
+
+        Parses translation file format, extracting translations, IDs, languages,
+        and strings. Handles includes and headers.
+
+        Args:
+            buffer: File buffer to read from
+            *args: Additional positional arguments (unused)
+            **kwargs: Additional keyword arguments (unused)
+
+        Raises:
+            ValueError: If file structure is invalid
+            ParserError: If translation string is malformed
+        """
         self.translations = []
         data = buffer.read().decode("utf-16")
 
@@ -306,6 +321,15 @@ class TranslationFile(AbstractFileReadOnly):
             match = match_next
 
     def __eq__(self, other: Any) -> bool:
+        """
+        Check equality of TranslationFile instances.
+
+        Args:
+            other: Other object to compare with
+
+        Returns:
+            True if translations and translations_hash are equal
+        """
         if not isinstance(other, TranslationFile):
             return False
 
@@ -315,7 +339,17 @@ class TranslationFile(AbstractFileReadOnly):
 
         return True
 
-    def _add_translation_hashed(self, translation_id, translation):
+    def _add_translation_hashed(self, translation_id: str, translation: Translation) -> None:
+        """
+        Add translation to hash dictionary.
+
+        Handles duplicate IDs by either ignoring identical translations,
+        updating if IDs match, or warning and appending if different.
+
+        Args:
+            translation_id: Translation ID string
+            translation: Translation instance to add
+        """
         if translation_id in self.translations_hash:
             for old_translation in self.translations_hash[translation_id]:
                 # Identical, ignore
@@ -346,16 +380,14 @@ class TranslationFile(AbstractFileReadOnly):
                 translation,
             ]
 
-    def copy(self):
+    def copy(self) -> "TranslationFile":
         """
-        Creates a shallow copy of this TranslationFile.
+        Create a shallow copy of this TranslationFile.
 
-        Note that the same objects will still be referenced.
+        Note that the same translation objects will still be referenced.
 
-        Returns
-        -------
-        :class:`TranslationFile`
-            copy of self
+        Returns:
+            Shallow copy of this TranslationFile
         """
         t = TranslationFile()
         for name in self.__slots__:
@@ -363,19 +395,18 @@ class TranslationFile(AbstractFileReadOnly):
 
         return t
 
-    def merge(self, other: TranslationFile):
+    def merge(self, other: "TranslationFile") -> None:
         """
-        Merges the current translation file with another translation file.
+        Merge the current translation file with another translation file.
 
-        Parameters
-        ----------
-        other : :class:`TranslationFile`
-            other :class:`TranslationFile` object to merge with
+        All translations from other file are added to this file, with
+        duplicate ID handling via _add_translation_hashed.
 
+        Args:
+            other: TranslationFile object to merge with
 
-        Returns
-        -------
-        None
+        Raises:
+            TypeError: If other is not a TranslationFile instance
         """
 
         if not isinstance(other, TranslationFile):
@@ -389,52 +420,29 @@ class TranslationFile(AbstractFileReadOnly):
 
     def get_translation(
         self,
-        tags: list[str],
+        tags: list[str] | str,
         values: list[int] | list[tuple[int, int]],
         lang: str = "English",
         full_result: bool = False,
-        use_placeholder: bool | Callable = False,
+        use_placeholder: bool | Callable[[int], str] = False,
         only_values: bool = False,
     ) -> list[int] | list[str] | TranslationResult:
         """
-        Attempts to retrieve a translation from the loaded translation file for
-        the specified language with the given tags and values.
+        Retrieve translation from loaded translation file.
 
-        Generally the list of values should be the size of the number of tags.
+        Args:
+            tags: List of identifiers for the tags (or single string)
+            values: List of integer values to use for translations. Can also
+                be list of tuples (min, max) for range formatting
+            lang: Language to use (default: "English", falls back if not found)
+            full_result: If True, returns TranslationResult object
+            use_placeholder: If True, uses placeholders (x, y, z) instead of values.
+                If callable, calls with index to get placeholder string
+            only_values: If True, returns only handled values instead of strings
 
-        If instead of the real value a placeholder is desired use_placeholder
-        can be used.
-
-        Parameters
-        ----------
-        tags
-            A list of identifiers for the tags
-        values
-            A list of integer values to use for the translations. It is also
-            possible to use a list of size 2 for each element, which then
-            will be treated as range of acceptable value and formatted
-            accordingly (i.e. (x to y) instead of just x).
-        lang
-            Language to use. If it doesn't exist, English will be used as
-            fallback.
-        full_result
-            If true, a :class:`TranslationResult` object will  be returned
-        use_placeholder
-            If true, Instead of values in the translations a placeholder (i.e.
-            x, y, z) will be used. Values are still required however to find
-            the "correct" wording of the translation.
-            If a callable is specified, it will call the function with
-            the index as first parameter. The callable should return a
-            string to use as placeholder.
-        only_values
-            If true, only the handled values instead of the string are returned
-
-
-        Returns
-        -------
-            Returns a list of found translation strings. The list may be empty
-            if none are found. If full_result is specified, a
-            :class:`TranslationResult` object is returned instead
+        Returns:
+            List of translation strings (or TranslationResult if full_result=True,
+            or list of values if only_values=True). May be empty if none found
         """
         # A single translation might have multiple references
         # I.e. the case for always_freeze
@@ -545,30 +553,24 @@ class TranslationFile(AbstractFileReadOnly):
 
     def reverse_translation(self, string: str, lang: str = "English") -> TranslationReverseResult:
         """
-        Attempt to reverse a translation string and return probable candidates
-        as well as probable values the translation string was used with.
+        Reverse a translation string to find probable candidates and values.
 
-        .. warning::
-            During translation there is a loss of information incurred and
-            there are cases where it might be impossible reconstruct the string.
+        Warning:
+            During translation there is a loss of information, and it may be
+            impossible to reconstruct the original string in some cases.
 
-        .. warning::
-            The method can only work of **exact** translation strings, so
-            minor differences already might result in failure detection. As
-            such strings from previous versions of Path of Exile may not work.
+        Warning:
+            This method only works with **exact** translation strings. Minor
+            differences may result in failure. Strings from previous versions
+            of Path of Exile may not work.
 
-        Parameters
-        ----------
-        string
-            The translation string to reverse
-        lang
-            The language the string is in
+        Args:
+            string: The translation string to reverse
+            lang: The language the string is in (default: "English")
 
-        Returns
-        -------
-        TranslationReverseResult
-            :class:`TranslationReverseResult` instance containing any found
-            translation instances as well as the values.
+        Returns:
+            TranslationReverseResult containing found translation instances
+            and their values
         """
         translations_found = []
         values_found = []
