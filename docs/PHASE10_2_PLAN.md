@@ -134,10 +134,10 @@ def method_name(self, param: Type) -> ReturnType:
 
 ## 📈 Прогресс
 
-**Текущий прогресс:** ~40% (210/500 docstrings)
+**Текущий прогресс:** ~42% (220/500 docstrings)
 
 **Приоритет 1 (Public API):** 0% (0/150) - большинство уже имеют docstrings
-**Приоритет 2 (Классы/Методы):** 84% (210/250)
+**Приоритет 2 (Классы/Методы):** 88% (220/250)
   - ✅ BaseParser: 100% (9 методов)
   - ✅ ItemsParser: 100% (12 методов)
   - ✅ SkillParserShared: 100% (3 метода)
@@ -187,6 +187,9 @@ def method_name(self, param: Type) -> ReturnType:
   - ✅ FileSystemNode: 100% (3 метода)
   - ✅ FileSystem: 100% (2 метода)
   - ✅ Bundle: 100% (4 метода)
+  - ✅ GraphGroup: 100% (3 метода)
+  - ✅ GraphGroupNode: 100% (2 метода)
+  - ✅ PSGFile: 100% (4 метода)
 **Приоритет 3 (Внутренние):** 0% (0/100)
 
 ---
