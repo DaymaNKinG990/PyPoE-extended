@@ -38,16 +38,18 @@ def node_check_hash(
                 node.record.name,
                 matched))
 
-    Parameters
-    ----------
-    directory_node : DirectoryNodeExtended
-        The node to check that folder & files or GGPKFile contents
-        match expected values.
-    folder_path : str, optional
-        File system directory where files to check are located
-    ggpk : GGPKFile, optional
-        GGPK file record
-    recurse : bool
+    Args:
+        directory_node: The node to check that folder & files or GGPKFile contents
+            match expected values
+        folder_path: File system directory where files to check are located
+        ggpk: GGPK file record
+        recurse: If set, recursively check all children
+        bufsize: The size of the buffer to use for computing each hash
+
+    Returns:
+        List of tuples (node, node_hash, matched) where matched indicates
+        if the hash matches the expected value
+    """
         If set, check folders
     bufsize : int
         The size of the buffer to use for computing each hash

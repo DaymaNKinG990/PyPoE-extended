@@ -37,28 +37,21 @@ class PatchDownloader:
         Any intermediate directories for the write paths will be automatically
         created.
 
-        Parameters
-        ----------
-        file_path : str
-            Path of the file relative to the content.ggpk root directory
-        dst_dir : str, optional
-            Write the file to the specified directory.
-            The target directory is seen as the root directory, thus the
-            file will be written according to its ``file_path``
-            Mutually exclusive with the ``dst_file`` argument.
-        dst_file : str, optional
-            Write the file to the specified location.
-            Unlike dst_dir this will ignore any naming conventions from
-            ``file_path``, so for example ``Data/Mods.dat`` could be written to
-            ``C:/HelloWorld.txt``
-            Mutually exclusive with the ``dst_dir`` argument.
+        Args:
+            file_path: Path of the file relative to the content.ggpk root directory
+            dst_dir: Write the file to the specified directory.
+                The target directory is seen as the root directory, thus the
+                file will be written according to its file_path.
+                Mutually exclusive with dst_file argument.
+            dst_file: Write the file to the specified location.
+                Unlike dst_dir this will ignore any naming conventions from
+                file_path, so for example "Data/Mods.dat" could be written to
+                "C:/HelloWorld.txt". Mutually exclusive with dst_dir argument.
 
-        Raises
-        ------
-        ValueError
-            if neither dst_dir or dst_file is set
-        ValueError
-            if the HTTP status code is not 200
+        Raises:
+            ValueError: If neither dst_dir or dst_file is set
+            ValueError: If the HTTP status code is not 200
+            URLError: If connection fails
         """
         if dst_dir:
             write_path = os.path.join(dst_dir, file_path)
@@ -78,22 +71,15 @@ class PatchDownloader:
         """
         Download raw bytes from patch server.
 
-        Parameters
-        ----------
-        file_path : str
-            Path of the file relative to the content.ggpk root directory
+        Args:
+            file_path: Path of the file relative to the content.ggpk root directory
 
-        Returns
-        -------
-        bytes
+        Returns:
             The raw contents of the file in bytes
 
-        Raises
-        ------
-        ValueError
-            if the HTTP status code is not 200 (and it wasn't raised by urllib)
-        URLError
-            if connection fails
+        Raises:
+            ValueError: If the HTTP status code is not 200 (and it wasn't raised by urllib)
+            URLError: If connection fails
         """
         hosts = [self._connection.patch_url]
         for index, host in enumerate(hosts):

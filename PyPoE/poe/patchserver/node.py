@@ -42,14 +42,10 @@ class DirectoryNodeExtended(DirectoryNode):
             dump(dump_dict, file_handle)
             file_handle.close()
 
-        Parameters
-        ----------
-        recurse : bool
-            If set, recursively get all children
+        Args:
+            recurse: If set, recursively get all children
 
-        Returns
-        -------
-        OrderedDict
+        Returns:
             Dictionary representation of directory structure
         """
         record_dict = OrderedDict()
@@ -81,12 +77,9 @@ class DirectoryNodeExtended(DirectoryNode):
         """
         Load directory structure from dict.
 
-        Parameters
-        ----------
-        node_dict : OrderedDict
-            Dictionary representation of directory structure
-        parent : DirectoryNodeExtended, optional
-            Parent node
+        Args:
+            node_dict: Dictionary representation of directory structure
+            parent: Parent node (optional)
         """
         if not isinstance(node_dict, OrderedDict):
             raise TypeError("OrderedDict required")

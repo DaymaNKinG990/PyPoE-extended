@@ -40,20 +40,15 @@ class PatchProtocolParser:
 
         Get and save more data from socket if length not met.
 
-        Parameters
-        ----------
-        read_length : int
-            Length of data to read
+        Args:
+            read_length: Length of data to read
 
-        Returns
-        -------
-        bytes
+        Returns:
             Requested data
 
-        Raises
-        ------
-        EOFError
-            If the TCP stream returned by the patch server ends unexpectedly
+        Raises:
+            EOFError: If the TCP stream returned by the patch server ends unexpectedly
+            ValueError: If socket is not available for reading
         """
         # The amount of data to pull from socket each recv
         # Amount recv will be < network MTU

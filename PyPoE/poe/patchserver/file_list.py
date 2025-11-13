@@ -51,7 +51,7 @@ class PatchFileListBuilder:
         """
         Get file details for folders from the patch server.
 
-        Stores data in :attr:`.directory`.
+        Stores data in directory attribute.
 
         Patchserver works top down:
         PatchFileList().directory.children entries are not known
@@ -62,20 +62,15 @@ class PatchFileListBuilder:
 
         It will return item details for all items in queried directory.
 
-        Parameters
-        ----------
-        folders : list[str]
-            The list of folders to get details for
-            Only one level at a time
+        Args:
+            folders: The list of folders to get details for.
+                Only one level at a time.
 
-        Raises
-        ------
-        ValueError
-            If folders list contains repeated folders
-        ValueError
-            If root is requested alongside additional folders
-        KeyError
-            If the patch server sends data not understood
+        Raises:
+            ValueError: If folders list contains repeated folders
+            ValueError: If root is requested alongside additional folders
+            ValueError: If queried folder is unknown (must traverse top to bottom)
+            KeyError: If the patch server sends data not understood
         """
         if len(set(folders)) != len(folders):
             raise ValueError("folder list contains non unique folder")

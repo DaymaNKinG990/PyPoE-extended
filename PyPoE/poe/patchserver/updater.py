@@ -34,18 +34,12 @@ def node_update_files(
         PyPoE.poe.patchserver.node_update_files(
           patch_file_list, node, poe_dir, recurse=False)
 
-    Parameters
-    ----------
-    patch_file_list : PatchFileList
-        The connection to a patch server
-    directory_node_path : str
-        The path name of the node to update folder & files for.
-    folder_path : str
-        File system directory where files to check are located
-    recurse : bool
-        If set, update all files in directories below directory_node_path
-    bufsize : int
-        The size of the buffer to use for computing each hash
+    Args:
+        patch_file_list: The connection to a patch server
+        directory_node_path: The path name of the node to update folder & files for
+        folder_path: File system directory where files to check are located
+        recurse: If set, update all files in directories below directory_node_path
+        bufsize: The size of the buffer to use for computing each hash
     """
     from json import dump
 

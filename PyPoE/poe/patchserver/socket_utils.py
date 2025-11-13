@@ -11,16 +11,12 @@ def socket_fd_open(socket_fd: int) -> socket.socket:
     """
     Create a TCP/IP socket object from a socket file descriptor.
 
-    Uses :func:`socket.fromfd`.
+    Uses socket.fromfd to create a socket from a file descriptor.
 
-    Parameters
-    ----------
-    socket_fd : int
-        File descriptor to build socket from.
+    Args:
+        socket_fd: File descriptor to build socket from
 
-    Returns
-    -------
-    socket.socket
+    Returns:
         Socket object
     """
     return socket.fromfd(socket_fd, socket.AF_INET, socket.SOCK_STREAM)
@@ -30,14 +26,10 @@ def socket_fd_close(sock: socket.socket) -> int:
     """
     Detach socket and return file descriptor.
 
-    Parameters
-    ----------
-    sock : socket.socket
-        Socket to detach
+    Args:
+        sock: Socket to detach
 
-    Returns
-    -------
-    int
+    Returns:
         File descriptor
     """
     return sock.detach()
