@@ -445,12 +445,24 @@ class FreeRecord(BaseRecord):
     __slots__ = BaseRecord.__slots__.copy() + ["next_free"]
 
     @doc(doc=BaseRecord.read)
-    def read(self, ggpkfile):
+    def read(self, ggpkfile: BinaryIO) -> None:
+        """
+        Read free record from file.
+
+        Args:
+            ggpkfile: Binary file stream
+        """
         self.next_free = struct.unpack("<q", ggpkfile.read(8))[0]
         ggpkfile.seek(self.length - 16, os.SEEK_CUR)
 
     @doc(doc=BaseRecord.write)
-    def write(self, ggpkfile):
+    def write(self, ggpkfile: BinaryIO) -> None:
+        """
+        Write free record to file.
+
+        Args:
+            ggpkfile: Binary file stream
+        """
         # Write length & tag
         super().write(ggpkfile)
         ggpkfile.write(struct.pack("<q", self.next_free))
