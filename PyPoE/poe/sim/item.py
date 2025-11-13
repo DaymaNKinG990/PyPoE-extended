@@ -87,6 +87,12 @@ def _regex_build_from_handler_dict(handler_dict):
 
 
 class ITEM_TYPES(Enum):
+    """
+    Item type enumeration.
+
+    Used to categorize items in the simulation system.
+    """
+
     ITEM = 0
     GEM = 1
     CURRENCY = 2
@@ -94,25 +100,45 @@ class ITEM_TYPES(Enum):
 
 class ItemSocket:
     """
+    Represents a socket on an item.
 
-    Attributes
-    ----------
-    'index' : int
-        Index (position) of the socket
-    'colour' : SOCKET_COLOUR
-        Colour of the socket
+    Attributes:
+        index: Index (position) of the socket
+        colour: Colour of the socket (SOCKET_COLOUR enum)
     """
 
     __slots__ = ("index", "colour")
 
-    def __init__(self, index, colour):
+    def __init__(self, index: int, colour: Any) -> None:
+        """
+        Initialize item socket.
+
+        Args:
+            index: Socket position/index
+            colour: Socket colour (SOCKET_COLOUR enum)
+        """
         self.index = index
         self.colour = colour
 
-    def __repr__(self):
+    def __repr__(self) -> str:
+        """
+        Return string representation of socket.
+
+        Returns:
+            String representation
+        """
         return f"ItemSocket({self.index}, {repr(self.colour)})"
 
-    def __eq__(self, other):
+    def __eq__(self, other: Any) -> bool:
+        """
+        Check equality with another socket.
+
+        Args:
+            other: Other object to compare
+
+        Returns:
+            True if sockets are equal, False otherwise
+        """
         if not isinstance(other, ItemSocket):
             return False
 

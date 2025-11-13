@@ -59,7 +59,31 @@ __all__ = []
 
 
 class Monster:
-    def __init__(self, parent, mv):
+    """
+    Represents a monster for simulation purposes.
+
+    Provides access to monster data and calculations including damage,
+    resistances, and granted effects.
+
+    Attributes:
+        parent: MonsterFactory instance
+        mv: MonsterVarieties.dat row
+        mt: MonsterTypes.dat row
+        _res: MonsterResistances.dat row
+        _ge: GrantedEffects list
+        _gepl: GrantedEffectsPerLevel list
+        _mods: Mods list
+        _level: Monster level (1-100)
+    """
+
+    def __init__(self, parent: Any, mv: Any) -> None:
+        """
+        Initialize monster instance.
+
+        Args:
+            parent: MonsterFactory instance
+            mv: MonsterVarieties.dat row
+        """
         self.parent = parent
         self._mv = mv
         self._mt = self.mv["MonsterTypesKey"]
@@ -75,15 +99,36 @@ class Monster:
         self._level = None
 
     @property
-    def mv(self):  # type: ignore[attr-defined]
+    def mv(self) -> Any:  # type: ignore[attr-defined]
+        """
+        Get MonsterVarieties.dat row.
+
+        Returns:
+            MonsterVarieties.dat row
+        """
         return self._mv
 
     @property
-    def mt(self):  # type: ignore[attr-defined]
+    def mt(self) -> Any:  # type: ignore[attr-defined]
+        """
+        Get MonsterTypes.dat row.
+
+        Returns:
+            MonsterTypes.dat row
+        """
         return self._mt
 
     @property
-    def level(self):
+    def level(self) -> int:
+        """
+        Get monster level.
+
+        Returns:
+            Monster level (1-100)
+
+        Raises:
+            ValueError: If level has not been set
+        """
         if self._level is None:
             raise ValueError(
                 "Set monster level first before performing actions that require monster level"
@@ -91,18 +136,44 @@ class Monster:
         return self._level
 
     @level.setter
-    def level(self, value):
+    def level(self, value: int) -> None:
+        """
+        Set monster level.
+
+        Args:
+            value: Level value (1-100)
+
+        Raises:
+            ValueError: If level is not in valid range
+        """
         if value < 1 or value > 100:
             raise ValueError("Monster level must be 1-100")
         self._level = value
 
-    def damage(self, map_tier=None):
+    def damage(self, map_tier: int | None = None) -> Any:
+        """
+        Calculate monster damage.
+
+        Args:
+            map_tier: Optional map tier for damage calculation
+
+        Returns:
+            Damage value or calculation result
+        """
         self.parent.rr["DefaultMonsterStats.dat"][self.level]
 
 
 class MonsterFactory:
     """
-    Handler for monsters.
+    Factory for creating and managing Monster instances.
+
+    Handles loading of monster data and provides methods to create
+    Monster instances from various search criteria.
+
+    Attributes:
+        rr: RelationalReader instance
+        ot: OTFileCache instance
+        rarity_mods: Dictionary mapping rarities to mods
     """
 
     _files = [
@@ -112,17 +183,21 @@ class MonsterFactory:
         "GrantedEffectsPerLevel.dat",
     ]
 
-    rarity_mods = None
+    rarity_mods: dict[Any, Any] | None = None
 
-    def __init__(self, *args, relational_reader, otfile_cache, **kwargs):
+    def __init__(self, *args: Any, relational_reader: Any, otfile_cache: Any, **kwargs: Any) -> None:
         """
+        Initialize monster factory.
 
-        Parameters
-        ----------
-        relational_reader : RelationalReader
-            info
-        otfile_cache : OTFileCache
-            info
+        Args:
+            *args: Additional positional arguments (unused)
+            relational_reader: RelationalReader instance for data access
+            otfile_cache: OTFileCache instance for OT file access
+            **kwargs: Additional keyword arguments (unused)
+
+        Raises:
+            ValueError: If relational_reader is not a RelationalReader instance
+            ValueError: If otfile_cache is not an OTFileCache instance
         """
         if isinstance(relational_reader, RelationalReader):
             self.rr = relational_reader
@@ -148,28 +223,19 @@ class MonsterFactory:
             elif mod["Id"].startswith("MonsterUnique"):
                 self.rarity_mods[RARITY.UNIQUE] = mod  # type: ignore[index]
 
-    def monster(self, rowid=None, metaid=None, name=None, *args, **kwargs):
+    def monster(self, rowid: int | Iterable[int] | None = None, metaid: str | Iterable[str] | None = None, name: str | Iterable[str] | None = None, *args: Any, **kwargs: Any) -> list[Monster]:
         """
-        Creates a list of Monster instances and returns them based on the
-        passed search parameters.
+        Create Monster instances based on search parameters.
 
-        Parameters
-        ----------
-        rowid : int or Iterable[int]
-            rowid or list of rowids to search for
-        metaid : str or Iterable[str]
-            Metadata id or list of metadata ids to search for
-        name : str or Iterable[str]
-            Name or list of monster names to search for
-        args : Iterable
-            Extra positional arguments to pass to the Monster instance
-        kwargs : dict
-            Extra keyword arguments to pass to the Monster instance
+        Args:
+            rowid: Row ID or list of row IDs to search for
+            metaid: Metadata ID or list of metadata IDs to search for
+            name: Name or list of names to search for
+            *args: Additional positional arguments (unused)
+            **kwargs: Additional keyword arguments (unused)
 
-        Returns
-        -------
-        list[Monster]
-            List of Monster instances.
+        Returns:
+            List of Monster instances matching the search criteria
         """
         if isinstance(rowid, int):
             mv = [
