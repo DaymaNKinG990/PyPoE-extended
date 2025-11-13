@@ -61,6 +61,17 @@ __all__ = ["FileSystem"]
 
 
 class FileSystemNode(AbstractFileSystemNode):
+    """
+    Node in the file system tree.
+
+    Represents a file or directory in the game's file system,
+    providing access to file data and path information.
+
+    Attributes:
+        file_system: FileSystem instance this node belongs to
+        _name: Node name
+    """
+
     _REPR_ARGUMENTS_IGNORE = {"parent"}
 
     __slots__ = ["file_system"] + AbstractFileSystemNode.__slots__
@@ -72,7 +83,17 @@ class FileSystemNode(AbstractFileSystemNode):
         is_file: bool,
         file_system: "FileSystem",
         name: str,
-    ):
+    ) -> None:
+        """
+        Initialize file system node.
+
+        Args:
+            parent: Parent node (None for root)
+            file_system_type: Type of file system (GGPK, DISK, BUNDLE)
+            is_file: True if this is a file, False if directory
+            file_system: FileSystem instance
+            name: Node name
+        """
         super().__init__(
             parent,  # type: ignore[arg-type]
             file_system_type,
@@ -84,34 +105,53 @@ class FileSystemNode(AbstractFileSystemNode):
 
     @property
     def data(self) -> bytes:
+        """
+        Get file data.
+
+        Returns:
+            File contents as bytes
+
+        Raises:
+            ValueError: If this is a directory (not a file)
+        """
         if self.is_file:
             return self.file_system.get_file(self.get_path())
         else:
-            raise ValueError
+            raise ValueError("Cannot get data from directory node")
 
     @property
     def name(self) -> str:
+        """
+        Get node name.
+
+        Returns:
+            Node name string
+        """
         return self._name
 
 
 class FileSystem:
     """
-    The FileSystem class is used to simplify accessing files from the game via
-    a single call rather then checking disk, ggpk or bundles separately.
+    Unified file system access for game files.
 
-    Upon initialization of the class, the corresponding Index bundle and GGPK
-    will be automatically read if present.
+    Simplifies accessing files from the game by checking disk, GGPK, and bundles
+    automatically. Upon initialization, the Index bundle and GGPK are automatically
+    read if present. Further decompression or reading is done lazily when get_file()
+    is called.
 
-    Further decompression of bundles or reading of data will be only be done
-    when the get_file method is called.
+    Attributes:
+        root_path: Root game directory path
+        ggpk: GGPKFile instance (if Content.ggpk exists)
+        index: Index instance (if available)
+        directory: Root FileSystemNode (if built)
     """
 
-    def __init__(self, root_path: str):
+    def __init__(self, root_path: str) -> None:
         """
-        Parameters
-        ----------
-        root_path
-            The root game directory path (where PathOfExile.exe is located)
+        Initialize file system.
+
+        Args:
+            root_path: Root game directory path (where PathOfExile.exe is located)
         """
         self.directory: FileSystemNode | None = None
 
@@ -139,17 +179,22 @@ class FileSystem:
 
     def get_file(self, path: str) -> bytes:
         """
-        Retrieves a file contents as binary data via the given path (relative
-        to the root directory)
+        Retrieve file contents as binary data.
 
-        Parameters
-        ----------
-        path
-            The path relative to the root game directory (i.e. root_path)
+        Searches for file in the following order:
+        1. Index bundle (if available)
+        2. GGPK file (if loaded)
+        3. Disk (root_path)
 
-        Returns
-        -------
-            The unbuffered binary file data in bytes
+        Args:
+            path: Path relative to root game directory
+
+        Returns:
+            File contents as bytes
+
+        Raises:
+            FileNotFoundError: If file not found in any location
+            ParserError: If path points to invalid file type
         """
         if self.index:
             try:
