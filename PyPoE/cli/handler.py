@@ -129,19 +129,16 @@ class ConfigHandler(BaseHandler):
         Should be included in any application that uses the cli config
     """
 
-    def __init__(self, sub_parser, config):
+    def __init__(self, sub_parser: Any, config: Any) -> None:
         """
-        Parameters
-        ----------
-        sub_parser : :py:meth:`argparse.ArgumentParser.add_subparsers`
-            sub parsers object
-        config : ConfigHelper
-            config instance
+        Initialize config handler.
 
-        Raises
-        ------
-        PyPoE.cli.config.ConfigError
-            if config validation failed
+        Args:
+            sub_parser: Argument parser subparsers object
+            config: ConfigHelper instance
+
+        Raises:
+            ConfigError: If config validation failed
         """
         # Config
         self.config = config
@@ -184,36 +181,30 @@ class ConfigHandler(BaseHandler):
             help="Value to set",
         )
 
-    def print_debug(self, args):
+    def print_debug(self, args: Any) -> int:
         """
-        Prints out the entire config as string.
+        Print out the entire config as string.
 
-        Parameters
-        ----------
-        args : argparse.Namespace
-            namespace object as passed from argument parser
+        Args:
+            args: Namespace object as passed from argument parser
 
-        Returns
-        -------
-        int
-            success code
+        Returns:
+            Success code (0)
         """
         console(str(self.config))
         return 0
 
-    def print_all(self, args):
+    def print_all(self, args: Any) -> int:
         """
-        Prints all currently registered config variables.
+        Print all currently registered config variables.
 
-        Parameters
-        ----------
-        args : argparse.Namespace
-            namespace object as passed from argument parser
+        Shows configured, missing, and extra variables.
 
-        Returns
-        -------
-        int
-            success code
+        Args:
+            args: Namespace object as passed from argument parser
+
+        Returns:
+            Success code (0)
         """
         spec = set(self.config.optionspec.keys())
         real = set(self.config.option.keys())
@@ -240,38 +231,32 @@ class ConfigHandler(BaseHandler):
 
         return 0
 
-    def get(self, args):
+    def get(self, args: Any) -> int:
         """
-        Prints the config setting for the specified var.
+        Print the config setting for the specified variable.
 
-        Parameters
-        ----------
-        args : argparse.Namespace
-            namespace object as passed from argument parser
+        Args:
+            args: Namespace object containing variable name
 
-        Returns
-        -------
-        int
-            success code
+        Returns:
+            Success code (0)
         """
         console(
             f'Config setting "{args.variable}" is currently set to:\n{self.config.option[args.variable]}'
         )
         return 0
 
-    def set(self, args):
+    def set(self, args: Any) -> int:
         """
-        Sets the specified config setting to the specified value.
+        Set the specified config setting to the specified value.
 
-        Parameters
-        ----------
-        args : argparse.Namespace
-            namespace object as passed from argument parser
+        Validates the value before setting and writes config to disk.
 
-        Returns
-        -------
-        int
-            success code
+        Args:
+            args: Namespace object containing variable name and value
+
+        Returns:
+            Success code (0) or error code (-1) if validation fails
         """
         try:
             self.config.set_option(args.variable, args.value)
@@ -298,14 +283,13 @@ class SetupHandler(BaseHandler):
         Should be included in any application that uses the cli config
     """
 
-    def __init__(self, sub_parser, config):
+    def __init__(self, sub_parser: Any, config: Any) -> None:
         """
-        Parameters
-        ----------
-        sub_parser : :py:meth:`argparse.ArgumentParser.add_subparsers`
-            sub parsers object
-        config : ConfigHelper
-            config instance
+        Initialize setup handler.
+
+        Args:
+            sub_parser: Argument parser subparsers object
+            config: ConfigHelper instance
         """
         self.config = config
         self.parser = sub_parser.add_parser("setup", help="CLI Interface Setup")
@@ -316,19 +300,17 @@ class SetupHandler(BaseHandler):
         setup_perform = setup_sub.add_parser("perform", help="Perform setup")
         setup_perform.set_defaults(func=self.setup)
 
-    def setup(self, args):
+    def setup(self, args: Any) -> int:
         """
-        Performs the setup (if needed)
+        Perform the setup (if needed).
 
-        Parameters
-        ----------
-        args : argparse.Namespace
-            namespace object as passed from argument parser
+        Executes setup functions for all unperformed setup sections.
 
-        Returns
-        -------
-        int
-            success code
+        Args:
+            args: Namespace object as passed from argument parser
+
+        Returns:
+            Success code (0)
         """
         console("Performing setup. This may take a while - please wait...")
         self.print_sep()
