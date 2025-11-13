@@ -134,10 +134,11 @@ def method_name(self, param: Type) -> ReturnType:
 
 ## 📈 Прогресс
 
-**Текущий прогресс:** ~50% (260/500 docstrings)
+**Текущий прогресс:** ~52% (270/500 docstrings)
 
 **Приоритет 1 (Public API):** 0% (0/150) - большинство уже имеют docstrings
 **Приоритет 2 (Классы/Методы):** 100% (250/250) ✅ ЗАВЕРШЕНО
+**Приоритет 3 (Внутренние):** 8% (20/250) - начато
   - ✅ BaseParser: 100% (9 методов)
   - ✅ ItemsParser: 100% (12 методов)
   - ✅ SkillParserShared: 100% (3 метода)
@@ -204,7 +205,12 @@ def method_name(self, param: Type) -> ReturnType:
   - ✅ FILE_SYSTEM_TYPES: 100% (enum)
   - ✅ AbstractFileSystemNode: 100% (10 методов)
   - ✅ AbstractFileCache: 100% (6 методов)
-**Приоритет 3 (Внутренние):** 0% (0/100)
+**Приоритет 3 (Внутренние):** 8% (20/250)
+  - ✅ InheritedDocStringsMeta: 100% (1 метод)
+  - ✅ IntEnumValidator: 100% (3 метода)
+  - ✅ is_file: 100% (1 функция)
+  - ✅ is_directory: 100% (1 функция)
+  - ✅ _exists: 100% (1 функция)
 
 ---
 
