@@ -102,7 +102,7 @@ class ConfigHelper(ConfigObj):
         """
         if "infile" not in kwargs:
             raise ValueError("Must be initialized with infile")
-        kwargs["raise_errors"] = True
+        kwargs["raise_errors"] = False  # Don't raise errors if file doesn't exist
         kwargs["configspec"] = ConfigObj()
         ConfigObj.__init__(self, *args, **kwargs)
 

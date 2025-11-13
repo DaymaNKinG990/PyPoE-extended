@@ -46,6 +46,13 @@ __all__ = ["CONFIG_PATH", "config"]
 
 CONFIG_PATH = os.path.join(APP_DIR, "exporter.conf")
 
+# Create config file if it doesn't exist
+if not os.path.exists(CONFIG_PATH):
+    os.makedirs(os.path.dirname(CONFIG_PATH), exist_ok=True)
+    # Create empty config file
+    with open(CONFIG_PATH, "w") as f:
+        f.write("")
+
 config = ConfigHelper(infile=CONFIG_PATH)
 
 # =============================================================================
