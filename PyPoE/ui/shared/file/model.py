@@ -262,19 +262,50 @@ class DatDataModel(DatModelShared):
 
 
 class GGPKModel(QAbstractItemModel):
-    def __init__(self, data=None):
+    """
+    Tree model for displaying GGPK file structure.
+
+    Displays GGPK directory tree in a hierarchical view with columns
+    for name, size, and offset.
+    """
+
+    def __init__(self, data: Any = None) -> None:
+        """
+        Initialize GGPK model.
+
+        Args:
+            data: Root DirectoryNode (optional, can be set later)
+        """
         QAbstractItemModel.__init__(self)
         self.headers = (self.tr("Name"), self.tr("Size"), self.tr("Offset"))
         self._data = data
 
-    def _get_child_at_row(self, node, row):
-        """Get child at specific row, handling both dict and list children."""
+    def _get_child_at_row(self, node: Any, row: int) -> Any:
+        """
+        Get child at specific row, handling both dict and list children.
+
+        Args:
+            node: DirectoryNode to get child from
+            row: Row index
+
+        Returns:
+            Child node at the specified row
+        """
         if isinstance(node.children, dict):
             return list(node.children.values())[row]
         return node.children[row]
 
-    def _get_child_index(self, parent, child):
-        """Get index of child in parent, handling both dict and list children."""
+    def _get_child_index(self, parent: Any, child: Any) -> int:
+        """
+        Get index of child in parent, handling both dict and list children.
+
+        Args:
+            parent: Parent DirectoryNode
+            child: Child DirectoryNode to find
+
+        Returns:
+            Index of child in parent's children
+        """
         if isinstance(parent.children, dict):
             return list(parent.children.values()).index(child)
         return parent.children.index(child)
