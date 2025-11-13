@@ -118,20 +118,15 @@ class DatValue:
 
     # Properties
 
-    def _get_data_size(self):
+    def _get_data_size(self) -> int:
         """
-        Retrieves size of the data held by the current instance in the data
-        section.
+        Retrieve size of the data held by the current instance in the data section.
 
-        Returns
-        -------
-        int
-            size of data
+        Returns:
+            Size of data in bytes
 
-        Raises
-        ------
-        TypeError
-            If performed on DatValue instances without data
+        Raises:
+            TypeError: If performed on DatValue instances without data
         """
         if self.is_list:
             size = self.children[0].size * self.value[0] if self.children else 0  # type: ignore[union-attr]
@@ -141,20 +136,15 @@ class DatValue:
             raise TypeError("Only supported on DatValue instances with data (lists, pointers)")
         return size
 
-    def _get_data_start_offset(self):
+    def _get_data_start_offset(self) -> int:
         """
-        Retrieves the start offset of the data held by the current instance in
-        the data section.
+        Retrieve the start offset of the data held by the current instance in the data section.
 
-        Returns
-        -------
-        int
-            start offset of data
+        Returns:
+            Start offset of data in bytes
 
-        Raises
-        ------
-        TypeError
-            If performed on DatValue instances without data
+        Raises:
+            TypeError: If performed on DatValue instances without data
         """
         if self.is_list:
             return self.value[1]
@@ -163,71 +153,62 @@ class DatValue:
         else:
             raise TypeError("Only supported on DatValue instances with data (lists, pointers)")
 
-    def _get_data_end_offset(self):
+    def _get_data_end_offset(self) -> int:
         """
-        Retrieves the end offset of the data held by the current instance in the
-        data section.
+        Retrieve the end offset of the data held by the current instance in the data section.
 
-        Returns
-        -------
-        int
-            end offset of data
+        Returns:
+            End offset of data in bytes
 
-        Raises
-        ------
-        TypeError
-            If performed on DatValue instances without data
+        Raises:
+            TypeError: If performed on DatValue instances without data
         """
         return self._get_data_start_offset() + self._get_data_size()
 
-    def _is_data(self):
+    def _is_data(self) -> bool:
         """
-        Whether this DatValue instance is data or not.
+        Check whether this DatValue instance is data or not.
 
-        Returns
-        -------
-        bool
+        Returns:
+            True if this instance is data, False otherwise
         """
         return self.parent is not None
 
-    def _has_data(self):
+    def _has_data(self) -> bool:
         """
-        Whether this DatValue instance has data or not; this applies to types
-        that hold a pointer.
+        Check whether this DatValue instance has data or not.
 
-        Returns
-        -------
-        bool
+        This applies to types that hold a pointer.
+
+        Returns:
+            True if this instance has data, False otherwise
         """
         return self.is_list or self.is_pointer
 
-    def _is_list(self):
+    def _is_list(self) -> bool:
         """
-        Whether this DatValue instance is a list.
+        Check whether this DatValue instance is a list.
 
-        Returns
-        -------
-        bool
+        Returns:
+            True if this instance is a list, False otherwise
         """
         return self.children is not None
 
-    def _is_pointer(self):
+    def _is_pointer(self) -> bool:
         """
-        Whether this DatValue instance is a pointer.
+        Check whether this DatValue instance is a pointer.
 
-        Returns
-        -------
-        bool
+        Returns:
+            True if this instance is a pointer, False otherwise
         """
         return self.child is not None
 
-    def _is_parsed(self):
+    def _is_parsed(self) -> bool:
         """
-        Whether this DatValue instance is parsed (i.e. non bytes).
+        Check whether this DatValue instance is parsed (i.e. non bytes).
 
-        Returns
-        -------
-        bool
+        Returns:
+            True if this instance is parsed, False otherwise
         """
         return not isinstance(self.value, bytes)
 
@@ -242,27 +223,26 @@ class DatValue:
 
     # Public
 
-    def get_value(self):
+    def get_value(self) -> Any:
         """
-        Returns the value that is held by the DatValue instance. This is done
-        recursively, i.e. pointers will be dereferenced accordingly.
+        Return the value that is held by the DatValue instance.
+
+        This is done recursively, i.e. pointers will be dereferenced accordingly.
 
         This means if you want the actual value of the DatValue, you should
         probably access the value attribute instead.
 
-        If this DatValue instance is a list, this means a python list of items
-        will be returned.
-        If this DatValue instance is a pointer, this means whatever value the
-        child of this instance holds will be returned.
+        If this DatValue instance is a list, a Python list of items will be returned.
+        If this DatValue instance is a pointer, whatever value the child of this
+        instance holds will be returned.
         Otherwise the value of the DatValue instance itself will be returned.
 
-        Note, that values may be nested i.e. if a list contains a list, a
-        nested list will be returned accordingly.
+        Note:
+            Values may be nested, i.e. if a list contains a list, a nested list
+            will be returned accordingly.
 
-        Returns
-        -------
-        object
-            the dereferenced value
+        Returns:
+            The dereferenced value
         """
         if self.is_pointer:
             return self.child.get_value()  # type: ignore[union-attr]
