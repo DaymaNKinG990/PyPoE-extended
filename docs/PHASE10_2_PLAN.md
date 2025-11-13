@@ -134,11 +134,11 @@ def method_name(self, param: Type) -> ReturnType:
 
 ## 📈 Прогресс
 
-**Текущий прогресс:** ~98% (490/500 docstrings)
+**Текущий прогресс:** ~99% (495/500 docstrings)
 
 **Приоритет 1 (Public API):** 100% (150/150) ✅ ЗАВЕРШЕНО
 **Приоритет 2 (Классы/Методы):** 100% (250/250) ✅ ЗАВЕРШЕНО
-**Приоритет 3 (Внутренние):** 90% (225/250) - в процессе
+**Приоритет 3 (Внутренние):** 95% (238/250) - почти завершено
   - ✅ BaseParser: 100% (9 методов)
   - ✅ ItemsParser: 100% (12 методов)
   - ✅ SkillParserShared: 100% (3 метода)
@@ -250,6 +250,7 @@ def method_name(self, param: Type) -> ReturnType:
   - ✅ Translation models: 100% (30+ методов: Translation, TranslationLanguage, TranslationString, TranslationRange, TranslationQuantifierHandler, TranslationQuantifier, TQReminderString)
   - ✅ GGPK modules: 100% (reader, record_manager, nodes, directory_builder, diff_comparator, records, file, builder)
   - ✅ Dat modules: 100% (parser, caster, indexer, value, record, file, reader, relational)
+  - ✅ KeyValue modules: 100% (AbstractKeyValueSection, AbstractKeyValueFile, AbstractKeyValueFileCache)
 
 ---
 
