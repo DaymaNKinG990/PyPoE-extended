@@ -18,24 +18,19 @@ class Patch:
     - Downloading files
     - Getting version information
 
-    Attributes
-    ----------
-    patch_url : str
-        Base patch url for the current PoE version
-    patch_cdn_url : str
-        Load-balanced patching url including port
+    Attributes:
+        patch_url: Base patch url for the current PoE version
+        patch_cdn_url: Load-balanced patching url including port
+        sock_fd: Socket file descriptor
     """
 
     def __init__(self, master_server: str = PatchConnection._SERVER_IPV4, master_port: int = PatchConnection._PORT) -> None:
         """
         Initialize Patch and automatically fetch patching URLs.
 
-        Parameters
-        ----------
-        master_server : str
-            Domain or IP address of the master patching server
-        master_port : int
-            Port to use when connecting to the master patching server
+        Args:
+            master_server: Domain or IP address of the master patching server
+            master_port: Port to use when connecting to the master patching server
         """
         self._connection = PatchConnection(master_server, master_port)
         self._connection.connect()
@@ -47,13 +42,16 @@ class Patch:
         self.sock_fd = self._connection.sock_fd
 
     def __del__(self) -> None:
-        """Automatically close connection on deletion."""
+        """
+        Automatically close connection on deletion.
+        """
         self._connection.disconnect()
 
     def update_patch_urls(self) -> None:
         """
         Update patch URLs from master server.
 
+        Disconnects and reconnects to fetch fresh URLs from the master server.
         Delegates to PatchConnection.
         """
         self._connection.disconnect()
@@ -68,14 +66,10 @@ class Patch:
 
         Delegates to PatchDownloader.
 
-        Parameters
-        ----------
-        file_path : str
-            Path of the file relative to the content.ggpk root directory
-        dst_dir : str, optional
-            Write the file to the specified directory
-        dst_file : str, optional
-            Write the file to the specified location
+        Args:
+            file_path: Path of the file relative to the content.ggpk root directory
+            dst_dir: Write the file to the specified directory (optional)
+            dst_file: Write the file to the specified location (optional)
         """
         self._downloader.download(file_path, dst_dir=dst_dir, dst_file=dst_file)
 
@@ -85,14 +79,10 @@ class Patch:
 
         Delegates to PatchDownloader.
 
-        Parameters
-        ----------
-        file_path : str
-            Path of the file relative to the content.ggpk root directory
+        Args:
+            file_path: Path of the file relative to the content.ggpk root directory
 
-        Returns
-        -------
-        bytes
+        Returns:
             The raw contents of the file in bytes
         """
         return self._downloader.download_raw(file_path)

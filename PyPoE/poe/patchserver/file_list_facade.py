@@ -54,7 +54,9 @@ class PatchFileList:
         self.update_filelist([""])
 
     def __del__(self) -> None:
-        """Detach socket on instance deletion."""
+        """
+        Detach socket on instance deletion.
+        """
         if hasattr(self, "_builder"):
             self._builder.__del__()
 
@@ -64,10 +66,8 @@ class PatchFileList:
 
         Delegates to PatchFileListBuilder.
 
-        Parameters
-        ----------
-        folders : list[str]
-            The list of folders to get details for
+        Args:
+            folders: The list of folders to get details for
         """
         self._builder.update_filelist(folders)
 
