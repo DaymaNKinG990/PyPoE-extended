@@ -155,9 +155,31 @@ class Bundle(AbstractFileReadOnly):
     - IBufferable: Provides get_read_buffer() method (inherited)
     - IWritable: Provides write() method (supports writing)
     - IDecompressable: Provides decompress() method (for compressed bundles)
+
+    Attributes:
+        encoder: Compression encoder type
+        unknown: Unknown field
+        size_decompressed: Decompressed size in bytes
+        size_compressed: Compressed size in bytes
+        entry_count: Number of entries in bundle
+        chunk_size: Size of each chunk
+        unknown3: Unknown field 3
+        unknown4: Unknown field 4
+        unknown5: Unknown field 5
+        unknown6: Unknown field 6
+        chunks: Tuple of chunk offsets
+        data: Dictionary mapping chunk index to bytes, or bytes if decompressed
     """
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, *kwargs)
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        """
+        Initialize Bundle.
+
+        Args:
+            *args: Additional positional arguments for AbstractFileReadOnly
+            **kwargs: Additional keyword arguments for AbstractFileReadOnly
+        """
+        super().__init__(*args, **kwargs)
         self.encoder: ENCODE_TYPES | None = None
         self.unknown: int | None = None
         self.size_decompressed: int | None = None
@@ -173,9 +195,24 @@ class Bundle(AbstractFileReadOnly):
 
     @property
     def is_decompressed(self) -> bool:
+        """
+        Check if bundle is decompressed.
+
+        Returns:
+            True if bundle data is decompressed (bytes), False if still compressed (dict)
+        """
         return isinstance(self.data, bytes)
 
-    def _read(self, buffer: BytesIO):
+    def _read(self, buffer: BytesIO) -> None:
+        """
+        Read bundle from buffer.
+
+        Args:
+            buffer: Binary file buffer
+
+        Raises:
+            ValueError: If bundle has been decompressed already
+        """
         if self.is_decompressed:
             raise ValueError("Bundle has been decompressed already")
 
@@ -211,19 +248,20 @@ class Bundle(AbstractFileReadOnly):
 
             offset = offset2
 
-    def decompress(self, start: int = 0, end: int | None = None):
+    def decompress(self, start: int = 0, end: int | None = None) -> None:
         """
-        Decompresses this bundle's contents.
+        Decompress bundle contents.
 
-        This requires either the oozdll to be available or the ooz commandline
-        tool.
+        Decompresses chunks from start to end (inclusive). Requires either
+        the oozdll library or the ooz commandline tool to be available.
 
-        Parameters
-        ----------
-        start
-            Start chunk
-        end
-            End chunk
+        Args:
+            start: Start chunk index (default: 0)
+            end: End chunk index (default: entry_count)
+
+        Raises:
+            ValueError: If bundle data is empty or decompression fails
+            TypeError: If data is not a dict before decompression
         """
         if not self.data:
             raise ValueError()
