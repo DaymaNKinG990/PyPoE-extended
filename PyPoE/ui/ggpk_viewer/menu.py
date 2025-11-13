@@ -30,6 +30,7 @@ See PyPoE/LICENSE
 # =============================================================================
 
 # Python
+from typing import Any
 
 # 3rd Party
 from PySide6.QtGui import QAction

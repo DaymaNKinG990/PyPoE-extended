@@ -31,6 +31,7 @@ See PyPoE/LICENSE
 
 # Python
 import os
+from typing import Any
 
 # 3rd Party
 from PySide6.QtCore import Qt
@@ -231,17 +232,25 @@ class ContextToolbar(QToolBar):
 
         self.parent().file_textbox.setText(outtext)
 
-    def _toolbar_copy_path(self):
+    def _toolbar_copy_path(self) -> None:
+        """
+        Copy file path to clipboard.
+
+        Copies the path of the selected file or folder relative to
+        content.ggpk root to the system clipboard.
+        """
         node = self._get_node()
         if node is None:
             return
 
         QApplication.clipboard().setText(node.get_path())
 
-    def enable_file_actions(self, node):
+    def enable_file_actions(self, node: Any) -> None:
         """
-        :param DirectoryNode node:
-        :return:
+        Enable or disable file actions based on node type.
+
+        Args:
+            node: DirectoryNode or FileRecord node
         """
         if isinstance(node.record, DirectoryRecord):
             self.action_search.setEnabled(True)
