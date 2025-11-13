@@ -15,24 +15,26 @@ if TYPE_CHECKING:
 
 class DatRecord(list):
     """
-    Attributes
-    ----------
-    parent :  DatReader
-        The parent DatReader instance this DatRecord instance belongs to
-    rowid :  int
-        The rowid of this DatRecord instance
+    Representation of a row in a DAT file.
+
+    DatRecord is a list-like object that represents a single row in a DAT file.
+    It provides dictionary-like access to columns by name and supports
+    virtual fields defined in the specification.
+
+    Attributes:
+        parent: The parent DatReader instance this DatRecord belongs to
+        rowid: The rowid of this DatRecord instance
     """
 
     __slots__ = ["parent", "rowid"]
 
     def __init__(self, parent: "DatReader", rowid: int) -> None:
         """
-        Parameters
-        ----------
-        parent :  DatReader
-            The parent DatReader instance this DatRecord instance belongs to
-        rowid :  int
-            The rowid of this DatRecord instance
+        Initialize DatRecord.
+
+        Args:
+            parent: The parent DatReader instance this DatRecord belongs to
+            rowid: The rowid of this DatRecord instance
         """
         list.__init__(self)
         self.parent = parent
@@ -64,28 +66,20 @@ class DatRecord(list):
 
     def iter(self):
         """
-        Iterates over the DatRecord and returns key, value and index
+        Iterate over the DatRecord and return key, value and index.
 
-        Yields
-        ------
-        str
-            key
-        object
-            the value
-        int
-            index
+        Yields:
+            Tuple of (key, value, index) for each column in the record
         """
         for index, key in enumerate(self.parent.table_columns):
             yield key, self[key], index
 
     def keys(self):
         """
-        Returns the keys (column names) of this record.
+        Return the keys (column names) of this record.
 
-        Returns
-        -------
-        dict_keys
-            Keys of the record
+        Returns:
+            Dictionary keys view of column names
         """
         return self.parent.table_columns.keys()
 

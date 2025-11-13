@@ -46,28 +46,24 @@ class DatIndexer:
         column: str | Iterable[str] | None = None,
     ) -> None:
         """
-        Builds or rebuilds the index for the specified column.
+        Build or rebuild the index for the specified column.
 
-        Indexed columns can be accessed though the instance variable index and
+        Indexed columns can be accessed through the instance variable index and
         will return a single value for unique columns and a list for non-unique
         columns.
 
         For example:
-        self.index[column_name][indexed_value]
+            self.index[column_name][indexed_value]
 
-        .. warning::
+        Warning:
             This method only works for columns that are marked as unique in the
             specification.
 
-        Parameters
-        ----------
-        column : str or Iterable or None
-            if specified the index will the built for the specified column
-            or iterable of columns
-            if not specified, the index will be build for any 'unique' columns
-            by default
-        table_data : list[DatRecord]
-            List of DatRecord instances to index
+        Args:
+            table_data: List of DatRecord instances to index
+            column: If specified, the index will be built for the specified column
+                or iterable of columns. If not specified, the index will be built
+                for any 'unique' columns by default
         """
         columns = set()
         if column is None:
