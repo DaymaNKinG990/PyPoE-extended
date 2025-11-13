@@ -5,7 +5,7 @@ This module contains the DatRecord class which represents individual rows
 in DAT files.
 """
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from PyPoE.poe.file.dat.value import DatValue
 
