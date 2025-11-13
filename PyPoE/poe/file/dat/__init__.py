@@ -18,12 +18,16 @@ from PyPoE.poe.file.dat.file import DatFile
 from PyPoE.poe.file.dat.parser import DAT_FILE_MAGIC_NUMBER
 from PyPoE.poe.file.dat.record import DatRecord
 from PyPoE.poe.file.dat.relational import RelationalReader
+from PyPoE.poe.file.dat.value import DatValue
+from PyPoE.poe.file.specification.errors import SpecificationError
 
 __all__ = [
     "DatFile",
     "DatFileBuilder",
     "DatRecord",
+    "DatValue",
     "RelationalReader",
     "DAT_FILE_MAGIC_NUMBER",
+    "SpecificationError",
 ]
 

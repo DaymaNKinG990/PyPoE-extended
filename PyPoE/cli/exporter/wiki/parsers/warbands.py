@@ -34,7 +34,10 @@ import os
 from typing import Any
 
 # 3rd Party
-from graphviz import Digraph  # type: ignore[import-not-found]
+try:
+    from graphviz import Digraph  # type: ignore[import-not-found]
+except ImportError:
+    Digraph = None  # type: ignore[assignment,misc]
 
 # Self
 from PyPoE.cli.core import console

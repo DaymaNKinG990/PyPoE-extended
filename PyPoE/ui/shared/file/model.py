@@ -29,6 +29,10 @@ See PyPoE/LICENSE
 # Imports
 # =============================================================================
 
+from __future__ import annotations
+
+from typing import Any
+
 # 3rd Party
 from PySide6.QtCore import *
 
