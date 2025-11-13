@@ -557,23 +557,19 @@ class AbstractFileSystemNode(ReprMixin):
 
         return nodes if make_list else node  # type: ignore[return-value]
 
-    def walk(self, function: Callable):
+    def walk(self, function: Callable[..., None]) -> None:
         """
-        .. todo::
-            function = None -> generator like os.walk (dir, [dirs], [files])
+        Walk over nodes and sub-nodes, executing specified function.
 
-        Walks over the nodes and it's sub nodes and executes the specified
-        function.
+        The function will be called with keyword arguments:
+        - node: AbstractFileSystemNode instance
+        - depth: Depth level (0 for root)
 
-        The function will be called with the following dictionary arguments:
+        Args:
+            function: Function to call for each node (accepts **kwargs with node and depth)
 
-        * node - :class:`AbstractFileSystemNode`
-        * depth - Depth
-
-        Parameters
-        ----------
-        function
-            function to call when walking
+        Note:
+            TODO: Support function=None to return generator like os.walk (dir, [dirs], [files])
         """
         q = []
         q.append({"node": self, "depth": 0})
@@ -588,15 +584,18 @@ class AbstractFileSystemNode(ReprMixin):
             function(child)
             child.walk(function)"""
 
-    def extract_to(self, target_directory: str):
+    def extract_to(self, target_directory: str) -> None:
         """
-        Extracts the node and its contents (including sub-directories) to the
-        specified target directory.
+        Extract node and its contents to target directory.
 
-        Parameters
-        ----------
-        target_directory : str
-            Path to directory where to extract to.
+        Recursively extracts files and directories to the specified target.
+        Creates directories as needed.
+
+        Args:
+            target_directory: Path to directory where to extract to
+
+        Raises:
+            OSError: If directory creation or file writing fails
         """
         from PyPoE.shared.file_utils import ensure_directory, write_file
 
