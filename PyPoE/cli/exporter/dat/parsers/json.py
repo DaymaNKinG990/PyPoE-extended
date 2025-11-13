@@ -32,6 +32,7 @@ See PyPoE/LICENSE
 # Python
 import argparse
 from json import dump
+from typing import Any
 
 # self
 from PyPoE.cli.core import console
@@ -49,10 +50,19 @@ __all__ = ["JSONExportHandler"]
 
 
 class JSONExportHandler(DatExportHandler):
-    def __init__(self, sub_parser):
-        """
+    """
+    Handler for exporting DAT files to JSON format.
 
-        :type sub_parser: argparse._SubParsersAction
+    Extends DatExportHandler with JSON-specific export options including
+    object format, virtual fields, ASCII encoding, and record length.
+    """
+
+    def __init__(self, sub_parser: Any) -> None:
+        """
+        Initialize JSON export handler.
+
+        Args:
+            sub_parser: Argument parser subparser to add commands to
         """
         self.json = sub_parser.add_parser(
             "json",
@@ -96,7 +106,16 @@ class JSONExportHandler(DatExportHandler):
 
         self.add_default_arguments(self.json)
 
-    def handle(self, args):
+    def handle(self, args: Any) -> None:
+        """
+        Handle JSON export command.
+
+        Exports DAT files to JSON format with options for object format,
+        virtual fields, ASCII encoding, and record length.
+
+        Args:
+            args: Parsed command-line arguments
+        """
         super().handle(args)
 
         dict_spec = args.spec.as_dict()

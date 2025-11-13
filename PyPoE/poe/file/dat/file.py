@@ -20,18 +20,17 @@ class DatFile(AbstractFileReadOnly):
     - IBufferable: Provides get_read_buffer() method (inherited)
     - IWritable: Provides write() method (supports writing)
 
-    Attributes
-    ----------
-    reader : DatReader
-        reference to the DatReader instance once :meth:`read` has been called
+    Attributes:
+        reader: DatReader instance (set after read() is called)
+        _file_name: Name of the DAT file
     """
 
     def __init__(self, file_name: str | None = None) -> None:
         """
-        Parameters
-        ----------
-        file_name : str, optional
-            Name of the .dat file (can be set later)
+        Initialize DatFile.
+
+        Args:
+            file_name: Name of the .dat file (can be set later)
         """
         self._file_name: str | None = file_name
         self.reader: DatReader | None = None
@@ -43,6 +42,12 @@ class DatFile(AbstractFileReadOnly):
         self._builder_x64: bool = False
 
     def __repr__(self) -> str:
+        """
+        Return string representation of DatFile.
+
+        Returns:
+            String representation with file name
+        """
         return f'DatFile<{hex(id(self))}>(file_name="{self._file_name}")'
 
     def _read(self, buffer: BinaryIO, *args: Any, **kwargs: Any) -> DatReader:

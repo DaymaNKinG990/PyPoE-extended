@@ -27,14 +27,14 @@ class DatReader(ReprMixin):
     - DatCaster: Type casting
     - DatIndexer: Index building
 
-    Attributes
-    ----------
-    file_name : str
-        File name
-    table_data : list[DatRecord]
-        List of rows containing DatRecord entries
-    index : dict[str, dict]
-        Indexes for columns
+    Attributes:
+        file_name: File name
+        table_data: List of rows containing DatRecord entries
+        index: Indexes for columns (built if auto_build_index is True)
+        specification: File specification
+        parser: DatParser instance
+        caster: DatCaster instance
+        indexer: DatIndexer instance
     """
 
     def __init__(
@@ -49,24 +49,17 @@ class DatReader(ReprMixin):
         """
         Initialize DatReader.
 
-        Parameters
-        ----------
-        file_name : str
-            Name of the dat file
-        use_dat_value : bool
-            Whether to use DatValue instances or values
-        specification : Specification
-            Specification to use
-        auto_build_index : bool
-            Whether to automatically build the index for unique columns after
-            reading.
-        x64 : bool
-            Whether the reader should run in 64 bit mode for dat64 files.
+        Args:
+            file_name: Name of the dat file
+            *args: Additional positional arguments (unused)
+            use_dat_value: Whether to use DatValue instances or values
+            specification: Specification to use
+            auto_build_index: Whether to automatically build the index for
+                unique columns after reading
+            x64: Whether the reader should run in 64 bit mode for dat64 files
 
-        Raises
-        ------
-        errors.SpecificationError
-            if the dat file is not in the specification
+        Raises:
+            SpecificationError: If the dat file is not in the specification
         """
         self.file_name = file_name
         self.auto_build_index = auto_build_index
@@ -122,12 +115,25 @@ class DatReader(ReprMixin):
         # Expose table_columns from parser
         self.table_columns = self.parser.table_columns
 
-    def __iter__(self):
-        """Iterate over table data."""
+    def __iter__(self) -> Any:
+        """
+        Iterate over table data.
+
+        Returns:
+            Iterator over DatRecord instances
+        """
         return iter(self.table_data)
 
-    def __getitem__(self, item):
-        """Get row by index."""
+    def __getitem__(self, item: int) -> Any:
+        """
+        Get row by index.
+
+        Args:
+            item: Row index
+
+        Returns:
+            DatRecord instance at the specified index
+        """
         return self.table_data[item]
 
     def read(self, raw: bytes | BytesIO) -> list[DatRecord]:
@@ -172,38 +178,31 @@ class DatReader(ReprMixin):
 
     def build_index(self, column: str | Iterable[str] | None = None) -> None:
         """
-        Builds or rebuilds the index for the specified column.
+        Build or rebuild index for specified column(s).
 
-        Delegates to DatIndexer.
+        Delegates to DatIndexer. If column is not specified, builds index
+        for all unique columns.
 
-        Parameters
-        ----------
-        column : str or Iterable or None
-            if specified the index will the built for the specified column
-            or iterable of columns
-            if not specified, the index will be build for any 'unique' columns
-            by default
+        Args:
+            column: Column name(s) to build index for, or None for all unique columns
         """
         self.indexer.build_index(self.table_data, column=column)
 
-    def row_iter(self):
+    def row_iter(self) -> Any:
         """
-        Returns iterator over rows.
+        Return iterator over rows.
 
-        Returns
-        -------
-        iter
-            Iterator over the rows
+        Returns:
+            Iterator over DatRecord instances
         """
         return iter(self.table_data)
 
-    def column_iter(self):
+    def column_iter(self) -> Any:
         """
-        Iterators over the columns.
+        Iterate over columns.
 
-        Yields
-        ------
-        list
+        Yields:
+            List of values for each column
             Values per column
         """
         for ci, _column in enumerate(self.table_columns):
