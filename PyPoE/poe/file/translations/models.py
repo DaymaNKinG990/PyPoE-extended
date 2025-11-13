@@ -130,7 +130,13 @@ class Translation(TranslationReprMixin):
 
     _REPR_EXTRA_ATTRIBUTES = OrderedDict((("ids", None),))
 
-    def __init__(self, identifier: str | None = None):
+    def __init__(self, identifier: str | None = None) -> None:
+        """
+        Initialize Translation.
+
+        Args:
+            identifier: Optional identifier string
+        """
         self.languages: list[TranslationLanguage] = []
         self.ids: list[str] = []
         self.identifier: str | None = identifier
@@ -147,7 +153,16 @@ class Translation(TranslationReprMixin):
     def __hash__(self):
         return hash((tuple(self.languages), tuple(self.ids)))
 
-    def diff(self, other):
+    def diff(self, other: Any) -> None:
+        """
+        Compare this translation with another and print differences.
+
+        Args:
+            other: Other Translation to compare with
+
+        Raises:
+            TypeError: If other is not a Translation instance
+        """
         if not isinstance(other, Translation):
             raise TypeError()
 
@@ -159,22 +174,16 @@ class Translation(TranslationReprMixin):
 
     def get_language(self, language: str = "English") -> "TranslationLanguage":
         """
-        Returns the :class:`TranslationLanguage` record for the specified
-        language.
+        Get TranslationLanguage record for specified language.
 
         As a fallback if the language is not found, the English
-        :class:`TranslationLanguage` record will be returned.
+        TranslationLanguage record will be returned.
 
-        Parameters
-        ----------
-        language : str
-            The language to get.
+        Args:
+            language: The language to get (default: "English")
 
-
-        Returns
-        -------
-            Returns the :class:`TranslationLanguage` record for the specified
-            language or the English one if not found
+        Returns:
+            TranslationLanguage record for specified language or English if not found
         """
         etr = None
         for tr in self.languages:
@@ -203,13 +212,29 @@ class TranslationLanguage(TranslationReprMixin):
 
     __slots__ = ["parent", "language", "strings"]
 
-    def __init__(self, language, parent):
+    def __init__(self, language: str, parent: Translation) -> None:
+        """
+        Initialize TranslationLanguage.
+
+        Args:
+            language: Language name (e.g., "English", "Russian")
+            parent: Parent Translation instance
+        """
         parent.languages.append(self)
         self.parent = parent
         self.language = language
         self.strings = []
 
-    def __eq__(self, other):
+    def __eq__(self, other: Any) -> bool:
+        """
+        Check equality of TranslationLanguage instances.
+
+        Args:
+            other: Other object to compare with
+
+        Returns:
+            True if language and strings are equal
+        """
         if not isinstance(other, TranslationLanguage):
             return False
 
@@ -221,7 +246,16 @@ class TranslationLanguage(TranslationReprMixin):
     def __hash__(self):
         return hash((self.language, tuple(self.strings)))
 
-    def diff(self, other):
+    def diff(self, other: Any) -> None:
+        """
+        Compare this translation language with another and print differences.
+
+        Args:
+            other: Other TranslationLanguage to compare with
+
+        Raises:
+            TypeError: If other is not a TranslationLanguage instance
+        """
         if not isinstance(other, TranslationLanguage):
             raise TypeError()
 
@@ -233,22 +267,16 @@ class TranslationLanguage(TranslationReprMixin):
 
     def get_string(
         self, values: list[int] | list[tuple[int, int]]
-    ) -> tuple[Union["TranslationString", None], list[bool] | None, list[int] | None]:
+    ) -> tuple["TranslationString" | None, list[bool] | None, list[int] | None]:
         """
-        Formats the string according with the given values and returns the
-        TranslationString instance as well as any left over (unused) values.
+        Get TranslationString for given values.
 
+        Args:
+            values: List of values to use for substitution (can include ranges)
 
-        Parameters
-        ----------
-        values
-            A list of values to be used for substitution
-
-        Returns
-        -------
-        str or list[int], list[int], list[int], dict[str, str]
-            Returns the formatted string. See
-            :meth:`TranslationString:format_string` for details.
+        Returns:
+            Tuple of (TranslationString, short_values, is_range) or (None, None, None)
+            if no match found
         """
         # Support for ranges
         is_range = []
@@ -295,35 +323,17 @@ class TranslationLanguage(TranslationReprMixin):
         only_values: bool = False,
     ) -> tuple[str | list[int], list[int], list[int], dict[str, str]]:
         """
-        Formats the string according with the given values and
-        returns the string and any left over (unused) values.
+        Format string according to given values.
 
-        If use_placeholder is specified, the values will be replaced with
-        a placeholder instead of the actual value.
+        Args:
+            values: List of values to use for substitution
+            use_placeholder: If True, uses placeholders (x, y, z) instead of values.
+                If callable, calls with index to get placeholder string
+            only_values: If True, returns formatted values instead of string
 
-        If only_values is specified, the instead of the string the formatted
-        values will be returned.
-
-
-        Parameters
-        ----------
-        values
-            A list of values to be used for substitution
-        use_placeholder
-            If true, Instead of values in the translations a placeholder (i.e.
-            x, y, z) will be used. Values are still required however to find
-            the "correct" wording of the translation.
-            If a callable is specified, it will call the function with
-            the index as first parameter. The callable should return a
-            string to use as placeholder.
-        only_values
-            Whether to return formatted values instead of the formatted string.
-
-
-        Returns
-        -------
-            Returns the formatted string. See
-            :meth:`TranslationString:format_string` for details.
+        Returns:
+            Tuple of (formatted_string, unused_values, used_values, extra_strings)
+            or (None, None, None, None) if no match found
         """
         ts, short_values, is_range = self.get_string(values)
 
@@ -397,7 +407,13 @@ class TranslationString(TranslationReprMixin):
     _RANGE_FORMAT = "({0}-{1})"
     _NEGATIVE_RANGE_FORMAT = "-({0}-{1})"
 
-    def __init__(self, parent: TranslationLanguage):
+    def __init__(self, parent: TranslationLanguage) -> None:
+        """
+        Initialize TranslationString.
+
+        Args:
+            parent: Parent TranslationLanguage instance
+        """
         parent.strings.append(self)
         self.parent: TranslationLanguage = parent
         self.quantifier: TranslationQuantifierHandler = TranslationQuantifierHandler()
@@ -421,7 +437,15 @@ class TranslationString(TranslationReprMixin):
     def __hash__(self) -> int:
         return hash((self.string, tuple(self.range), self.quantifier))
 
-    def _set_string(self, string: str):
+    def _set_string(self, string: str) -> None:
+        """
+        Parse and set translation string.
+
+        Extracts segments, tags, and tag types from the string format.
+
+        Args:
+            string: Raw translation string with {tag} placeholders
+        """
         string = string.replace("%%", "%").replace("\\n", "\n")
 
         start = None
@@ -444,11 +468,10 @@ class TranslationString(TranslationReprMixin):
     @property
     def string(self) -> str:
         """
-        Reconstructed original string that would be used for translation
+        Get reconstructed original string for translation.
 
-        Returns
-        -------
-            the original string
+        Returns:
+            Original string with {tag} placeholders
         """
         s = []
         for i, tag in enumerate(self.tags):
@@ -463,12 +486,10 @@ class TranslationString(TranslationReprMixin):
     @property
     def as_format_string(self) -> str:
         """
-        The translation string as python str.format string
+        Get translation string as Python str.format string.
 
-        Returns
-        -------
-        str
-            str.format string
+        Returns:
+            str.format compatible string
         """
         s = []
         for i, tag in enumerate(self.tags):
@@ -477,7 +498,16 @@ class TranslationString(TranslationReprMixin):
         s.append(self.strings[-1])
         return "".join(s)
 
-    def diff(self, other):
+    def diff(self, other: Any) -> None:
+        """
+        Compare this translation string with another and print differences.
+
+        Args:
+            other: Other TranslationString to compare with
+
+        Raises:
+            TypeError: If other is not a TranslationString instance
+        """
         if not isinstance(other, TranslationString):
             raise TypeError()
 
@@ -498,46 +528,17 @@ class TranslationString(TranslationReprMixin):
         only_values: bool = False,
     ) -> tuple[str | list[int], list[int], list[int], dict[str, str]]:
         """
-        Formats the string for the given values.
+        Format string for given values.
 
-        Optionally use_placeholder can be specified to return a string formatted
-        with a placeholder in place of the real value. It will use lowercase
-        ASCII starting at x. For indexes > 3, it will use uppercase ASCII.
+        Args:
+            values: List of values to use for formatting
+            is_range: List of bools indicating if value at index is a range
+            use_placeholder: If True, uses placeholders (x, y, z) instead of values.
+                If callable, calls with index to get placeholder string
+            only_values: If True, returns parsed values instead of formatted string
 
-        If only_values is specified, no string formatting will performed
-        and instead just parsed values will be returned.
-
-        Parameters
-        ----------
-        values
-            List of values to use for the formatting
-        is_range
-            List of bools representing whether the values at the list index is
-            a range or not
-        use_placeholder
-            If true, Instead of values in the translations a placeholder (i.e.
-            x, y, z) will be used. Values are still required however to find
-            the "correct" wording of the translation.
-            If a callable is specified, it will call the function with
-            the index as first parameter. The callable should return a
-            string to use as placeholder.
-        only_values
-            Only return the values and not
-
-
-        Returns
-        -------
-            Returns 4 values.
-
-            The first return value is the formatted string. If only placeholder
-            is specified, instead of the string a list of parsed values is
-            returned.
-
-            The second return value is a list of unused values.
-
-            The third return value is a list of used values.
-
-            The forth return value is a dictionary of extra strings
+        Returns:
+            Tuple of (formatted_string, unused_values, used_values, extra_strings)
         """
         values, extra_strings = self.quantifier.handle(values, is_range)
 
@@ -594,16 +595,13 @@ class TranslationString(TranslationReprMixin):
 
     def match_range(self, values: list[int | float]) -> int:
         """
-        Returns the accumulative range rating of the specified values.
+        Get accumulative range rating for specified values.
 
-        Parameters
-        ----------
-        values
-            List of values
+        Args:
+            values: List of values to check
 
-        Returns
-        -------
-            Sum of the ratings
+        Returns:
+            Sum of range ratings (higher = better match)
         """
         rating = 0
         for i, value in enumerate(values):
@@ -612,24 +610,17 @@ class TranslationString(TranslationReprMixin):
 
     def reverse_string(self, string: str) -> list[int] | None:
         """
-        Attempts to match this :class:`TranslationString` against the given
-        string.
+        Match this TranslationString against given string and reverse values.
 
-        If a match is found, it will attempt to cast and reverse all values
-        found in the string itself.
-
-        For missing values, it will try to insert the range maximum/minimum
+        If a match is found, attempts to cast and reverse all values found
+        in the string. For missing values, tries to insert range max/min
         values if set, otherwise None.
 
-        Parameters
-        ----------
-        string
-            string to match against
+        Args:
+            string: String to match against
 
-
-        Returns
-        -------
-            handled list of values or None if no match
+        Returns:
+            List of reversed values if match found, None otherwise
         """
         index = 0
         values_indexes = []
@@ -736,7 +727,16 @@ class TranslationRange(TranslationReprMixin):
 
     def __init__(
         self, min: int | None, max: int | None, parent: TranslationString, negated: bool = False
-    ):
+    ) -> None:
+        """
+        Initialize TranslationRange.
+
+        Args:
+            min: Minimum range value (None = no minimum)
+            max: Maximum range value (None = no maximum)
+            parent: Parent TranslationString instance
+            negated: Whether the range is negated
+        """
         parent.range.append(self)
         self.parent: TranslationString = parent
         self.min: int | None = min
@@ -744,6 +744,15 @@ class TranslationRange(TranslationReprMixin):
         self.negated: bool = negated
 
     def __eq__(self, other: Any) -> bool:
+        """
+        Check equality of TranslationRange instances.
+
+        Args:
+            other: Other object to compare with
+
+        Returns:
+            True if min, max, and negated are equal
+        """
         if not isinstance(other, TranslationRange):
             return False
 
@@ -760,23 +769,18 @@ class TranslationRange(TranslationReprMixin):
 
     def in_range(self, value: int) -> int:
         """
-        Checks whether the value is in range and returns the rating/accuracy
-        of the check performed.
+        Check if value is in range and return rating.
 
-        Parameters
-        ----------
-        value
-            Value to check
+        Args:
+            value: Value to check
 
-
-        Returns
-        -------
-            Returns the rating of the value
-            -10000 if mismatch (out of range)
-            -100 if no match
-            1 if any range is accepted
-            2 if either minimum or maximum is specified
-            3 if both minimum and maximum is specified
+        Returns:
+            Rating of the value:
+            - -10000 if mismatch (out of range)
+            - -100 if no match
+            - 1 if any range is accepted
+            - 2 if either min or max is specified
+            - 3 if both min and max are specified
         """
         # Any range is accepted
         if self.min is None and self.max is None:
@@ -843,7 +847,12 @@ class TranslationQuantifierHandler(TranslationReprMixin):
 
     __slots__ = ["index_handlers", "string_handlers"]
 
-    def __init__(self):
+    def __init__(self) -> None:
+        """
+        Initialize TranslationQuantifierHandler.
+
+        Creates empty handler dictionaries for index and string handlers.
+        """
         self.index_handlers: dict[str, list[int]] = defaultdict(list)
         self.string_handlers: dict[str, list[int]] = defaultdict(list)
 
@@ -857,33 +866,51 @@ class TranslationQuantifierHandler(TranslationReprMixin):
         # return hash((tuple(self.registered_handlers.keys()), tuple(self.registered_handlers.values())))
         return hash(tuple(self.index_handlers.keys()))
 
-    def _warn_uncaptured(self, name: str):
+    def _warn_uncaptured(self, name: str) -> None:
+        """
+        Raise error for uncaptured quantifier.
+
+        Args:
+            name: Name of uncaptured quantifier
+
+        Raises:
+            TypeError: Always raised to indicate missing quantifier handler
+        """
         raise TypeError(f"Uncaptured quantifier {name}, add in PyPoE/poe/translations.py")
 
     def _whole_float_to_int(self, value: float) -> float | int:
+        """
+        Convert whole float to int if applicable.
+
+        Args:
+            value: Float value to check
+
+        Returns:
+            int if value is whole number, otherwise float
+        """
         if isinstance(value, float) and value.is_integer():
             return int(value)
         return value
 
     @classmethod
-    def install_quantifier(cls, quantifier: "TranslationQuantifier"):
+    def install_quantifier(cls, quantifier: "TranslationQuantifier") -> None:
         """
-        Install the specified quantifier into the generic quantifier handling
+        Install quantifier into generic quantifier handling.
 
-        Parameters
-        ----------
-        quantifier - TranslationQuantifier
-            :class:`TranslationQuantifier` instance
-
-        Returns
-        -------
+        Args:
+            quantifier: TranslationQuantifier instance to install
         """
 
         cls.handlers[quantifier.id] = quantifier
         cls.reverse_handlers[quantifier.id] = quantifier
 
     @classmethod
-    def init(cls):
+    def init(cls) -> None:
+        """
+        Initialize regex pattern from installed handlers.
+
+        Must be called after all quantifiers are installed.
+        """
         cls.regex = re.compile(r"({})(?!\_)".format("|".join(cls.handlers.keys())), re.UNICODE)
 
     def diff(self, other: Any):
@@ -893,25 +920,35 @@ class TranslationQuantifierHandler(TranslationReprMixin):
         # if self.registered_handlers != other.registered_handlers:
         _diff_dict(self.index_handlers, other.index_handlers)
 
-    def _get_handler_func(self, handler_name: str) -> Callable:
+    def _get_handler_func(self, handler_name: str) -> Callable | None:
+        """
+        Get handler function for given handler name.
+
+        Args:
+            handler_name: Name of handler to get
+
+        Returns:
+            Handler function or None if not found/not set
+        """
         try:
             f = self.handlers[handler_name].handler
         except KeyError:
             self._warn_uncaptured(handler_name)
-            return None  # type: ignore[return-value]
+            return None
         if f is None:
             self._warn_uncaptured(handler_name)
-            return None  # type: ignore[return-value]
+            return None
         return f  # type: ignore[no-any-return]
 
-    def register_from_string(self, string: str):
+    def register_from_string(self, string: str) -> None:
         """
-        Registers handlers from the quantifier string.
+        Register handlers from quantifier string.
 
-        Parameters
-        ----------
-        string
-            quantifier string
+        Args:
+            string: Quantifier string to parse
+
+        Raises:
+            TypeError: If quantifier is not recognized
         """
         values = iter(self.regex.split(string))
 
@@ -942,23 +979,15 @@ class TranslationQuantifierHandler(TranslationReprMixin):
         self, values: list[int] | list[tuple[int, int]], is_range: list[bool]
     ) -> tuple[list[Any], dict[str, str]]:
         """
-        Handle the given values based on the registered quantifiers.
+        Handle values based on registered quantifiers.
 
-        Parameters
-        ----------
-        values
-            list of values
-        is_range
-            specifies whether the value at the index is a range or not. Must be
-            the same length as values.
+        Args:
+            values: List of values to handle
+            is_range: List of bools indicating if value at index is a range
+                (must be same length as values)
 
-        Returns
-        -------
-            Returns a handled list of values and a dictionary of handled
-            strings
-
-            The keys of the dictionary refer to the translation quantifier
-            string used
+        Returns:
+            Tuple of (handled_values, handled_strings_dict)
         """
         values = list(values)  # type: ignore[assignment]
         for handler_name in self.index_handlers:
@@ -989,16 +1018,13 @@ class TranslationQuantifierHandler(TranslationReprMixin):
 
     def handle_reverse(self, values: list[int]) -> list[int]:
         """
-        Reverses the quantifier for the given values.
+        Reverse quantifier for given values.
 
-        Parameters
-        ----------
-        values
-            list of values
+        Args:
+            values: List of values to reverse
 
-        Returns
-        -------
-            handled list of values
+        Returns:
+            Handled list of reversed values
         """
         indexes = set(range(0, len(values)))
         for handler_name in self.index_handlers:
@@ -1054,20 +1080,19 @@ class TranslationQuantifier(TranslationReprMixin):
         type: QuantifierTypes = QuantifierTypes.INT,
         handler: Callable | None = None,
         reverse_handler: Callable | None = None,
-    ):
+    ) -> None:
         """
-        Parameters
-        ----------
-        id
-            string identifier of the handler
-        arg_size
-            number of arguments this handler accepts (excluding self)
-        type
-            type of the quantifier
-        handler
-            function that handles the values, if any
-        reverse_handler
-            function  hat reverses handles the values, if any
+        Initialize TranslationQuantifier.
+
+        Args:
+            id: String identifier of the handler
+            arg_size: Number of arguments this handler accepts (default: 1)
+            type: Type of the quantifier (default: INT)
+            handler: Function that handles the values (optional)
+            reverse_handler: Function that reverses handles the values (optional)
+
+        Raises:
+            ValueError: If type is not a QuantifierTypes instance
         """
         self.id: str = id
         self.arg_size: int = arg_size
@@ -1080,7 +1105,17 @@ class TranslationQuantifier(TranslationReprMixin):
 
 
 class TQReminderString(TranslationQuantifier):
-    def __init__(self, relational_reader, *args, **kwargs):
+    """Translation quantifier for reminder strings from ClientStrings.dat."""
+
+    def __init__(self, relational_reader: Any, *args: Any, **kwargs: Any) -> None:
+        """
+        Initialize TQReminderString.
+
+        Args:
+            relational_reader: RelationalReader instance for accessing ClientStrings.dat
+            *args: Additional positional arguments (unused)
+            **kwargs: Additional keyword arguments (unused)
+        """
         self.relational_reader = relational_reader
         super().__init__(
             id="reminderstring",
@@ -1089,5 +1124,14 @@ class TQReminderString(TranslationQuantifier):
             reverse_handler=None,
         )
 
-    def handle(self, *args):
+    def handle(self, *args: Any) -> str:
+        """
+        Handle reminder string lookup.
+
+        Args:
+            *args: Arguments (first should be string ID)
+
+        Returns:
+            Text from ClientStrings.dat for given ID
+        """
         return self.relational_reader["ClientStrings.dat"].index["Id"][args[0].strip()]["Text"]
