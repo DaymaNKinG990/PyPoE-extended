@@ -134,11 +134,11 @@ def method_name(self, param: Type) -> ReturnType:
 
 ## 📈 Прогресс
 
-**Текущий прогресс:** ~72% (360/500 docstrings)
+**Текущий прогресс:** ~76% (380/500 docstrings)
 
 **Приоритет 1 (Public API):** 0% (0/150) - большинство уже имеют docstrings
 **Приоритет 2 (Классы/Методы):** 100% (250/250) ✅ ЗАВЕРШЕНО
-**Приоритет 3 (Внутренние):** 44% (110/250) - в процессе
+**Приоритет 3 (Внутренние):** 52% (130/250) - в процессе
   - ✅ BaseParser: 100% (9 методов)
   - ✅ ItemsParser: 100% (12 методов)
   - ✅ SkillParserShared: 100% (3 метода)
@@ -234,6 +234,8 @@ def method_name(self, param: Type) -> ReturnType:
   - ✅ DatIndexer: 100% (1 метод)
   - ✅ DatValue: 100% (9 методов)
   - ✅ RelationalReader: 100% (2 метода)
+  - ✅ PatchServer модули: ~90% (10+ методов)
+  - ✅ DAT Strategies: 100% (6 методов)
 
 ---
 
