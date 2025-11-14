@@ -252,5 +252,6 @@ class TestDatReader:
 
         reader.read(file_raw)
 
-        assert len(reader) == 5
+        # DatReader doesn't have __len__, use len(table_data) instead
+        assert len(reader.table_data) == 5
 
