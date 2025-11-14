@@ -17,36 +17,49 @@ class TestDatReader:
 
     def test_init(self) -> None:
         """Test DatReader initialization."""
-        spec = MagicMock()
-        spec.columns_data = ["id"]
-        spec.fields = {"id": MagicMock(type="int")}
-        spec.columns_unique = {}
+        # DatReader expects specification to be a dict with file_name as key
+        spec_obj = MagicMock()
+        spec_obj.columns_data = ["id"]
+        spec_obj.fields = {"id": MagicMock(type="int")}
+        spec_obj.columns_unique = {}
+        spec_obj.columns = []
+        spec_obj.columns_all = []
+        spec_obj.columns_zip = []
+        spec = {"test.dat": spec_obj}
         caster = DatCaster()
         reader = DatReader("test.dat", spec, caster)
         assert reader.file_name == "test.dat"
-        assert reader.specification == spec
+        assert reader.specification == spec_obj
         assert reader.caster == caster
         assert reader.x64 is False
 
     def test_init_x64(self) -> None:
         """Test DatReader initialization with x64 mode."""
-        spec = MagicMock()
-        spec.columns_data = ["id"]
-        spec.fields = {"id": MagicMock(type="int")}
-        spec.columns_unique = {}
+        spec_obj = MagicMock()
+        spec_obj.columns_data = ["id"]
+        spec_obj.fields = {"id": MagicMock(type="int")}
+        spec_obj.columns_unique = {}
+        spec_obj.columns = []
+        spec_obj.columns_all = []
+        spec_obj.columns_zip = []
+        spec = {"test.dat": spec_obj}
         caster = DatCaster(x64=True)
         reader = DatReader("test.dat", spec, caster, x64=True)
         assert reader.x64 is True
 
     def test_table_columns_property(self) -> None:
         """Test table_columns property."""
-        spec = MagicMock()
-        spec.columns_data = ["id", "name"]
-        spec.fields = {
+        spec_obj = MagicMock()
+        spec_obj.columns_data = ["id", "name"]
+        spec_obj.fields = {
             "id": MagicMock(type="int"),
-            "name": MagicMock(type="string"),
+            "name": MagicMock(type="ref|string"),  # Use ref|string instead of string
         }
-        spec.columns_unique = {}
+        spec_obj.columns_unique = {}
+        spec_obj.columns = []
+        spec_obj.columns_all = []
+        spec_obj.columns_zip = []
+        spec = {"test.dat": spec_obj}
         caster = DatCaster()
         reader = DatReader("test.dat", spec, caster)
         assert "id" in reader.table_columns
@@ -54,15 +67,18 @@ class TestDatReader:
 
     def test_read_empty_file(self) -> None:
         """Test reading empty DAT file."""
-        spec = MagicMock()
-        spec.columns_data = ["id"]
-        spec.fields = {"id": MagicMock(type="int")}
-        spec.columns_unique = {}
+        spec_obj = MagicMock()
+        spec_obj.columns_data = ["id"]
+        spec_obj.fields = {"id": MagicMock(type="int")}
+        spec_obj.columns_unique = {}
+        spec_obj.columns = []
+        spec_obj.columns_all = []
+        spec_obj.columns_zip = []
+        spec = {"test.dat": spec_obj}
         caster = DatCaster()
         reader = DatReader("test.dat", spec, caster)
 
         # Empty file with cast_size > 0 will fail validation
-        # This is expected behavior - skip this test or expect error
         import struct
 
         from PyPoE.poe.file.dat.parser import DAT_FILE_MAGIC_NUMBER
@@ -74,10 +90,14 @@ class TestDatReader:
 
     def test_read_single_row(self) -> None:
         """Test reading DAT file with single row."""
-        spec = MagicMock()
-        spec.columns_data = ["id"]
-        spec.fields = {"id": MagicMock(type="int")}
-        spec.columns_unique = {}
+        spec_obj = MagicMock()
+        spec_obj.columns_data = ["id"]
+        spec_obj.fields = {"id": MagicMock(type="int")}
+        spec_obj.columns_unique = {}
+        spec_obj.columns = []
+        spec_obj.columns_all = []
+        spec_obj.columns_zip = []
+        spec = {"test.dat": spec_obj}
         caster = DatCaster()
         reader = DatReader("test.dat", spec, caster)
 
@@ -98,10 +118,14 @@ class TestDatReader:
 
     def test_read_bytesio(self) -> None:
         """Test reading DAT file from BytesIO."""
-        spec = MagicMock()
-        spec.columns_data = ["id"]
-        spec.fields = {"id": MagicMock(type="int")}
-        spec.columns_unique = {}
+        spec_obj = MagicMock()
+        spec_obj.columns_data = ["id"]
+        spec_obj.fields = {"id": MagicMock(type="int")}
+        spec_obj.columns_unique = {}
+        spec_obj.columns = []
+        spec_obj.columns_all = []
+        spec_obj.columns_zip = []
+        spec = {"test.dat": spec_obj}
         caster = DatCaster()
         reader = DatReader("test.dat", spec, caster)
 
@@ -122,10 +146,14 @@ class TestDatReader:
 
     def test_get_row_by_index(self) -> None:
         """Test getting row by index."""
-        spec = MagicMock()
-        spec.columns_data = ["id"]
-        spec.fields = {"id": MagicMock(type="int")}
-        spec.columns_unique = {}
+        spec_obj = MagicMock()
+        spec_obj.columns_data = ["id"]
+        spec_obj.fields = {"id": MagicMock(type="int")}
+        spec_obj.columns_unique = {}
+        spec_obj.columns = []
+        spec_obj.columns_all = []
+        spec_obj.columns_zip = []
+        spec = {"test.dat": spec_obj}
         caster = DatCaster()
         reader = DatReader("test.dat", spec, caster)
 
@@ -152,10 +180,14 @@ class TestDatReader:
 
     def test_get_row_by_index_out_of_range(self) -> None:
         """Test getting row with out of range index."""
-        spec = MagicMock()
-        spec.columns_data = ["id"]
-        spec.fields = {"id": MagicMock(type="int")}
-        spec.columns_unique = {}
+        spec_obj = MagicMock()
+        spec_obj.columns_data = ["id"]
+        spec_obj.fields = {"id": MagicMock(type="int")}
+        spec_obj.columns_unique = {}
+        spec_obj.columns = []
+        spec_obj.columns_all = []
+        spec_obj.columns_zip = []
+        spec = {"test.dat": spec_obj}
         caster = DatCaster()
         reader = DatReader("test.dat", spec, caster)
 
@@ -176,10 +208,14 @@ class TestDatReader:
 
     def test_iter_rows(self) -> None:
         """Test iterating over rows."""
-        spec = MagicMock()
-        spec.columns_data = ["id"]
-        spec.fields = {"id": MagicMock(type="int")}
-        spec.columns_unique = {}
+        spec_obj = MagicMock()
+        spec_obj.columns_data = ["id"]
+        spec_obj.fields = {"id": MagicMock(type="int")}
+        spec_obj.columns_unique = {}
+        spec_obj.columns = []
+        spec_obj.columns_all = []
+        spec_obj.columns_zip = []
+        spec = {"test.dat": spec_obj}
         caster = DatCaster()
         reader = DatReader("test.dat", spec, caster)
 
@@ -202,10 +238,14 @@ class TestDatReader:
 
     def test_len(self) -> None:
         """Test len() of DatReader."""
-        spec = MagicMock()
-        spec.columns_data = ["id"]
-        spec.fields = {"id": MagicMock(type="int")}
-        spec.columns_unique = {}
+        spec_obj = MagicMock()
+        spec_obj.columns_data = ["id"]
+        spec_obj.fields = {"id": MagicMock(type="int")}
+        spec_obj.columns_unique = {}
+        spec_obj.columns = []
+        spec_obj.columns_all = []
+        spec_obj.columns_zip = []
+        spec = {"test.dat": spec_obj}
         caster = DatCaster()
         reader = DatReader("test.dat", spec, caster)
 
