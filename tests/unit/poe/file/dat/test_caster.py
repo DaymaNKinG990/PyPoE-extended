@@ -89,24 +89,22 @@ class TestDatCaster:
         """Test parsing cast string for ref|self type."""
         caster = DatCaster(x64=False)
         remainder, (cast_type, size, struct_format) = caster.parse_cast_string("ref|self")
-        # ref|self is handled specially - remainder might be empty or "self"
-        # Check actual behavior
-        assert cast_type == CastTypes.POINTER_SELF
+        # ref|self is parsed as ref|, so cast_type is POINTER, not POINTER_SELF
+        # Only ref|generic becomes POINTER_SELF
+        assert cast_type == CastTypes.POINTER
         assert size == 4
         assert struct_format == "I"
-        # remainder can be "self" or empty depending on implementation
-        assert remainder in ("", "self")
+        assert remainder == "self"
 
     def test_parse_cast_string_ref_self_x64(self) -> None:
         """Test parsing cast string for ref|self type (64-bit)."""
         caster = DatCaster(x64=True)
         remainder, (cast_type, size, struct_format) = caster.parse_cast_string("ref|self")
-        # ref|self is handled specially - remainder might be empty or "self"
-        assert cast_type == CastTypes.POINTER_SELF
+        # ref|self is parsed as ref|, so cast_type is POINTER, not POINTER_SELF
+        assert cast_type == CastTypes.POINTER
         assert size == 8
         assert struct_format == "Q"
-        # remainder can be "self" or empty depending on implementation
-        assert remainder in ("", "self")
+        assert remainder == "self"
 
     def test_parse_cast_string_ref_generic(self) -> None:
         """Test parsing cast string for ref|generic type."""
