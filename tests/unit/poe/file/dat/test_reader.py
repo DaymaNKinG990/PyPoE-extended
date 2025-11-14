@@ -51,7 +51,7 @@ class TestDatReader:
         spec_obj.columns_data = ["id", "name"]
         spec_obj.fields = {
             "id": MagicMock(type="int"),
-            "name": MagicMock(type="ref|string"),  # Use ref|string instead of string
+            "name": MagicMock(type="int"),  # Use int instead of string/ref|string
         }
         spec_obj.columns_unique = {}
         spec_obj.columns = []
