@@ -2,13 +2,13 @@
 Unit tests for GGPKReader class.
 """
 
+import struct
 from io import BytesIO
-from unittest.mock import MagicMock, patch
 
 import pytest
 
 from PyPoE.poe.file.ggpk.reader import GGPKReader
-from PyPoE.poe.file.ggpk.records import GGPKError, InvalidTagError
+from PyPoE.poe.file.ggpk.records import InvalidTagError
 
 
 class TestGGPKReader:
@@ -18,126 +18,217 @@ class TestGGPKReader:
         """Test GGPKReader initialization."""
         reader = GGPKReader()
         assert reader is not None
+        assert reader._container is None
 
-    def test_read_valid_ggpk(self) -> None:
-        """Test reading valid GGPK file structure."""
+    def test_init_with_container(self) -> None:
+        """Test GGPKReader initialization with container."""
+        container = object()
+        reader = GGPKReader(container=container)
+        assert reader._container == container
+
+    def test_read_file_ggpk_record(self) -> None:
+        """Test reading GGPK record."""
         reader = GGPKReader()
-        # Minimal valid GGPK structure
-        # GGPK header: magic (4 bytes) + version (4 bytes) + root_offset (8 bytes)
-        magic = b"GGPK"
-        version = b"\x01\x00\x00\x00"  # Version 1
-        root_offset = b"\x00\x00\x00\x00\x00\x00\x00\x00"  # Offset 0
-        header = magic + version + root_offset
+        # GGPK record: length (4) + tag (4) + records_count (4) + offsets (8 * count)
+        record_length = 20  # 4 (tag) + 4 (count) + 8*2 (2 offsets)
+        records_count = 2
+        offset1 = 100
+        offset2 = 200
 
-        # Root directory record
-        # Record header: length (4) + name_length (4) + name + entries_count (4)
-        record_length = 20  # Minimal record
-        name_length = 0
-        entries_count = 0
-        record = (
-            record_length.to_bytes(4, "little")
-            + name_length.to_bytes(4, "little")
-            + entries_count.to_bytes(4, "little")
-            + b"\x00" * 8  # Padding
+        file_data = (
+            struct.pack("<i", record_length)  # length
+            + b"GGPK"  # tag
+            + struct.pack("<i", records_count)  # records count
+            + struct.pack("<q", offset1)  # offset 1
+            + struct.pack("<q", offset2)  # offset 2
         )
 
-        file_data = header + record
-
-        with patch.object(reader, "_read_record", return_value=None):
-            result = reader.read(file_data)
-            assert result is not None
-
-    def test_read_invalid_magic(self) -> None:
-        """Test reading file with invalid magic number."""
-        reader = GGPKReader()
-        invalid_data = b"INVALID" + b"\x00" * 100
-
-        with pytest.raises(GGPKError, match="Invalid magic"):
-            reader.read(invalid_data)
-
-    def test_read_empty_file(self) -> None:
-        """Test reading empty file."""
-        reader = GGPKReader()
-        empty_data = b""
-
-        with pytest.raises(GGPKError):
-            reader.read(empty_data)
-
-    def test_read_bytesio(self) -> None:
-        """Test reading from BytesIO."""
-        reader = GGPKReader()
-        magic = b"GGPK"
-        version = b"\x01\x00\x00\x00"
-        root_offset = b"\x00\x00\x00\x00\x00\x00\x00\x00"
-        file_data = magic + version + root_offset
-
         file_io = BytesIO(file_data)
+        records = reader.read_file(file_io)
 
-        with patch.object(reader, "_read_record", return_value=None):
-            result = reader.read(file_io)
-            assert result is not None
+        assert len(records) == 1
+        assert 0 in records
+        assert records[0].tag == "GGPK"
 
-    def test_read_record_file(self) -> None:
-        """Test reading file record."""
+    def test_read_file_file_record(self) -> None:
+        """Test reading FILE record."""
         reader = GGPKReader()
-        # File record structure
-        record_length = 20
-        name_length = 4
-        name = b"test"
+        # FILE record: length (4) + tag (4) + name_length (4) + name (UTF-16) + data_offset (8) + data_length (4)
+        name = "test.dat"
+        name_bytes = name.encode("utf-16-le") + b"\x00\x00"  # UTF-16 with null terminator
+        name_length = len(name_bytes) // 2  # UTF-16 is 2 bytes per char
+        record_length = 4 + 4 + 4 + len(name_bytes) + 8 + 4  # All fields
         data_offset = 100
         data_length = 50
 
-        record_data = (
-            record_length.to_bytes(4, "little")
-            + name_length.to_bytes(4, "little")
-            + name
-            + data_offset.to_bytes(8, "little")
-            + data_length.to_bytes(4, "little")
+        file_data = (
+            struct.pack("<i", record_length)  # length
+            + b"FILE"  # tag
+            + struct.pack("<i", name_length)  # name_length
+            + name_bytes  # name
+            + struct.pack("<q", data_offset)  # data_offset
+            + struct.pack("<i", data_length)  # data_length
         )
 
-        file_raw = b"GGPK" + b"\x01\x00\x00\x00" + b"\x00" * 8 + record_data
+        file_io = BytesIO(file_data)
+        records = reader.read_file(file_io)
 
-        with patch.object(reader, "_read_data", return_value=b"test data"):
-            result = reader.read(file_raw)
-            # Should not raise error
-            assert result is not None
+        assert len(records) == 1
+        assert 0 in records
+        assert records[0].tag == "FILE"
+        assert records[0].name == name
 
-    def test_read_record_directory(self) -> None:
-        """Test reading directory record."""
+    def test_read_file_directory_record(self) -> None:
+        """Test reading PDIR (directory) record."""
         reader = GGPKReader()
-        # Directory record structure
-        record_length = 20
-        name_length = 4
-        name = b"dir"
+        # PDIR record: length (4) + tag (4) + name_length (4) + entries_count (4) + hash (32) + name (UTF-16) + entries
+        name = "dir"
+        name_bytes = name.encode("utf-16-le") + b"\x00\x00"
+        name_length = len(name_bytes) // 2
         entries_count = 0
+        hash_bytes = b"\x00" * 32
+        record_length = 4 + 4 + 4 + 4 + 32 + len(name_bytes)  # All fields
 
-        record_data = (
-            record_length.to_bytes(4, "little")
-            + name_length.to_bytes(4, "little")
-            + name
-            + entries_count.to_bytes(4, "little")
-            + b"\x00" * 8
+        file_data = (
+            struct.pack("<i", record_length)  # length
+            + b"PDIR"  # tag
+            + struct.pack("<i", name_length)  # name_length
+            + struct.pack("<i", entries_count)  # entries_count
+            + hash_bytes  # hash
+            + name_bytes  # name
         )
 
-        file_raw = b"GGPK" + b"\x01\x00\x00\x00" + b"\x00" * 8 + record_data
+        file_io = BytesIO(file_data)
+        records = reader.read_file(file_io)
 
-        result = reader.read(file_raw)
-        # Should not raise error
-        assert result is not None
+        assert len(records) == 1
+        assert 0 in records
+        assert records[0].tag == "PDIR"
+        assert records[0].name == name
 
-    def test_read_invalid_tag(self) -> None:
+    def test_read_file_free_record(self) -> None:
+        """Test reading FREE record."""
+        reader = GGPKReader()
+        # FREE record: length (4) + tag (4) + next_free_offset (8)
+        record_length = 4 + 8  # tag + next_free_offset
+        next_free_offset = 200
+
+        file_data = (
+            struct.pack("<i", record_length)  # length
+            + b"FREE"  # tag
+            + struct.pack("<q", next_free_offset)  # next_free_offset
+        )
+
+        file_io = BytesIO(file_data)
+        records = reader.read_file(file_io)
+
+        assert len(records) == 1
+        assert 0 in records
+        assert records[0].tag == "FREE"
+
+    def test_read_file_invalid_tag(self) -> None:
         """Test reading record with invalid tag."""
         reader = GGPKReader()
-        # Invalid tag (not FILE, DIRECTORY, GGPK, FREE)
+        # Invalid tag
         invalid_tag = b"XXXX"
-        record_data = (
-            b"\x10\x00\x00\x00"  # length
+        record_length = 4 + 8  # tag + some data
+
+        file_data = (
+            struct.pack("<i", record_length)  # length
             + invalid_tag  # invalid tag
-            + b"\x00" * 8
+            + b"\x00" * 8  # padding
         )
 
-        file_raw = b"GGPK" + b"\x01\x00\x00\x00" + b"\x00" * 8 + record_data
+        file_io = BytesIO(file_data)
+        # Should recover and return empty dict (no valid records found)
+        records = reader.read_file(file_io)
+        # Reader will try to find next record, but won't find any
+        assert len(records) == 0
 
+    def test_read_file_empty(self) -> None:
+        """Test reading empty file."""
+        reader = GGPKReader()
+        file_io = BytesIO(b"")
+        records = reader.read_file(file_io)
+        assert len(records) == 0
+
+    def test_read_record(self) -> None:
+        """Test reading a single record."""
+        reader = GGPKReader()
+        records: dict[int, object] = {}
+        # GGPK record
+        record_length = 20
+        records_count = 2
+        offset1 = 100
+        offset2 = 200
+
+        file_data = (
+            struct.pack("<i", record_length)  # length
+            + b"GGPK"  # tag
+            + struct.pack("<i", records_count)  # records count
+            + struct.pack("<q", offset1)  # offset 1
+            + struct.pack("<q", offset2)  # offset 2
+        )
+
+        file_io = BytesIO(file_data)
+        reader.read_record(records=records, buffer=file_io, offset=0)
+
+        assert len(records) == 1
+        assert 0 in records
+        assert records[0].tag == "GGPK"
+
+    def test_read_record_invalid_tag(self) -> None:
+        """Test reading record with invalid tag raises error."""
+        reader = GGPKReader()
+        records: dict[int, object] = {}
+        invalid_tag = b"XXXX"
+        record_length = 4 + 8
+
+        file_data = (
+            struct.pack("<i", record_length)  # length
+            + invalid_tag  # invalid tag
+            + b"\x00" * 8  # padding
+        )
+
+        file_io = BytesIO(file_data)
         with pytest.raises(InvalidTagError):
-            reader.read(file_raw)
+            reader.read_record(records=records, buffer=file_io, offset=0)
+
+    def test_create_record_file(self) -> None:
+        """Test creating FILE record."""
+        reader = GGPKReader()
+        record = reader._create_record(b"FILE", 100, 0)
+        assert record.tag == "FILE"
+        assert record.length == 100
+        assert record.offset == 0
+
+    def test_create_record_directory(self) -> None:
+        """Test creating PDIR record."""
+        reader = GGPKReader()
+        record = reader._create_record(b"PDIR", 200, 100)
+        assert record.tag == "PDIR"
+        assert record.length == 200
+        assert record.offset == 100
+
+    def test_create_record_ggpk(self) -> None:
+        """Test creating GGPK record."""
+        reader = GGPKReader()
+        record = reader._create_record(b"GGPK", 50, 0)
+        assert record.tag == "GGPK"
+        assert record.length == 50
+        assert record.offset == 0
+
+    def test_create_record_free(self) -> None:
+        """Test creating FREE record."""
+        reader = GGPKReader()
+        record = reader._create_record(b"FREE", 20, 50)
+        assert record.tag == "FREE"
+        assert record.length == 20
+        assert record.offset == 50
+
+    def test_create_record_invalid_tag(self) -> None:
+        """Test creating record with invalid tag raises error."""
+        reader = GGPKReader()
+        with pytest.raises(InvalidTagError):
+            reader._create_record(b"XXXX", 100, 0)
 
