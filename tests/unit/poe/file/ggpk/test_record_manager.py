@@ -15,73 +15,85 @@ class TestGGPKRecordManager:
         """Test GGPKRecordManager initialization."""
         manager = GGPKRecordManager()
         assert len(manager) == 0
-        assert manager.records == []
+        assert len(manager.get_records()) == 0
 
     def test_add_record(self) -> None:
         """Test adding a record."""
         manager = GGPKRecordManager()
-        record = FileRecord(
-            name="test.dat",
-            data_offset=0,
-            data_length=100,
-        )
-        manager.add_record(record)
+        container = MagicMock()
+        record = FileRecord(container=container, length=100, offset=0)
+        record.name = "test.dat"
+        manager.add_record(0, record)
         assert len(manager) == 1
-        assert record in manager.records
+        assert manager.get_record(0) == record
 
     def test_add_multiple_records(self) -> None:
         """Test adding multiple records."""
         manager = GGPKRecordManager()
-        record1 = FileRecord(name="file1.dat", data_offset=0, data_length=50)
-        record2 = FileRecord(name="file2.dat", data_offset=50, data_length=50)
-        manager.add_record(record1)
-        manager.add_record(record2)
+        container = MagicMock()
+        record1 = FileRecord(container=container, length=50, offset=0)
+        record1.name = "file1.dat"
+        record2 = FileRecord(container=container, length=50, offset=50)
+        record2.name = "file2.dat"
+        manager.add_record(0, record1)
+        manager.add_record(50, record2)
         assert len(manager) == 2
 
-    def test_get_record_by_name(self) -> None:
-        """Test getting record by name."""
+    def test_get_record(self) -> None:
+        """Test getting record by offset."""
         manager = GGPKRecordManager()
-        record = FileRecord(name="test.dat", data_offset=0, data_length=100)
-        manager.add_record(record)
-        found = manager.get_record_by_name("test.dat")
+        container = MagicMock()
+        record = FileRecord(container=container, length=100, offset=0)
+        record.name = "test.dat"
+        manager.add_record(0, record)
+        found = manager.get_record(0)
         assert found == record
 
-    def test_get_record_by_name_not_found(self) -> None:
+    def test_get_record_not_found(self) -> None:
         """Test getting non-existent record."""
         manager = GGPKRecordManager()
-        found = manager.get_record_by_name("nonexistent.dat")
+        found = manager.get_record(999)
         assert found is None
 
-    def test_get_records_by_type(self) -> None:
-        """Test getting records by type."""
+    def test_get_records(self) -> None:
+        """Test getting all records."""
         manager = GGPKRecordManager()
-        file_record = FileRecord(name="file.dat", data_offset=0, data_length=100)
-        dir_record = DirectoryRecord(name="dir", entries=[])
-        manager.add_record(file_record)
-        manager.add_record(dir_record)
+        container = MagicMock()
+        record1 = FileRecord(container=container, length=100, offset=0)
+        record1.name = "file1.dat"
+        record2 = FileRecord(container=container, length=100, offset=100)
+        record2.name = "file2.dat"
+        manager.add_record(0, record1)
+        manager.add_record(100, record2)
 
-        file_records = manager.get_records_by_type(FileRecord)
-        assert len(file_records) == 1
-        assert file_records[0] == file_record
+        records = manager.get_records()
+        assert len(records) == 2
+        assert 0 in records
+        assert 100 in records
 
     def test_clear(self) -> None:
         """Test clearing all records."""
         manager = GGPKRecordManager()
-        record = FileRecord(name="test.dat", data_offset=0, data_length=100)
-        manager.add_record(record)
+        container = MagicMock()
+        record = FileRecord(container=container, length=100, offset=0)
+        record.name = "test.dat"
+        manager.add_record(0, record)
         assert len(manager) == 1
 
         manager.clear()
         assert len(manager) == 0
-        assert manager.records == []
+        assert len(manager.get_records()) == 0
 
     def test_iter(self) -> None:
         """Test iterating over records."""
         manager = GGPKRecordManager()
-        record1 = FileRecord(name="file1.dat", data_offset=0, data_length=50)
-        record2 = FileRecord(name="file2.dat", data_offset=50, data_length=50)
-        manager.add_record(record1)
-        manager.add_record(record2)
+        container = MagicMock()
+        record1 = FileRecord(container=container, length=50, offset=0)
+        record1.name = "file1.dat"
+        record2 = FileRecord(container=container, length=50, offset=50)
+        record2.name = "file2.dat"
+        manager.add_record(0, record1)
+        manager.add_record(50, record2)
 
         records = list(manager)
         assert len(records) == 2
@@ -96,8 +108,10 @@ class TestGGPKRecordManager:
     def test_len_with_records(self) -> None:
         """Test length with records."""
         manager = GGPKRecordManager()
+        container = MagicMock()
         for i in range(5):
-            record = FileRecord(name=f"file{i}.dat", data_offset=i * 100, data_length=100)
-            manager.add_record(record)
+            record = FileRecord(container=container, length=100, offset=i * 100)
+            record.name = f"file{i}.dat"
+            manager.add_record(i * 100, record)
         assert len(manager) == 5
 

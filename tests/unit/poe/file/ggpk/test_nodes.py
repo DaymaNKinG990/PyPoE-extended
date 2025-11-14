@@ -2,6 +2,8 @@
 Unit tests for DirectoryNode class.
 """
 
+from unittest.mock import MagicMock
+
 import pytest
 
 from PyPoE.poe.file.ggpk.nodes import DirectoryNode
@@ -13,7 +15,9 @@ class TestDirectoryNode:
 
     def test_init(self) -> None:
         """Test DirectoryNode initialization."""
-        record = DirectoryRecord(name="test", entries=[])
+        container = MagicMock()
+        record = DirectoryRecord(container=container, length=100, offset=0)
+        record.name = "test"
         node = DirectoryNode(record)
         assert node.record == record
         assert node.children == []
@@ -21,8 +25,11 @@ class TestDirectoryNode:
 
     def test_add_child(self) -> None:
         """Test adding a child node."""
-        parent_record = DirectoryRecord(name="parent", entries=[])
-        child_record = DirectoryRecord(name="child", entries=[])
+        container = MagicMock()
+        parent_record = DirectoryRecord(container=container, length=100, offset=0)
+        parent_record.name = "parent"
+        child_record = DirectoryRecord(container=container, length=100, offset=100)
+        child_record.name = "child"
         parent = DirectoryNode(parent_record)
         child = DirectoryNode(child_record)
 
@@ -32,8 +39,11 @@ class TestDirectoryNode:
 
     def test_add_child_file(self) -> None:
         """Test adding a file child."""
-        dir_record = DirectoryRecord(name="dir", entries=[])
-        file_record = FileRecord(name="file.dat", data_offset=0, data_length=100)
+        container = MagicMock()
+        dir_record = DirectoryRecord(container=container, length=100, offset=0)
+        dir_record.name = "dir"
+        file_record = FileRecord(container=container, length=100, offset=200)
+        file_record.name = "file.dat"
         parent = DirectoryNode(dir_record)
         child = DirectoryNode(file_record)
 
@@ -42,8 +52,11 @@ class TestDirectoryNode:
 
     def test_remove_child(self) -> None:
         """Test removing a child node."""
-        parent_record = DirectoryRecord(name="parent", entries=[])
-        child_record = DirectoryRecord(name="child", entries=[])
+        container = MagicMock()
+        parent_record = DirectoryRecord(container=container, length=100, offset=0)
+        parent_record.name = "parent"
+        child_record = DirectoryRecord(container=container, length=100, offset=100)
+        child_record.name = "child"
         parent = DirectoryNode(parent_record)
         child = DirectoryNode(child_record)
 
@@ -56,8 +69,11 @@ class TestDirectoryNode:
 
     def test_get_child_by_name(self) -> None:
         """Test getting child by name."""
-        parent_record = DirectoryRecord(name="parent", entries=[])
-        child_record = DirectoryRecord(name="child", entries=[])
+        container = MagicMock()
+        parent_record = DirectoryRecord(container=container, length=100, offset=0)
+        parent_record.name = "parent"
+        child_record = DirectoryRecord(container=container, length=100, offset=100)
+        child_record.name = "child"
         parent = DirectoryNode(parent_record)
         child = DirectoryNode(child_record)
 
@@ -67,16 +83,22 @@ class TestDirectoryNode:
 
     def test_get_child_by_name_not_found(self) -> None:
         """Test getting non-existent child."""
-        parent_record = DirectoryRecord(name="parent", entries=[])
+        container = MagicMock()
+        parent_record = DirectoryRecord(container=container, length=100, offset=0)
+        parent_record.name = "parent"
         parent = DirectoryNode(parent_record)
         found = parent.get_child_by_name("nonexistent")
         assert found is None
 
     def test_get_path(self) -> None:
         """Test getting node path."""
-        root_record = DirectoryRecord(name="", entries=[])
-        dir_record = DirectoryRecord(name="dir", entries=[])
-        file_record = FileRecord(name="file.dat", data_offset=0, data_length=100)
+        container = MagicMock()
+        root_record = DirectoryRecord(container=container, length=100, offset=0)
+        root_record.name = ""
+        dir_record = DirectoryRecord(container=container, length=100, offset=100)
+        dir_record.name = "dir"
+        file_record = FileRecord(container=container, length=100, offset=200)
+        file_record.name = "file.dat"
 
         root = DirectoryNode(root_record)
         dir_node = DirectoryNode(dir_record)
@@ -89,29 +111,38 @@ class TestDirectoryNode:
 
     def test_get_path_root(self) -> None:
         """Test getting path for root node."""
-        root_record = DirectoryRecord(name="", entries=[])
+        container = MagicMock()
+        root_record = DirectoryRecord(container=container, length=100, offset=0)
+        root_record.name = ""
         root = DirectoryNode(root_record)
         assert root.get_path() == ""
 
     def test_is_directory(self) -> None:
         """Test checking if node is directory."""
-        dir_record = DirectoryRecord(name="dir", entries=[])
+        container = MagicMock()
+        dir_record = DirectoryRecord(container=container, length=100, offset=0)
+        dir_record.name = "dir"
         node = DirectoryNode(dir_record)
         assert node.is_directory() is True
 
     def test_is_file(self) -> None:
         """Test checking if node is file."""
-        file_record = FileRecord(name="file.dat", data_offset=0, data_length=100)
+        container = MagicMock()
+        file_record = FileRecord(container=container, length=100, offset=0)
+        file_record.name = "file.dat"
         node = DirectoryNode(file_record)
         assert node.is_file() is True
 
     def test_iter_children(self) -> None:
         """Test iterating over children."""
-        parent_record = DirectoryRecord(name="parent", entries=[])
+        container = MagicMock()
+        parent_record = DirectoryRecord(container=container, length=100, offset=0)
+        parent_record.name = "parent"
         parent = DirectoryNode(parent_record)
 
         for i in range(3):
-            child_record = DirectoryRecord(name=f"child{i}", entries=[])
+            child_record = DirectoryRecord(container=container, length=100, offset=(i + 1) * 100)
+            child_record.name = f"child{i}"
             child = DirectoryNode(child_record)
             parent.add_child(child)
 
