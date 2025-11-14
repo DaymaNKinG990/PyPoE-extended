@@ -115,7 +115,12 @@ class OutputHook:
         warnings.showwarning = self.show_warning
 
     def format_warning(
-        self, message: str, category: type[Warning], filename: str, lineno: int, line: str | None = None
+        self,
+        message: str,
+        category: type[Warning],
+        filename: str,
+        lineno: int,
+        line: str | None = None,
     ) -> str:
         """
         Format warning message with styling.
@@ -188,7 +193,9 @@ def run(parser: Any, config: Any) -> None:
     sys.exit(code)
 
 
-def console(message: str, msg: Msg = Msg.default, rtr: bool = False, raw: bool = False) -> str | None:
+def console(
+    message: str, msg: Msg = Msg.default, rtr: bool = False, raw: bool = False
+) -> str | None:
     """
     Send the specified message to console.
 
