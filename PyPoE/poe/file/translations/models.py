@@ -174,7 +174,7 @@ class Translation(TranslationReprMixin):
         if self.languages != other.languages:
             _diff_list(self.languages, other.languages)
 
-    def get_language(self, language: str = "English") -> "TranslationLanguage":
+    def get_language(self, language: str = "English") -> TranslationLanguage:
         """
         Get TranslationLanguage record for specified language.
 
@@ -269,7 +269,7 @@ class TranslationLanguage(TranslationReprMixin):
 
     def get_string(
         self, values: list[int] | list[tuple[int, int]]
-    ) -> tuple["TranslationString" | None, list[bool] | None, list[int] | None]:
+    ) -> tuple[TranslationString | None, list[bool] | None, list[int] | None]:
         """
         Get TranslationString for given values.
 
@@ -889,7 +889,7 @@ class TranslationQuantifierHandler(TranslationReprMixin):
         return value
 
     @classmethod
-    def install_quantifier(cls, quantifier: "TranslationQuantifier") -> None:
+    def install_quantifier(cls, quantifier: TranslationQuantifier) -> None:
         """
         Install quantifier into generic quantifier handling.
 

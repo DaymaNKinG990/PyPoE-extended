@@ -55,7 +55,6 @@ Documentation
 from typing import Any
 
 # 3rd-party
-
 # self
 from PyPoE.poe.file.shared.keyvalues import (
     AbstractKeyValueFile,

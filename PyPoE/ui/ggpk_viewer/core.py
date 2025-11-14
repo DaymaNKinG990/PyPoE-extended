@@ -31,11 +31,10 @@ See PyPoE/LICENSE
 
 from __future__ import annotations
 
-from typing import Any
-
 # Default Imports
 from collections import OrderedDict
 from traceback import format_exc
+from typing import Any
 
 # Library Imports
 from PySide6.QtCore import QModelIndex, Qt

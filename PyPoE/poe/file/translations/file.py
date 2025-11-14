@@ -380,7 +380,7 @@ class TranslationFile(AbstractFileReadOnly):
                 translation,
             ]
 
-    def copy(self) -> "TranslationFile":
+    def copy(self) -> TranslationFile:
         """
         Create a shallow copy of this TranslationFile.
 
@@ -395,7 +395,7 @@ class TranslationFile(AbstractFileReadOnly):
 
         return t
 
-    def merge(self, other: "TranslationFile") -> None:
+    def merge(self, other: TranslationFile) -> None:
         """
         Merge the current translation file with another translation file.
 

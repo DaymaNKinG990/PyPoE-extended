@@ -247,7 +247,7 @@ class SQLiteSpecRepository:
             self._conn = None
             logger.debug("sqlite_connection_closed")
 
-    def __enter__(self) -> "SQLiteSpecRepository":
+    def __enter__(self) -> SQLiteSpecRepository:
         """
         Enter context manager.
 
