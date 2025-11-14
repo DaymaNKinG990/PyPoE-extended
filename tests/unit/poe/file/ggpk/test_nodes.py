@@ -18,10 +18,11 @@ class TestDirectoryNode:
         container = MagicMock()
         record = DirectoryRecord(container=container, length=100, offset=0)
         record.name = "test"
-        node = DirectoryNode(record)
+        node = DirectoryNode(parent=None, is_file=False, record=record, hash="test_hash")
         assert node.record == record
-        assert node.children == []
+        assert node.children == {}
         assert node.parent is None
+        assert node.hash == "test_hash"
 
     def test_add_child(self) -> None:
         """Test adding a child node."""
@@ -30,11 +31,11 @@ class TestDirectoryNode:
         parent_record.name = "parent"
         child_record = DirectoryRecord(container=container, length=100, offset=100)
         child_record.name = "child"
-        parent = DirectoryNode(parent_record)
-        child = DirectoryNode(child_record)
+        parent = DirectoryNode(parent=None, is_file=False, record=parent_record, hash="parent_hash")
+        child = DirectoryNode(parent=parent, is_file=False, record=child_record, hash="child_hash")
 
         parent.add_child(child)
-        assert child in parent.children
+        assert "child" in parent.children
         assert child.parent == parent
 
     def test_add_child_file(self) -> None:
@@ -44,11 +45,11 @@ class TestDirectoryNode:
         dir_record.name = "dir"
         file_record = FileRecord(container=container, length=100, offset=200)
         file_record.name = "file.dat"
-        parent = DirectoryNode(dir_record)
-        child = DirectoryNode(file_record)
+        parent = DirectoryNode(parent=None, is_file=False, record=dir_record, hash="dir_hash")
+        child = DirectoryNode(parent=parent, is_file=True, record=file_record, hash="file_hash")
 
         parent.add_child(child)
-        assert child in parent.children
+        assert "file.dat" in parent.children
 
     def test_remove_child(self) -> None:
         """Test removing a child node."""
@@ -57,8 +58,8 @@ class TestDirectoryNode:
         parent_record.name = "parent"
         child_record = DirectoryRecord(container=container, length=100, offset=100)
         child_record.name = "child"
-        parent = DirectoryNode(parent_record)
-        child = DirectoryNode(child_record)
+        parent = DirectoryNode(parent=None, is_file=False, record=parent_record, hash="parent_hash")
+        child = DirectoryNode(parent=parent, is_file=False, record=child_record, hash="child_hash")
 
         parent.add_child(child)
         assert len(parent.children) == 1
@@ -74,8 +75,8 @@ class TestDirectoryNode:
         parent_record.name = "parent"
         child_record = DirectoryRecord(container=container, length=100, offset=100)
         child_record.name = "child"
-        parent = DirectoryNode(parent_record)
-        child = DirectoryNode(child_record)
+        parent = DirectoryNode(parent=None, is_file=False, record=parent_record, hash="parent_hash")
+        child = DirectoryNode(parent=parent, is_file=False, record=child_record, hash="child_hash")
 
         parent.add_child(child)
         found = parent.get_child_by_name("child")
@@ -86,7 +87,7 @@ class TestDirectoryNode:
         container = MagicMock()
         parent_record = DirectoryRecord(container=container, length=100, offset=0)
         parent_record.name = "parent"
-        parent = DirectoryNode(parent_record)
+        parent = DirectoryNode(parent=None, is_file=False, record=parent_record, hash="parent_hash")
         found = parent.get_child_by_name("nonexistent")
         assert found is None
 
@@ -100,9 +101,9 @@ class TestDirectoryNode:
         file_record = FileRecord(container=container, length=100, offset=200)
         file_record.name = "file.dat"
 
-        root = DirectoryNode(root_record)
-        dir_node = DirectoryNode(dir_record)
-        file_node = DirectoryNode(file_record)
+        root = DirectoryNode(parent=None, is_file=False, record=root_record, hash="root_hash")
+        dir_node = DirectoryNode(parent=root, is_file=False, record=dir_record, hash="dir_hash")
+        file_node = DirectoryNode(parent=dir_node, is_file=True, record=file_record, hash="file_hash")
 
         root.add_child(dir_node)
         dir_node.add_child(file_node)
@@ -114,7 +115,7 @@ class TestDirectoryNode:
         container = MagicMock()
         root_record = DirectoryRecord(container=container, length=100, offset=0)
         root_record.name = ""
-        root = DirectoryNode(root_record)
+        root = DirectoryNode(parent=None, is_file=False, record=root_record, hash="root_hash")
         assert root.get_path() == ""
 
     def test_is_directory(self) -> None:
@@ -122,7 +123,7 @@ class TestDirectoryNode:
         container = MagicMock()
         dir_record = DirectoryRecord(container=container, length=100, offset=0)
         dir_record.name = "dir"
-        node = DirectoryNode(dir_record)
+        node = DirectoryNode(parent=None, is_file=False, record=dir_record, hash="dir_hash")
         assert node.is_directory() is True
 
     def test_is_file(self) -> None:
@@ -130,7 +131,7 @@ class TestDirectoryNode:
         container = MagicMock()
         file_record = FileRecord(container=container, length=100, offset=0)
         file_record.name = "file.dat"
-        node = DirectoryNode(file_record)
+        node = DirectoryNode(parent=None, is_file=True, record=file_record, hash="file_hash")
         assert node.is_file() is True
 
     def test_iter_children(self) -> None:
@@ -138,12 +139,12 @@ class TestDirectoryNode:
         container = MagicMock()
         parent_record = DirectoryRecord(container=container, length=100, offset=0)
         parent_record.name = "parent"
-        parent = DirectoryNode(parent_record)
+        parent = DirectoryNode(parent=None, is_file=False, record=parent_record, hash="parent_hash")
 
         for i in range(3):
             child_record = DirectoryRecord(container=container, length=100, offset=(i + 1) * 100)
             child_record.name = f"child{i}"
-            child = DirectoryNode(child_record)
+            child = DirectoryNode(parent=parent, is_file=False, record=child_record, hash=f"child{i}_hash")
             parent.add_child(child)
 
         children = list(parent.iter_children())
