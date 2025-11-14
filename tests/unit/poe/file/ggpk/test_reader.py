@@ -54,10 +54,11 @@ class TestGGPKReader:
         """Test reading FILE record."""
         reader = GGPKReader()
         # FILE record: length (4) + tag (4) + name_length (4) + name (UTF-16) + data_offset (8) + data_length (4)
+        # FileRecord.read() expects: name_length (4) + name (UTF-16, 2*(name_length-1) bytes) + null (2) + data_offset (8) + data_length (4)
         name = "test.dat"
-        name_bytes = name.encode("utf-16-le") + b"\x00\x00"  # UTF-16 with null terminator
-        name_length = len(name_bytes) // 2  # UTF-16 is 2 bytes per char
-        record_length = 4 + 4 + 4 + len(name_bytes) + 8 + 4  # All fields
+        name_utf16 = name.encode("utf-16-le")  # Without null terminator
+        name_length = len(name_utf16) // 2 + 1  # +1 for null terminator
+        record_length = 4 + 4 + 4 + len(name_utf16) + 2 + 8 + 4  # All fields including null terminator
         data_offset = 100
         data_length = 50
 
@@ -65,7 +66,8 @@ class TestGGPKReader:
             struct.pack("<i", record_length)  # length
             + b"FILE"  # tag
             + struct.pack("<i", name_length)  # name_length
-            + name_bytes  # name
+            + name_utf16  # name (without null)
+            + b"\x00\x00"  # null terminator
             + struct.pack("<q", data_offset)  # data_offset
             + struct.pack("<i", data_length)  # data_length
         )
@@ -129,7 +131,8 @@ class TestGGPKReader:
     def test_read_file_invalid_tag(self) -> None:
         """Test reading record with invalid tag."""
         reader = GGPKReader()
-        # Invalid tag
+        # Invalid tag - reader should skip it and try to find next valid record
+        # Since there are no valid records, it should return empty dict
         invalid_tag = b"XXXX"
         record_length = 4 + 8  # tag + some data
 
@@ -140,9 +143,10 @@ class TestGGPKReader:
         )
 
         file_io = BytesIO(file_data)
-        # Should recover and return empty dict (no valid records found)
+        # Reader will try to find next record, but won't find any valid tags
+        # It should recover gracefully and return empty dict
         records = reader.read_file(file_io)
-        # Reader will try to find next record, but won't find any
+        # No valid records found after recovery attempt
         assert len(records) == 0
 
     def test_read_file_empty(self) -> None:
