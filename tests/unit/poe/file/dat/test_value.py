@@ -107,12 +107,10 @@ class TestDatValue:
 
     def test_hash(self) -> None:
         """Test hash of DatValue."""
-        dv1 = DatValue(value=42)
-        dv2 = DatValue(value=42)
-        # Hash might not be equal if based on object identity
-        # Just verify hash is callable
-        assert isinstance(hash(dv1), int)
-        assert isinstance(hash(dv2), int)
+        # DatValue is not hashable (no __hash__ method)
+        dv = DatValue(value=42)
+        with pytest.raises(TypeError, match="unhashable"):
+            _ = hash(dv)
 
     def test_bool_true(self) -> None:
         """Test boolean conversion for truthy value."""
