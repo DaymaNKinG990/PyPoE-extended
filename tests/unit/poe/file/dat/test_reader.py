@@ -26,11 +26,10 @@ class TestDatReader:
         spec_obj.columns_all = []
         spec_obj.columns_zip = []
         spec = {"test.dat": spec_obj}
-        caster = DatCaster()
-        reader = DatReader("test.dat", spec, caster)
+        # DatReader doesn't take caster as parameter, it creates it internally
+        reader = DatReader("test.dat", specification=spec)
         assert reader.file_name == "test.dat"
         assert reader.specification == spec_obj
-        assert reader.caster == caster
         assert reader.x64 is False
 
     def test_init_x64(self) -> None:
@@ -43,8 +42,7 @@ class TestDatReader:
         spec_obj.columns_all = []
         spec_obj.columns_zip = []
         spec = {"test.dat": spec_obj}
-        caster = DatCaster(x64=True)
-        reader = DatReader("test.dat", spec, caster, x64=True)
+        reader = DatReader("test.dat", specification=spec, x64=True)
         assert reader.x64 is True
 
     def test_table_columns_property(self) -> None:
@@ -60,8 +58,7 @@ class TestDatReader:
         spec_obj.columns_all = []
         spec_obj.columns_zip = []
         spec = {"test.dat": spec_obj}
-        caster = DatCaster()
-        reader = DatReader("test.dat", spec, caster)
+        reader = DatReader("test.dat", specification=spec)
         assert "id" in reader.table_columns
         assert "name" in reader.table_columns
 
@@ -75,8 +72,7 @@ class TestDatReader:
         spec_obj.columns_all = []
         spec_obj.columns_zip = []
         spec = {"test.dat": spec_obj}
-        caster = DatCaster()
-        reader = DatReader("test.dat", spec, caster)
+        reader = DatReader("test.dat", specification=spec)
 
         # Empty file with cast_size > 0 will fail validation
         import struct
@@ -98,8 +94,7 @@ class TestDatReader:
         spec_obj.columns_all = []
         spec_obj.columns_zip = []
         spec = {"test.dat": spec_obj}
-        caster = DatCaster()
-        reader = DatReader("test.dat", spec, caster)
+        reader = DatReader("test.dat", specification=spec)
 
         import struct
 
@@ -126,8 +121,7 @@ class TestDatReader:
         spec_obj.columns_all = []
         spec_obj.columns_zip = []
         spec = {"test.dat": spec_obj}
-        caster = DatCaster()
-        reader = DatReader("test.dat", spec, caster)
+        reader = DatReader("test.dat", specification=spec)
 
         import struct
 
@@ -154,8 +148,7 @@ class TestDatReader:
         spec_obj.columns_all = []
         spec_obj.columns_zip = []
         spec = {"test.dat": spec_obj}
-        caster = DatCaster()
-        reader = DatReader("test.dat", spec, caster)
+        reader = DatReader("test.dat", specification=spec)
 
         import struct
 
@@ -188,8 +181,7 @@ class TestDatReader:
         spec_obj.columns_all = []
         spec_obj.columns_zip = []
         spec = {"test.dat": spec_obj}
-        caster = DatCaster()
-        reader = DatReader("test.dat", spec, caster)
+        reader = DatReader("test.dat", specification=spec)
 
         import struct
 
@@ -216,8 +208,7 @@ class TestDatReader:
         spec_obj.columns_all = []
         spec_obj.columns_zip = []
         spec = {"test.dat": spec_obj}
-        caster = DatCaster()
-        reader = DatReader("test.dat", spec, caster)
+        reader = DatReader("test.dat", specification=spec)
 
         import struct
 
@@ -246,8 +237,7 @@ class TestDatReader:
         spec_obj.columns_all = []
         spec_obj.columns_zip = []
         spec = {"test.dat": spec_obj}
-        caster = DatCaster()
-        reader = DatReader("test.dat", spec, caster)
+        reader = DatReader("test.dat", specification=spec)
 
         import struct
 
