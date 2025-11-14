@@ -112,18 +112,19 @@ class TestGGPKReader:
         reader = GGPKReader()
         # Invalid tag - reader should skip it and try to find next valid record
         # Since offset=0, _find_next_record will try to seek to -3, which fails
-        # So we'll test with a valid record after invalid one
+        # So we'll test with a valid record after invalid one, but with enough padding
         invalid_tag = b"XXXX"
         record_length = 4 + 8  # tag + some data
         
-        # Add a valid FREE record after invalid one
+        # Add padding and a valid FREE record after invalid one
         free_record_length = 4 + 8
-        free_offset = record_length + 4 + 4  # After invalid record
+        padding = b"\x00" * 20  # Enough padding to avoid negative seek
 
         file_data = (
             struct.pack("<i", record_length)  # length
             + invalid_tag  # invalid tag
             + b"\x00" * 8  # padding
+            + padding  # Additional padding
             + struct.pack("<i", free_record_length)  # FREE record length
             + b"FREE"  # FREE tag
             + struct.pack("<q", 0)  # next_free_offset
